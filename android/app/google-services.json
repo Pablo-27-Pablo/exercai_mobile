@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "927409632575",
+    "project_id": "exercai-mobile",
+    "storage_bucket": "exercai-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927409632575:android:e38b89014c58ed61a64f8a",
+        "android_client_info": {
+          "package_name": "com.example.exercai_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDexjvbnZLYgP94N2rUkANehmEzQu1xEw4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927409632575:android:e73c04559e9b0bf6a64f8a",
+        "android_client_info": {
+          "package_name": "com.example.exercai_mobile_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDexjvbnZLYgP94N2rUkANehmEzQu1xEw4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
