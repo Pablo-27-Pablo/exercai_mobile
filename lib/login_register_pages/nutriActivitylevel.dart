@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Nutriactivitylevel extends StatefulWidget {
   const Nutriactivitylevel({super.key});
@@ -13,6 +16,26 @@ class Nutriactivitylevel extends StatefulWidget {
 
 class _NutriactivitylevelState extends State<Nutriactivitylevel> {
   String? selectedActivtyLevel;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedActivityLevel(); // Load stored selection when returning to this page
+  }
+
+  // 🔹 Load saved activity level from SharedPreferences
+  Future<void> _loadSelectedActivityLevel() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedActivtyLevel = prefs.getString('selectedActivityLevel');
+    });
+  }
+
+  // 🔹 Save selected activity level to SharedPreferences
+  Future<void> _saveSelectedActivityLevel(String activityLevel) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedActivityLevel', activityLevel);
+  }
 
   void saveNutriactivitylevelToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -36,7 +59,7 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      appBar: AppbarSection(context),
       body: Column(
         children: [
           TextSection(),
@@ -52,8 +75,8 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
     return GestureDetector(
       onTap: () {
         saveNutriactivitylevelToFirebase();
-        // Navigate to the next screen
-        Navigator.push(context, MaterialPageRoute(builder: (context) => InjurySelection()));
+        _saveSelectedActivityLevel(selectedActivtyLevel!); // Save selection before navigation
+        navigateWithSlideTransition(context, InjurySelection(), slideRight: true);
       },
       child: Container(
         height: 55,
@@ -95,34 +118,46 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
             TargetOption(
               title: "Inactive",
               isSelected: selectedActivtyLevel == "Inactive",
-              onTap: () => setState(() {
-                selectedActivtyLevel = "Inactive";
-              }),
+              onTap: () {
+                setState(() {
+                  selectedActivtyLevel = "Inactive";
+                });
+                _saveSelectedActivityLevel("Inactive"); // Save selection
+              },
             ),
             SizedBox(height: 30),
             TargetOption(
               title: "Low Active",
               isSelected: selectedActivtyLevel == "Low Active",
-              onTap: () => setState(() {
-                selectedActivtyLevel = "Low Active";
-              }),
+              onTap: () {
+                setState(() {
+                  selectedActivtyLevel = "Low Active";
+                });
+                _saveSelectedActivityLevel("Low Active"); // Save selection
+              },
             ),
             SizedBox(height: 30),
             TargetOption(
               title: "Active",
               isSelected: selectedActivtyLevel == "Active",
-              onTap: () => setState(() {
-                selectedActivtyLevel = "Active";
-              }),
+              onTap: () {
+                setState(() {
+                  selectedActivtyLevel = "Active";
+                });
+                _saveSelectedActivityLevel("Active"); // Save selection
+              },
             ),
 
             SizedBox(height: 30),
             TargetOption(
               title: "Very Active",
               isSelected: selectedActivtyLevel == "Very Active",
-              onTap: () => setState(() {
-                selectedActivtyLevel = "Very Active";
-              })
+              onTap: () {
+                setState(() {
+                  selectedActivtyLevel = "Very Active";
+                });
+                _saveSelectedActivityLevel("Very Active"); // Save selection
+              },
             ),
           ],
         ),
@@ -219,10 +254,12 @@ Container TextSection() {
   );
 }
 
-AppBar AppbarSection() {
+AppBar AppbarSection(BuildContext context) {
   return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
+      leading:IconButton(onPressed: (){
+        navigateWithSlideTransition(context, WhatGoalPage(), slideRight: false);
+      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
   );
 }

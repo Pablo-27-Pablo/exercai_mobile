@@ -170,8 +170,8 @@ class _ReminderSettingsState extends State<ReminderSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.primary,
-      appBar: AppBar(title: const Text('Set Reminders'),backgroundColor: AppColor.primary,),
+      backgroundColor: AppColor.backgroundgrey,
+      appBar: AppBar(title: const Text('Set Reminders',style: TextStyle(color: Colors.white),),backgroundColor: AppColor.primary,),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

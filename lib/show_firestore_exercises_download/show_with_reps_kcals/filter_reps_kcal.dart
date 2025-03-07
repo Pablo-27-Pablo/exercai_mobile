@@ -467,7 +467,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
           );*/
             },
           tooltip: 'Test Exercise Rotation',
-          child: Icon(Icons.autorenew),
+          child: Icon(Icons.autorenew_rounded),
         ),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
@@ -526,7 +526,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                 }).toList();
 
                 return exercises.isEmpty
-                    ? Center(child: Text("Tap Reload Button if there's no Exercise Showing"))
+                    ? Center(child: Text("Tap Reload Button if there's no Exercise Showing",style: TextStyle(color: Colors.white),))
                     : ListView(
                   children: groupExercisesByBodyPart(exercises).entries.map((entry) {
                     String bodyPart = entry.key;
@@ -573,14 +573,19 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               elevation: 3,
                               child: ListTile(
-                                leading: Image.network(
-                                  exercise['gifUrl'],
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.download_for_offline, size: 50),
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: AspectRatio(
+                                    aspectRatio: 1, // Adjust as needed
+                                    child: Image.network(
+                                      exercise['gifUrl'],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.download_for_offline, size: 60),
+                                    ),
+                                  ),
                                 ),
+
                                 title: Text(exercise['name'].toString().toUpperCase(),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
                                 subtitle: Text(
                                     "Target: ${exercise['target']}\n"

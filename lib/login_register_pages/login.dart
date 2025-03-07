@@ -9,6 +9,7 @@ import 'package:exercai_mobile/helper/helper_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io'; // For Internet check
 
 
 class LoginPage extends StatefulWidget {
@@ -19,8 +20,19 @@ class LoginPage extends StatefulWidget {
   TextEditingController passwordController = TextEditingController();
 
   @override
+
   State<LoginPage> createState() => _LoginPageState();
 }
+
+// Check Internet Connection
+      Future<bool> _isConnected() async {
+        try {
+          final result = await InternetAddress.lookup('google.com');
+          return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+        } on SocketException catch (_) {
+          return false;
+        }
+      }
 
 
 
@@ -30,38 +42,72 @@ class LoginPage extends StatefulWidget {
         await prefs.setString('user_token', token);
       }
 
-      // Login function with loading indicator and token storage
-      void login(BuildContext context) async {
-        showDialog(
-          context: context,
-          barrierDismissible: false, // Prevent user from dismissing
-          builder: (context) => const Center(child: CircularProgressIndicator()),
-        );
+void login(BuildContext context) async {
+  String email = emailController.text.trim();
+  String password = passwordController.text.trim();
 
-        try {
-          UserCredential userCredential = await FirebaseAuth.instance
-              .signInWithEmailAndPassword(
-            email: emailController.text,
-            password: passwordController.text,
-          );
+  // Check if email or password fields are empty
+  if (email.isEmpty || password.isEmpty) {
+    displayMessagetoUser("Please enter both email and password.", context);
+    return;
+  }
 
-          // Save session token
-          await saveUserSession(userCredential.user!.uid);
+  // Check if email format is valid
+  bool emailValid = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(email);
+  if (!emailValid) {
+    displayMessagetoUser("Please enter a valid email address.", context);
+    return;
+  }
 
+  // Check for internet connection
+  bool hasInternet = await _isConnected();
+  if (!hasInternet) {
+    displayMessagetoUser("No Internet Connection", context);
+    return;
+  }
 
-          // Pop loading indicator and navigate
-          if (context.mounted) {
-            Navigator.pop(context); // Close loading
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MainLandingPage()),
-            );
-          }
-        } on FirebaseAuthException catch (e) {
-          Navigator.pop(context); // Close loading
-          displayMessagetoUser(e.message ?? "Login Failed", context);
-        }
-      }
+  // Show loading indicator
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent user from dismissing
+    builder: (context) => const Center(child: CircularProgressIndicator()),
+  );
+
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+
+    // Save session token
+    await saveUserSession(userCredential.user!.uid);
+
+    // Clear text fields after successful login
+    emailController.clear();
+    passwordController.clear();
+
+    // Close loading indicator and navigate
+    if (context.mounted) {
+      Navigator.pop(context); // Close loading
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainLandingPage()),
+      );
+    }
+  } on FirebaseAuthException catch (e) {
+    Navigator.pop(context); // Close loading
+
+    // Handle Firebase Authentication errors
+    if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+      displayMessagetoUser("Login Failed: Incorrect email or password.", context);
+    } else if (e.code == 'invalid-email') {
+      displayMessagetoUser("Invalid email format. Please check your email.", context);
+    } else if (e.code == 'network-request-failed') {
+      displayMessagetoUser("Network error. Please check your connection.", context);
+    } else {
+      displayMessagetoUser("Login Failed: \nYour email or password is incorrect", context);
+      //displayMessagetoUser("Login Failed: ${e.message ?? "Unknown error occurred"}", context);
+    }
+  }
+}
 
 
 
@@ -71,13 +117,23 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   var _obsecurepass = true;
+
+  @override
+  void dispose() {
+    // Clear the email and password fields when the user leaves the page
+    emailController.clear();
+    passwordController.clear();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:  AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      //appBar: AppbarSection(),
       body: ListView(
         children: [
+          const SizedBox(height: 30,),
           TextSection(),
           TextFieldSection(),
           SizedBox(
@@ -141,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  
+
 
   Container TextFieldSection() {
     return Container(
@@ -286,6 +342,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             Text(
               "Hey There,",
               style: TextStyle(
@@ -311,7 +368,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  AppBar AppbarSection() {
+/*  AppBar AppbarSection() {
     return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
@@ -321,5 +378,5 @@ class _LoginPageState extends State<LoginPage> {
         style: TextStyle(color: AppColor.yellowtext, fontWeight: FontWeight.bold),
       ),
     );
-  }
+  }*/
 }

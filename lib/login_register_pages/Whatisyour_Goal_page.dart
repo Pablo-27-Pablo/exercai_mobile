@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,8 @@ import 'package:exercai_mobile/main.dart';
 import 'package:hive/hive.dart';
 import 'createaccount.dart';
 import 'welcome.dart';
-
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WhatGoalPage extends StatefulWidget {
   const WhatGoalPage({super.key});
@@ -18,6 +20,26 @@ class WhatGoalPage extends StatefulWidget {
 
 class _WhatGoalPageState extends State<WhatGoalPage> {
   String? selectedGoal;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedGoal(); // Load stored goal when returning to this page
+  }
+
+  // 🔹 Load saved goal from SharedPreferences
+  Future<void> _loadSelectedGoal() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedGoal = prefs.getString('selectedGoal');
+    });
+  }
+
+  // 🔹 Save selected goal to SharedPreferences
+  Future<void> _saveSelectedGoal(String goal) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedGoal', goal);
+  }
 
   void saveGoalToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -42,7 +64,7 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      appBar: AppbarSection(context),
       body: Column(
         children: [
           TextSection(),
@@ -58,9 +80,8 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
     return GestureDetector(
       onTap: () {
         saveGoalToFirebase();
-        // Navigate to the next screen
-        // Navigator.push(context, MaterialPageRoute(builder: (context) => TargetArea()));
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Nutriactivitylevel()));
+        _saveSelectedGoal(selectedGoal!); // Save selection before navigation
+        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
       },
       child: Container(
         height: 55,
@@ -103,27 +124,36 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
               title: "Lose Weight",
               isSelected: selectedGoal == "lose weight",
               // Change this in the onTap handler
-              onTap: () => setState(() {
-                selectedGoal = "lose weight"; // Lowercase to match goalTargets key
-              }),
+              onTap: () {
+                setState(() {
+                  selectedGoal = "lose weight";
+                });
+                _saveSelectedGoal("lose weight"); // Save selection
+              },
             ),
             SizedBox(height: 30),
             GoalOption(
               title: "Muscle Mass Gain",
               isSelected: selectedGoal == "muscle mass gain",
               // Change this in the onTap handler
-              onTap: () => setState(() {
-                selectedGoal = "muscle mass gain"; // Lowercase to match goalTargets key
-              }),
+              onTap: () {
+                setState(() {
+                  selectedGoal = "muscle mass gain";
+                });
+                _saveSelectedGoal("muscle mass gain"); // Save selection
+              },
             ),
             SizedBox(height: 30),
             GoalOption(
               title: "Maintain",
               isSelected: selectedGoal == "maintain",
               // Change this in the onTap handler
-              onTap: () => setState(() {
-                selectedGoal = "maintain"; // Lowercase to match goalTargets key
-              }),
+              onTap: () {
+                setState(() {
+                  selectedGoal = "maintain";
+                });
+                _saveSelectedGoal("maintain"); // Save selection
+              },
             ),
           ],
         ),
@@ -220,10 +250,12 @@ Container TextSection() {
   );
 }
 
-AppBar AppbarSection() {
+AppBar AppbarSection(BuildContext context) {
   return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
+      leading:IconButton(onPressed: (){
+        navigateWithSlideTransition(context, WelcomeUser(), slideRight: false);
+      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
   );
 }

@@ -51,7 +51,7 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColor.primary,
+        backgroundColor: AppColor.backgroundgrey,
         appBar: AppBar(
           leading: IconButton(onPressed: (){
             setState(() {
@@ -98,22 +98,24 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
-                    child: Image.network(
-                      exercise['gifUrl'] ?? '',
-                      height: 200,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.error_outline, size: 100),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
+                      child: Image.network(
+                        exercise['gifUrl'] ?? '',
+                        height: 200,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error_outline, size: 100),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     'Exercise Details',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    style: TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),
                   ),
-                  const Divider(),
                   ListTile(
-                    title: Text('Target Muscle: ${exercise['target'] ?? 'N/A'}'),
+                    title: Text('Target Muscle: ${exercise['target'] ?? 'N/A'}',style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.bold),),
                     //subtitle: Text('Equipment: ${exercise['equipment'] ?? 'N/A'}'),
                   ),
                   const SizedBox(height: 10),
@@ -126,20 +128,20 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                           if (isRepBased)
                             Column(
                               children: [
-                                const Icon(Icons.repeat, size: 30),
+
                                 Text(
                                   '${baseSetsReps ?? 0} Sets',
-                                  style: const TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 18,color: AppColor.primary),
                                 ),
                                 Text(
                                   '${baseReps ?? 0} Reps',
                                   style: const TextStyle(
-                                      fontSize: 24, fontWeight: FontWeight.bold),
+                                      fontSize: 24, fontWeight: FontWeight.bold,color: AppColor.primary),
                                 ),
                                 if (baseRepsConcat != null)
                                   Text(
                                     'Reps per Set: ${baseRepsConcat.join(', ')}',
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14,color: AppColor.primary),
                                   ),
                               ],
                             ),
@@ -150,17 +152,17 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                                 if (isTimeBased)
                                   Text(
                                     '${baseSetsSecs ?? 0} Sets',
-                                    style: const TextStyle(fontSize: 18),
+                                    style: const TextStyle(fontSize: 18,color: AppColor.primary),
                                   ),
                                 Text(
                                   _formatDuration(baseSecs),
                                   style: const TextStyle(
-                                      fontSize: 24, fontWeight: FontWeight.bold),
+                                      fontSize: 24, fontWeight: FontWeight.bold,color: AppColor.primary),
                                 ),
                                 if (baseSecConcat != null)
                                   Text(
                                     'Seconds per Set: ${baseSecConcat.join(', ')}',
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14,color: AppColor.primary),
                                   ),
                               ],
                             ),
@@ -169,17 +171,17 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(child: Text('Estimated Burn Calories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)),
+                  const Center(child: Text('Estimated Burn Calories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),)),
                   Center(
                     child: Chip(
-                      backgroundColor: Colors.orange[100],
+                      backgroundColor: Colors.white,
                       label: Text(
                             () {
                           final exerciseData = snapshot.data!.data() as Map<String, dynamic>;
                           final dynamicCalories = exerciseData['baseCalories'] ?? widget.exercise['baseCalories'];
                           return '${(dynamicCalories is num) ? dynamicCalories.toStringAsFixed(2) : 'N/A'} kcal';
                         }(),
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: AppColor.primary),
                       ),
                     ),
                   ),
@@ -189,7 +191,7 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                   const SizedBox(height: 10),
                   ...List.generate(
                     exercise['instructions']?.length ?? 0,
-                        (index) => Text("• ${exercise['instructions'][index]}"),
+                        (index) => Text("• ${exercise['instructions'][index]}",style: TextStyle(color: Colors.white),),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -216,5 +218,5 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
   }
 
   TextStyle _headerStyle() =>
-      const TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+      const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white);
 }

@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/auth/login_or_register.dart';
 import 'package:exercai_mobile/food_nutrition/nutrients_show_screen.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
+import 'package:exercai_mobile/intro_pages/intro3.dart';
+import 'package:exercai_mobile/intro_pages/openingpage.dart';
+import 'package:exercai_mobile/intro_pages/warning_for_healthproblem.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
@@ -154,7 +157,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           //home: isLoggedIn ? MainLandingPage() : LoginOrRegister(),
           //home: RestimeTutorial(),
           //home: NutritionScreen(),
+          //home: WelcomePage(),
           home: LoginOrRegister(),
+          //home: WelcomeUser(),
+          //home: ThirdOnboarding(),
           //home: MyHome(),
           //home: ProgressTrackingScreen(),
           //home: CompleteWorkout(),

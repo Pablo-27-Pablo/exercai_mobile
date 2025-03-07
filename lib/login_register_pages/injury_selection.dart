@@ -1,9 +1,12 @@
+import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
 import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
 import '../utils/constant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InjurySelection extends StatefulWidget {
   const InjurySelection({super.key});
@@ -14,6 +17,26 @@ class InjurySelection extends StatefulWidget {
 
 class _InjurySelectionState extends State<InjurySelection> {
   List<String> selectedInjuries = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedInjuries(); // Load stored selections when returning to this page
+  }
+
+  // 🔹 Load saved injury selections from SharedPreferences
+  Future<void> _loadSelectedInjuries() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
+    });
+  }
+
+  // 🔹 Save selected injuries to SharedPreferences
+  Future<void> _saveSelectedInjuries() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('selectedInjuries', selectedInjuries);
+  }
 
   // Convert "none of them" -> "None Of Them", "chest" -> "Chest", etc.
   String toTitleCase(String text) {
@@ -46,11 +69,11 @@ class _InjurySelectionState extends State<InjurySelection> {
 
   void toggleSelection(String injury) {
     setState(() {
-      // If "none of them" is selected, clear all other selections
+      // If "None of Them" is selected, clear all other selections
       if (injury == "none of them") {
         selectedInjuries = ["none of them"];
       } else {
-        // Remove "none of them" if selecting something else
+        // Remove "None of Them" if selecting something else
         selectedInjuries.remove("none of them");
 
         if (selectedInjuries.contains(injury)) {
@@ -60,13 +83,15 @@ class _InjurySelectionState extends State<InjurySelection> {
         }
       }
     });
+
+    _saveSelectedInjuries(); // Save selection after toggling
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      appBar: AppbarSection(context),
       body: Column(
         children: [
           TextSection(),
@@ -180,11 +205,9 @@ class _InjurySelectionState extends State<InjurySelection> {
   GestureDetector NextButton() {
     return GestureDetector(
       onTap: () {
+        _saveSelectedInjuries(); // Save selections before navigation
         saveInjuryAreaToFirebase();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => WorkoutLevel()),
-        );
+        navigateWithSlideTransition(context, WorkoutLevel(), slideRight: true);
       },
       child: Container(
         height: 55,
@@ -253,10 +276,12 @@ Container TextSection() {
   );
 }
 
-AppBar AppbarSection() {
+AppBar AppbarSection(BuildContext context) {
   return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
+      leading:IconButton(onPressed: (){
+        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: false);
+      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
   );
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
 import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:hive/hive.dart';
 import 'createaccount.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkoutLevel extends StatefulWidget {
   const WorkoutLevel({super.key});
@@ -16,6 +19,26 @@ class WorkoutLevel extends StatefulWidget {
 
 class _WorkoutLevelState extends State<WorkoutLevel> {
   String? selectedArea;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedWorkoutLevel(); // Load stored selection when returning to this page
+  }
+
+  // 🔹 Load saved workout level from SharedPreferences
+  Future<void> _loadSelectedWorkoutLevel() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedArea = prefs.getString('selectedWorkoutLevel');
+    });
+  }
+
+  // 🔹 Save selected workout level to SharedPreferences
+  Future<void> _saveSelectedWorkoutLevel(String workoutLevel) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedWorkoutLevel', workoutLevel);
+  }
 
   void saveWorkoutLevelToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -40,7 +63,7 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      appBar: AppbarSection(context),
       body: Column(
         children: [
           TextSection(),
@@ -56,8 +79,8 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
     return GestureDetector(
       onTap: () {
         saveWorkoutLevelToFirebase();
-        // Navigate to the next screen
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Bodyshape()));
+        _saveSelectedWorkoutLevel(selectedArea!); // Save selection before navigation
+        navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: true);
       },
       child: Container(
         height: 55,
@@ -99,25 +122,34 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
             TargetOption(
               title: "Beginner",
               isSelected: selectedArea == "beginner",
-              onTap: () => setState(() {
-                selectedArea = "beginner";
-              }),
+              onTap: () {
+                setState(() {
+                  selectedArea = "beginner";
+                });
+                _saveSelectedWorkoutLevel("beginner"); // Save selection
+              },
             ),
             SizedBox(height: 30),
             TargetOption(
               title: "Intermediate",
               isSelected: selectedArea == "intermediate",
-              onTap: () => setState(() {
-                selectedArea = "intermediate";
-              }),
+              onTap: () {
+                setState(() {
+                  selectedArea = "intermediate";
+                });
+                _saveSelectedWorkoutLevel("intermediate"); // Save selection
+              },
             ),
             SizedBox(height: 30),
             TargetOption(
               title: "Advanced",
               isSelected: selectedArea == "advanced",
-              onTap: () => setState(() {
-                selectedArea = "advanced";
-              }),
+              onTap: () {
+                setState(() {
+                  selectedArea = "advanced";
+                });
+                _saveSelectedWorkoutLevel("advanced"); // Save selection
+              },
             ),
           ],
         ),
@@ -214,10 +246,12 @@ Container TextSection() {
   );
 }
 
-AppBar AppbarSection() {
+AppBar AppbarSection(BuildContext context) {
   return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
+      leading:IconButton(onPressed: (){
+        navigateWithSlideTransition(context, InjurySelection(), slideRight: false);
+      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
   );
 }

@@ -1,9 +1,14 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
+import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
+import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/recommend_services_try/exercise_service.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class WhatisyourTargetWeight extends StatefulWidget {
   const WhatisyourTargetWeight({super.key});
@@ -22,7 +27,22 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
   void initState() {
     super.initState();
     _fetchCurrentWeight();
+    _loadTargetWeight(); // Load stored target weight
     targetWeight.addListener(_calculatePercentage);
+  }
+
+  // 🔹 Load saved target weight from SharedPreferences
+  Future<void> _loadTargetWeight() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      targetWeight.text = prefs.getString('targetWeight') ?? '';
+    });
+  }
+
+  // 🔹 Save target weight to SharedPreferences
+  Future<void> _saveTargetWeight() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('targetWeight', targetWeight.text.trim());
   }
 
   void _fetchCurrentWeight() async {
@@ -44,10 +64,11 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
+  //ibalik yung message na Current Weight Not Available pag nag error
   void _calculatePercentage() {
     if (currentWeight == null || currentWeight == 0) {
       setState(() {
-        displayedMessage = 'Current weight not available.';
+        displayedMessage = '';
       });
       return;
     }
@@ -66,11 +87,11 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
         String gainOrLose = difference > 0 ? 'gain' : 'lose';
 
         if (percent <= 10) {
-          newMessage = 'A piece of cake:\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
+          newMessage = '👌A piece of cake:\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
         } else if (percent <= 20) {
-          newMessage = 'Achievable Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
+          newMessage = '💦Achievable Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
         } else if (percent == 0) {
-          newMessage = 'Keep Going\nMaintain your current weight';
+          newMessage = '😃Keep Going\nMaintain your current weight';
         } else {
           newMessage = '💪🏻 Challenging Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
         }
@@ -87,11 +108,11 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
 
   Color _getMessageColor(String messagePart) {
     switch (messagePart) {
-      case 'A piece of cake:':
+      case '👌A piece of cake:':
         return Colors.green;
-      case 'Keep going:':
+      case '😃Keep going:':
         return Colors.green;
-      case 'Achievable Goal':
+      case '💦Achievable Goal':
         return Colors.orange;
       case '💪🏻 Challenging Goal':
         return Colors.red;
@@ -120,7 +141,7 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      appBar: AppbarSection(context),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         child: Column(
@@ -172,6 +193,7 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
                           child: TextField(
                             controller: targetWeight,
                             keyboardType: TextInputType.number,
+                            onChanged: (value) => _saveTargetWeight(), // Save when typing
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.monitor_weight_outlined),
                               hintText: 'Weight (kg)',
@@ -244,7 +266,8 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     return GestureDetector(
       onTap: () async {
         saveTargetWeightToFirebase();
-        Navigator.push(context, MaterialPageRoute(builder: (_) => WelcomeScreen()));
+        _saveTargetWeight(); // Save selection before navigation
+        navigateWithSlideTransition(context, Bodyshape(), slideRight: true);
       },
       child: Container(
         child: Column(
@@ -311,12 +334,14 @@ Container TextSection() {
   );
 }
 
-AppBar AppbarSection() {
+AppBar AppbarSection(BuildContext context) {
   return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        onPressed: () {},
+        onPressed: () {
+          navigateWithSlideTransition(context, WorkoutLevel(), slideRight: false);
+        },
         icon: Icon(Icons.arrow_back, color: AppColor.yellowtext),
       )
   );

@@ -111,9 +111,9 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Nutrients Suggestion'),backgroundColor: AppColor.primary,),
+      appBar: AppBar(title: Text(''),backgroundColor: AppColor.primary,),
       body: Container(
-        color: AppColor.primary,
+        color: AppColor.backgroundgrey,
         child: isLoading
             ? Center(child: CircularProgressIndicator()) // Show loading spinner
             : SingleChildScrollView(
@@ -198,7 +198,7 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 20),
-        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white)),
         SizedBox(height: 10),
         Table(
           border: TableBorder.all(color: Colors.black),

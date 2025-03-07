@@ -6,6 +6,8 @@ import 'package:exercai_mobile/main.dart';
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 import 'createaccount.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 
 class WelcomeUser extends StatefulWidget {
   const WelcomeUser({super.key});
@@ -19,6 +21,51 @@ class _WelcomeUserState extends State<WelcomeUser> {
   TextEditingController dobController = TextEditingController();
   TextEditingController weightController = TextEditingController();
   TextEditingController heightController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForNewUser(); // Ensure data resets for new users
+  }
+
+  // 🔹 Check if user has changed and reset data if needed
+  Future<void> _checkForNewUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) return;
+
+    String? lastSavedUser = prefs.getString('lastSavedUser');
+
+    if (lastSavedUser != currentUser.email) {
+      // 🔥 Clear previous user data
+      await prefs.clear();
+      await prefs.setString('lastSavedUser', currentUser.email!);
+      print("🧹 Cleared previous user data. Storing data for new user: ${currentUser.email}");
+    }
+
+    _loadUserData(); // Load the correct user's data
+  }
+
+  // 🔹 Load saved user data from SharedPreferences
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      dobController.text = prefs.getString('dob') ?? '';
+      dropdowngender = prefs.getString('gender');
+      weightController.text = prefs.getString('weight') ?? '';
+      heightController.text = prefs.getString('height') ?? '';
+    });
+  }
+
+  // 🔹 Save user input when clicking "Next"
+  Future<void> _saveUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('dob', dobController.text);
+    await prefs.setString('gender', dropdowngender ?? '');
+    await prefs.setString('weight', weightController.text);
+    await prefs.setString('height', heightController.text);
+  }
 
   // Function to show date picker
   Future<void> _selectDate(BuildContext context) async {
@@ -179,60 +226,7 @@ class _WelcomeUserState extends State<WelcomeUser> {
                 ),
                 const SizedBox(height: 25),
 
-                // Weight Field (Numbers Only)
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(boxShadow: [
-                          BoxShadow(
-                            color: AppColor.shadow.withOpacity(0.5),
-                            blurRadius: 40,
-                            spreadRadius: 0.0,
-                          ),
-                        ]),
-                        child: TextField(
-                          controller: weightController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.monitor_weight_outlined),
-                            hintText: 'Weight (kg)',
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 32, 32, 32),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "kg",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: AppColor.yellowtext,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 30),
+
 
                 // Height Field (Numbers Only)
                 Row(
@@ -289,6 +283,61 @@ class _WelcomeUserState extends State<WelcomeUser> {
                     )
                   ],
                 ),
+                const SizedBox(height: 30),
+
+                // Weight Field (Numbers Only)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(boxShadow: [
+                          BoxShadow(
+                            color: AppColor.shadow.withOpacity(0.5),
+                            blurRadius: 40,
+                            spreadRadius: 0.0,
+                          ),
+                        ]),
+                        child: TextField(
+                          controller: weightController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.monitor_weight_outlined),
+                            hintText: 'Weight (kg)',
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.transparent),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.transparent),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 32, 32, 32),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "kg",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: AppColor.yellowtext,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
                 const SizedBox(height: 60),
               ],
             ),
@@ -302,6 +351,7 @@ class _WelcomeUserState extends State<WelcomeUser> {
   GestureDetector primarybutton() {
     return GestureDetector(
       onTap: () async {
+        await _saveUserData(); // Save input data before navigating
         try {
           final user = FirebaseAuth.instance.currentUser;
           if (user == null) return;
@@ -366,10 +416,7 @@ class _WelcomeUserState extends State<WelcomeUser> {
           });
 
           print("User profile data saved with BMI: $bmi, category: $bmiCategory.");
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => WhatGoalPage()),
-          );
+          navigateWithSlideTransition(context, WhatGoalPage(), slideRight: true);
         } catch (e) {
           print("Error saving data: $e");
         }
@@ -414,7 +461,7 @@ class _WelcomeUserState extends State<WelcomeUser> {
       height: 130,
       color: Colors.black,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 50),
           Padding(
@@ -425,7 +472,7 @@ class _WelcomeUserState extends State<WelcomeUser> {
                 color: AppColor.primary,
                 fontSize: 43,
                 fontWeight: FontWeight.bold,
-              ),
+              ),textAlign: TextAlign.center,
             ),
           ),
         ],

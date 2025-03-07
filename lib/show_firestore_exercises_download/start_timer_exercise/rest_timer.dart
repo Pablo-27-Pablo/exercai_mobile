@@ -100,6 +100,7 @@ class _RestTimerState extends State<RestTimer> {
                 icon: const Icon(Icons.replay),
                 iconSize: 40,
                 onPressed: _resetTimer,
+
               ),
               const SizedBox(width: 30),
               IconButton(

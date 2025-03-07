@@ -1,11 +1,13 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
+import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/recommend_services_try/exercise_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../profile_pages/profile_page.dart';
 import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 
 class Bodyshape extends StatefulWidget {
   const Bodyshape({super.key});
@@ -45,7 +47,7 @@ class _BodyshapeState extends State<Bodyshape> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(),
+      appBar: AppbarSection(context),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -90,8 +92,9 @@ class _BodyshapeState extends State<Bodyshape> {
         if (selectedShape != null) {
           saveBodyShapeToFirebase();
           // Navigate to the next screen
-          Navigator.push(context, MaterialPageRoute(builder: (context) => WhatisyourTargetWeight()));
-
+          //Navigator.push(context, MaterialPageRoute(builder: (context) => WhatisyourTargetWeight()));
+          //navigateWithSlideTransition(context, WelcomeScreen(), slideRight: true);
+          _showWarningDialog(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Please select a body shape before proceeding.")),
@@ -208,12 +211,81 @@ class _BodyshapeState extends State<Bodyshape> {
     );
   }
 
+  void _showWarningDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.yellow.withOpacity(0.6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Colors.yellow, width: 2),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.info,
+                size: 100,
+                color: AppColor.yellowtext,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "This app is not intended for individuals with medical conditions or physical limitations related to exercise. Please consult a healthcare professional before starting any exercise routine.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: AppColor.textwhite,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> WelcomeScreen()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColor.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Proceed',
+                        style: TextStyle(
+                          color: AppColor.textwhite,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 }
 
-AppBar AppbarSection() {
+AppBar AppbarSection(BuildContext context) {
   return AppBar(
       centerTitle: true,
       backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
+      leading:IconButton(onPressed: (){
+        navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: false);
+      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
   );
 }

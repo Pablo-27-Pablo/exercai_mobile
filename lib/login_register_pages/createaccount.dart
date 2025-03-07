@@ -9,6 +9,7 @@ import 'package:exercai_mobile/components/my_button.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 import 'package:hive/hive.dart';
+import 'dart:io';
 
 
 class Createaccount extends StatefulWidget {
@@ -26,29 +27,61 @@ final TextEditingController passwordController = TextEditingController();
 final TextEditingController confirmpassController = TextEditingController();
 
 //register page
-// Inside the registerUser function in Createaccount.dart
-void registerUser(BuildContext context) async {
-  // Show loading circle
-  showDialog(
-    context: context,
-    builder: (context) => const Center(
-      child: CircularProgressIndicator(),
-    ),
-  );
 
-  // Make passwords match
-  if (passwordController.text != confirmpassController.text) {
-    Navigator.pop(context);
+void registerUser(BuildContext context) async {
+  // Trim input values
+  String email = emailController.text.trim();
+  String password = passwordController.text;
+  String confirmPassword = confirmpassController.text;
+  String firstName = fnameController.text.trim();
+  String lastName = lnameController.text.trim();
+
+  // Check if fields are empty
+  if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    displayMessagetoUser("Please fill in all fields.", context);
+    return;
+  }
+
+  // Validate email format
+  bool emailValid = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(email);
+  if (!emailValid) {
+    displayMessagetoUser("Please enter a valid email address.", context);
+    return;
+  }
+
+  // Check if passwords match
+  if (password != confirmPassword) {
     displayMessagetoUser("Passwords don't match", context);
     return;
   }
 
+  // Check for internet connection
+  bool hasInternet = await _isConnected();
+  if (!hasInternet) {
+    displayMessagetoUser("No Internet Connection", context);
+    return;
+  }
+
+  // Check if email is already registered in Firebase
+  bool isEmailAvailable = await checkIfEmailExists(email, context);
+  if (!isEmailAvailable) {
+    displayMessagetoUser("Email is already registered. Please use a different email.", context);
+    return;
+  }
+
+
+  // Show loading circle
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent user from dismissing dialog
+    builder: (context) => const Center(child: CircularProgressIndicator()),
+  );
+
   try {
     // Create user in Firebase Authentication
-    UserCredential? userCredential =
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: emailController.text.trim(),
-      password: passwordController.text,
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
     );
 
     // Create user document in Firestore
@@ -68,10 +101,45 @@ void registerUser(BuildContext context) async {
     // Pop loading circle
     if (context.mounted) Navigator.pop(context);
 
-    // Display error message to user
-    displayMessagetoUser(e.code, context);
+    // Handle Firebase errors
+    String errorMessage;
+    if (e.code == 'email-already-in-use') {
+      errorMessage = "This email is already registered. Please use a different email.";
+    } else if (e.code == 'weak-password') {
+      errorMessage = "Password is too weak. Please use a stronger password.";
+    } else if (e.code == 'invalid-email') {
+      errorMessage = "Invalid email format.";
+    } else {
+      errorMessage = "Registration failed: ${e.message ?? "Unknown error"}";
+    }
+
+    displayMessagetoUser(errorMessage, context);
   }
 }
+
+// Function to check internet connection
+Future<bool> _isConnected() async {
+  try {
+    final result = await InternetAddress.lookup('google.com');
+    return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+  } on SocketException catch (_) {
+    return false;
+  }
+}
+
+// Function to check if email is already registered in Firebase
+Future<bool> checkIfEmailExists(String email, BuildContext context) async {
+  try {
+    List<String> signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+    return signInMethods.isEmpty; // Returns true if email is NOT in use
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'invalid-email') {
+      displayMessagetoUser("Invalid email format.", context);
+    }
+    return false;
+  }
+}
+
 
 
   //create a user document and collect them in firestore
@@ -94,6 +162,16 @@ class _CreateaccountState extends State<Createaccount> {
   var _obsecurefirst = true;
   var _obsecuresec = true;
   @override
+  void initState() {
+    super.initState();
+    // Clear fields when navigating to Create Account
+    emailController.clear();
+    fnameController.clear();
+    lnameController.clear();
+    passwordController.clear();
+    confirmpassController.clear();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
@@ -103,10 +181,14 @@ class _CreateaccountState extends State<Createaccount> {
           TextSection(),
           TextFieldSection(),
           SizedBox(height: 10,),
-          LoginButton(
-            text: 'Register',
-            onTap: () => registerUser(context), // Pass the context using a lambda
-          ),
+          Opacity(
+            opacity: isChecked! ? 1.0 : 0.5, // Reduce opacity when disabled
+            child: LoginButton(
+              text: 'Register',
+              onTap: isChecked! ? () => registerUser(context) : null, // Disable button if unchecked
+            ),
+          )
+          ,
           SizedBox(
             height: 10,
           ),
@@ -126,7 +208,17 @@ class _CreateaccountState extends State<Createaccount> {
       backgroundColor: Colors.transparent,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: AppColor.yellowtext),
-        onPressed: () => navigateWithSlideTransition(context, LoginOrRegister(), slideRight: false), // Slide left to go back
+        onPressed: () {
+          setState(() {
+            // Clear fields when navigating to Create Account
+            emailController.clear();
+            fnameController.clear();
+            lnameController.clear();
+            passwordController.clear();
+            confirmpassController.clear();
+          });
+          navigateWithSlideTransition(context, LoginOrRegister(), slideRight: false);
+          }, // Slide left to go back
       ),
 
       title: Text(
@@ -376,12 +468,41 @@ class _CreateaccountState extends State<Createaccount> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        _showPrivacyPolicyDialog();
                         print("to privacy policy and term of use");
                       },
-                      child: Text(
-                        "By continuing you accept out Privacy Policy and Term  of Use",
-                        style: TextStyle(decoration: TextDecoration.underline),
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(color: Colors.white), // Default text color
+                          children: [
+                            TextSpan(
+                              text: "By continuing you accept our ",
+                              style: TextStyle(fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: "Privacy Policy",
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            TextSpan(
+                              text: " and ",
+                              style: TextStyle(fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: "Terms of Use",
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+
                     ),
                   )
                 ],
@@ -405,4 +526,68 @@ class _CreateaccountState extends State<Createaccount> {
       ),
     );
   }
+
+  // Function to Show Privacy Policy & Terms Dialog
+  void _showPrivacyPolicyDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Privacy Policy & Terms of Use"),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Welcome to our Exercise App!",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "We collect basic information like your name, email, and fitness data to provide a personalized experience.",
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "🔹 What We Collect:\n"
+                      "- Name, Email, Bday, Height, Weight, Gender\n"
+                      "- Weight & Fitness Goals\n"
+                      "- Activity Tracking data\n",
+                ),
+                Text(
+                  "🔹 How We Use Your Data:\n"
+                      "- To help track your fitness progress\n"
+                      "- To improve our app experience\n"
+                      "- To send motivational notifications\n",
+                ),
+                Text(
+                  "🔹 Your Rights:\n"
+                      "- You can update your account anytime.\n"
+                      //"- You can update or delete your account anytime.\n"
+                      "- Your data is securely stored and not shared with third parties.",
+                ),
+                SizedBox(height: 15),
+                Text(
+                  "By continuing, you Agree to these Terms.",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+              },
+              child: Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
+
+
+
+

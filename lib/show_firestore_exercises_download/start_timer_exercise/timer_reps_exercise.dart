@@ -316,27 +316,32 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
         : 1 - (_secondsRemaining / currentStep.duration);
 
     return Scaffold(
+      backgroundColor: AppColor.backgroundgrey,
       appBar: AppBar(
-        title: Text(widget.exercise['name'] ?? 'Exercise Timer'),
+        title: Text(widget.exercise['name'] ?? 'Exercise Timer',style: TextStyle(color: Colors.black),),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.network(
-              widget.exercise['gifUrl'] ?? '',
-              height: 180,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-              const Icon(Icons.error_outline, size: 100),
+            SizedBox(height: 15,),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                widget.exercise['gifUrl'] ?? '',
+                height: 180,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.error_outline, size: 100),
+              ),
             ),
             const SizedBox(height: 10),
             Text(
               currentStep.type == StepType.set
                   ? 'Set $setNumber of ${widget.setValues.length}'
                   : 'Rest $setNumber',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
             ),
             const SizedBox(height: 10),
             Text(
@@ -345,7 +350,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   ? '${_formatTime(_currentCount)} / ${currentStep.duration} Reps'
                   : '$_secondsRemaining Seconds'
                   : '$_secondsRemaining Seconds Rest',
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18,color: Colors.white),
             ),
             const SizedBox(height: 10),
             Stack(
@@ -374,11 +379,12 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   style: const TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
            // if (!isLastRest) // Hide icon buttons during the last rest para sa last button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
@@ -387,31 +393,35 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                     icon: const Icon(Icons.fast_rewind),
                     iconSize: 40,
                     onPressed: _currentStepIndex > 0 ? _rewindStep : null,
+                    color: Colors.white,
                   ),
                   IconButton(
                     icon: const Icon(Icons.replay),
                     iconSize: 40,
                     onPressed: _resetTimer,
+                    color: Colors.white,
                   ),
                   IconButton(
                     icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
                     iconSize: 50,
                     onPressed: () => _isRunning ? _stopTimer() : _startTimer(),
+                    color: Colors.white,
                   ),
                   IconButton(
                     icon: const Icon(Icons.double_arrow),
                     iconSize: 40,
                     onPressed: _skipForward,
+                    color: Colors.white,
                   ),
                 ],
               ),
             if (isRestAfterSet)
               Column(
                 children: [
-                  const SizedBox(height: 10,),
+                  const SizedBox(height: 5,),
                   Text(
                     'Calories Burnt in Set: ${_calculateCurrentSetCalories(setNumber - 1).toStringAsFixed(2)} kcal',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
                   ),
                   const SizedBox(height: 10,),
         
@@ -430,7 +440,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                           border: OutlineInputBorder(), // Adds a border for better visibility
                           contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10), // Reduces internal padding
                         ),
-                        style: TextStyle(fontSize: 14), // Smaller text size
+                        style: TextStyle(fontSize: 14,color: Colors.white), // Smaller text size
                         onChanged: (value) {
                           setState(() {
                             _baseRepsConcat[setNumber - 1] = int.tryParse(value) ?? 0;
