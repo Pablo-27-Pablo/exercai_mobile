@@ -219,17 +219,8 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
   Future<void> _archiveCurrentExercises() async {
     if (_currentUser == null) return;
 
-    // Get current day number
-    final metaDoc = await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(_currentUser!.email)
-        .collection('UserExercises')
-        .doc('--metadata--')
-        .get();
-
-    if (metaDoc.exists) {
-      _currentDay = (metaDoc.data()!['currentDay'] ?? 0) + 1;
-    }
+    // Get current day number as an array
+    _currentDay = await _updateCurrentDayArray();
 
     // Get current exercises
     final exercisesSnapshot = await FirebaseFirestore.instance
@@ -250,7 +241,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     int totalExerciseTime = 0;
     List<String> exercisesPerformed = [];
 
-// Traverse the nested structure to sum up totalExerciseTime
     for (var dayDoc in timesSnapshot.docs) {
       final timesCollection = await dayDoc.reference.collection('times').get();
       for (var timeDoc in timesCollection.docs) {
@@ -289,15 +279,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
       batch.set(newTimeRef, doc.data());
     }
 
-    // Update metadata
-    final metaRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(_currentUser!.email)
-        .collection('UserExercises')
-        .doc('--metadata--');
-
-    batch.set(metaRef, {'currentDay': _currentDay});
-
     // Mark current exercises as inactive
     for (var doc in exercisesSnapshot.docs) {
       batch.update(doc.reference, {'isActive': false});
@@ -309,8 +290,29 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     }
 
     await batch.commit();
-
   }
+
+// NEW FUNCTION: Updates currentDay to an array in metadata
+  Future<int> _updateCurrentDayArray() async {
+    final userRef = FirebaseFirestore.instance.collection('Users').doc(_currentUser!.email);
+    final metaRef = userRef.collection('UserExercises').doc('--metadata--');
+
+    final metaDoc = await metaRef.get();
+    List<dynamic> days = [];
+    int newDay = 1; // Default to Day1 if no previous data
+
+    if (metaDoc.exists) {
+      days = List.from(metaDoc.data()?['currentDay'] ?? []);
+      newDay = days.isNotEmpty ? days.last + 1 : 1;
+      days.add(newDay); // Append new day to array
+    } else {
+      days = [newDay];
+    }
+
+    await metaRef.set({'currentDay': days});
+    return newDay;
+  }
+
 
 
   Future<void> _deleteCurrentExercises() async {

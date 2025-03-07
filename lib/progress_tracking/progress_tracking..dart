@@ -493,17 +493,27 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                               return Center(child: CircularProgressIndicator());
                             }
 
-                            final data = snapshot.data?.data() as Map<String, dynamic>;
-                            final currentDay = (data?['currentDay'] ?? 1);  // Default to 1 if not available
+                            final data = snapshot.data?.data() as Map<String, dynamic>?;
 
-                            return StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection('Users')
-                                  .doc(currentUser!.email)
-                                  .collection('UserExerciseTimes')
-                                  .doc('Day$currentDay') // Use fetched currentDay
-                                  .collection('times')
-                                  .snapshots(),
+                            // Get all stored days and reverse the order (latest day first)
+                            final List<dynamic> days = List.from(data?['currentDay'] ?? []);
+                            days.sort((a, b) => b.compareTo(a)); // Sort descending (last index first)
+
+                            if (days.isEmpty) {
+                              return Center(child: Text('No exercise data available.'));
+                            }
+
+                            return StreamBuilder<List<QuerySnapshot>>(
+                              stream: Stream.fromFuture(Future.wait(
+                                days.map((day) => FirebaseFirestore.instance
+                                    .collection('Users')
+                                    .doc(currentUser!.email)
+                                    .collection('UserExerciseTimes')
+                                    .doc('Day$day') // Fetch data for each stored day
+                                    .collection('times')
+                                    .get(),
+                                ),
+                              )),
                               builder: (context, snapshot) {
                                 if (snapshot.hasError) {
                                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -513,7 +523,10 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                   return Center(child: CircularProgressIndicator());
                                 }
 
-                                final exerciseTimes = snapshot.data!.docs;
+                                // Flatten the list of QuerySnapshots into a list of documents
+                                final List<QueryDocumentSnapshot> exerciseTimes = snapshot.data!
+                                    .expand((querySnapshot) => querySnapshot.docs)
+                                    .toList();
 
                                 if (exerciseTimes.isEmpty) {
                                   return Center(child: Text('No recent activities available.'));
@@ -543,6 +556,8 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             );
                           },
                         )
+
+
 
 
                       ],
