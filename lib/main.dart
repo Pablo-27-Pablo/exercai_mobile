@@ -39,11 +39,16 @@ import 'local_notification/notification_service.dart';
 import 'package:camera/camera.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:exercai_mobile/services/my_firebase_messaging_service.dart';
+
 
 late List<CameraDescription> cameras;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();  // This should be called only once
+  // ✅ Initialize Firebase Messaging
+  MyFirebaseMessagingService messagingService = MyFirebaseMessagingService();
+  await messagingService.setupFirebaseMessaging();
   await Permission.contacts.status;  // Ensures permission handler is initialized
   await Hive.initFlutter();
   await Hive.openBox("Box");

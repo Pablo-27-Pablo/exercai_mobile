@@ -9,8 +9,7 @@ buildscript {
     }
 }
 
-// ✅ Alternatively, define Kotlin version separately (optional)
-val kotlinVersion = "2.1.0"
+
 
 
 allprojects {

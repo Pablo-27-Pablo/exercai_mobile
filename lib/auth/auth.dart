@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_or_register.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -20,6 +21,9 @@ class _AuthPageState extends State<AuthPage> {
   void initState() {
     super.initState();
     _checkFirstLaunch();
+  }
+  Future<void> onMessageReceived(RemoteMessage message) async {
+    print("New message: ${message.notification?.title}");
   }
 
   Future<void> _checkFirstLaunch() async {

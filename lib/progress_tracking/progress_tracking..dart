@@ -15,8 +15,13 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
   @override
   void initState() {
     super.initState();
-    computeAndStoreTotalCalories(); // Recalculate total calories on startup
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await computeAndStoreTotalCalories();
+      await computeAndStoreTotalExerciseForAllTime();
+      print("Functions executed in initState!");
+    });
   }
+
 
   // Fetch user details from Firestore
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
