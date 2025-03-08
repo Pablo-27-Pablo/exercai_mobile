@@ -120,7 +120,7 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
           padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Text("Nutrition Suggestion For You",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.white),),
+              Text("Nutrition and Calories Suggestion\nFor You",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.white),textAlign: TextAlign.center,),
               if (errorMessage.isNotEmpty) Text(errorMessage, style: TextStyle(color: Colors.red)),
               if (age != null && height != null && weight != null && gender != null && activityLevel != null) ...[
                 _buildEnteredValues(),

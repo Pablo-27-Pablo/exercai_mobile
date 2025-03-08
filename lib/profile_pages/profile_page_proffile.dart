@@ -14,7 +14,6 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  TextEditingController mobileNumberController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   bool _isDataLoaded = false;
@@ -26,7 +25,6 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
     firstNameController.dispose();
     lastNameController.dispose();
     emailController.dispose();
-    mobileNumberController.dispose();
     dobController.dispose();
     super.dispose();
   }
@@ -69,9 +67,16 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
     }
   }
 
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.backgroundgrey,
       appBar: AppBar(
 
         title: Text('My Profile',
@@ -97,7 +102,6 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
               firstNameController.text = user?['firstname'] ?? '';
               lastNameController.text = user?['lastname'] ?? '';
               emailController.text = user?['email'] ?? '';
-              mobileNumberController.text = user?['mobileNumber'] ?? '';
 
               if (user?['dateOfBirth'] != null) {
                 DateTime dob = (user!['dateOfBirth'] as Timestamp).toDate();
@@ -123,13 +127,14 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
                         ),*/
                         SizedBox(height: 10),
                         Text(
-                          "${user?['firstname'] ?? 'Unknown'} ${user?['lastname'] ?? 'User'}",
+                          "${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}",
                           style: TextStyle(
                             fontSize: 30,
                             color: AppColor.textwhite,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+
                         SizedBox(height: 5),
                         Text(
                           user?['email'] ?? 'No Email Provided',
@@ -171,7 +176,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
                     ),
                   ),
                   Container(
-                    color: Colors.black,
+                    color: AppColor.backgroundgrey,
                     padding: EdgeInsets.all(16),
                     child: Column(
                       children: [
@@ -179,7 +184,6 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
                         _buildTextField('First Name', firstNameController),
                         _buildTextField('Last Name', lastNameController),
                         _buildTextField('Email', emailController),
-                        _buildTextField('Mobile Number', mobileNumberController),
                         _buildDateOfBirthField(context), // Updated for Date of Birth
                         SizedBox(height: 10),
                         ElevatedButton(
@@ -207,7 +211,6 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
                                 'firstname': firstNameController.text,
                                 'lastname': lastNameController.text,
                                 'email': emailController.text,
-                                'mobileNumber': mobileNumberController.text,
                                 'dateOfBirth': Timestamp.fromDate(dob),
                                 'age': calculatedAge, // Store age as an integer in Firebase
                               }).then((_) {

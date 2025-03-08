@@ -11,8 +11,10 @@ class BMIEditProfilePage extends StatefulWidget {
   const BMIEditProfilePage({super.key});
 
   @override
+
   State<BMIEditProfilePage> createState() => _BMIEditProfilePageState();
 }
+
 
 class WeightChart extends StatelessWidget {
   final double targetWeight;
@@ -32,6 +34,7 @@ class WeightChart extends StatelessWidget {
   }
 
   @override
+
   Widget build(BuildContext context) {
     final sortedEntries = weightEntries..sort((a, b) => a['date'].compareTo(b['date']));
     final minDate = sortedEntries.isNotEmpty ? sortedEntries.first['date'] : DateTime.now();
@@ -169,6 +172,11 @@ class WeightChart extends StatelessWidget {
 }
 
 class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
   late Map<String, dynamic> userData = {};
   double? bmi;
   String bmiCategory = '';
@@ -177,11 +185,7 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
   List<Map<String, dynamic>> weightEntries = [];
   final DateFormat dateFormatter = DateFormat('yyyy-MM-dd');
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
+
 
   List<Map<String, dynamic>> _processWeightEntries(List<Map<String, dynamic>> entries) {
     final Map<String, Map<String, dynamic>> dateMap = {};

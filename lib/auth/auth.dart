@@ -1,31 +1,64 @@
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
+import 'package:exercai_mobile/intro_pages/openingpage.dart'; // Your WelcomePage/Onboarding
 import 'package:firebase_auth/firebase_auth.dart';
-import 'login_or_register.dart';
-import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_or_register.dart';
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
   @override
+  _AuthPageState createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
+  bool _isLoading = true;
+  bool _isFirstLaunch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstLaunch();
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
+
+    if (isFirstLaunch) {
+      await prefs.setBool('isFirstLaunch', false); // Mark as launched
+      setState(() => _isFirstLaunch = true);
+    }
+
+    setState(() => _isLoading = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot){
-            //user is logged in
-            if(snapshot.hasData){
-              return MainLandingPage();
-            }
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-            //user is NOT logged in
-            else{
-              return LoginOrRegister();
-            }
+    // Show onboarding/WelcomePage on first launch
+    if (_isFirstLaunch) {
+      return WelcomePage(); // Your onboarding screen
+    }
 
+    // Check authentication state
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-
-          },),
+        if (snapshot.hasData) {
+          return const MainLandingPage(); // User is logged in
+        } else {
+          return const LoginOrRegister(); // Show auth flow
+        }
+      },
     );
   }
 }

@@ -148,6 +148,24 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     }
   }
 
+  Future<String> _fetchExerciseGifUrl(String exerciseId) async {
+    try {
+      DocumentSnapshot exerciseDoc = await FirebaseFirestore.instance
+          .collection('BodyweightExercises')
+          .doc(exerciseId)
+          .get();
+
+      if (exerciseDoc.exists) {
+        final data = exerciseDoc.data() as Map<String, dynamic>?;
+        return data?['gifUrl'] ?? ''; // Return the latest gifUrl
+      }
+    } catch (e) {
+      print("Error fetching gifUrl: $e");
+    }
+    return ''; // Return empty string if there's an error
+  }
+
+
   Future<void> fetchFinalBurnCalValues() async {
     if (_currentUser == null) return;
 
@@ -601,7 +619,15 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                     ? Icon(Icons.check_circle, color: Colors.green)
                                     : null,
                                 // Modify the onTap handler in the ListTile
-                                onTap: () {
+                                onTap: () async {
+                                  //start of remove gifurl
+                                  String exerciseId = exercise['id'].toString();
+                                  String latestGifUrl = await _fetchExerciseGifUrl(exerciseId);
+
+                                  if (latestGifUrl.isNotEmpty) {
+                                    exercise['gifUrl'] = latestGifUrl; // Update the gifUrl before navigation
+                                  }
+                                  //end of remove gifurl
                                   String bodyPart = (exercise['bodyPart'] ?? '').toLowerCase();
                                   if (_userInjuries.contains(bodyPart)) {
                                     showDialog(
@@ -640,6 +666,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                     );
                                   }
                                 },
+
                               ),
                             );
                           }).toList(),

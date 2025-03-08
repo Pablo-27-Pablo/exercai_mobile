@@ -1,6 +1,9 @@
 import 'package:exercai_mobile/auth/login_or_register.dart';
+import 'package:exercai_mobile/login_register_pages/createaccount.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
+import 'package:exercai_mobile/auth/login_or_register.dart';
+
 
 class ThirdOnboarding extends StatefulWidget {
   const ThirdOnboarding({super.key});
@@ -10,6 +13,11 @@ class ThirdOnboarding extends StatefulWidget {
 }
 
 class _ThirdOnboardingState extends State<ThirdOnboarding> {
+  bool showLoginPage = true;
+
+  //toggle between login and register page
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,7 +190,12 @@ void _showWarningDialog(BuildContext context) {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginOrRegister()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginOrRegister(initialShowLoginPage: false), // Navigate here
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.primary,

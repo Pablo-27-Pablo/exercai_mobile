@@ -110,11 +110,6 @@ void login(BuildContext context) async {
 }
 
 
-
-
-
-
-
 class _LoginPageState extends State<LoginPage> {
   var _obsecurepass = true;
 
@@ -216,14 +211,14 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Username or email',
+                    'Email',
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: AppColor.solidtext),
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 5,
                   ),
                   Container(
                     decoration: BoxDecoration(boxShadow: [
@@ -235,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextField(
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.email_outlined),
-                        hintText: 'Enter Username or Email',
+                        hintText: 'Enter Your Email',
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.transparent),
                           borderRadius: BorderRadius.circular(16),
@@ -271,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: AppColor.solidtext),
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 5,
                   ),
                   Container(
                     height: 50,
@@ -296,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                               : const Icon(Icons.visibility_outlined),
                         ),
                         prefixIcon: Icon(Icons.lock_clock_outlined),
-                        hintText: 'Enter Password',
+                        hintText: 'Enter Your Password',
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.transparent),
                           borderRadius: BorderRadius.circular(16),
@@ -343,25 +338,14 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            Text(
-              "Hey There,",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 20),
-            ),
-            Text("Welcome",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 35)),
+            Image.asset('assets/exercai-logo-violet.png',height: 130,),
             SizedBox(height: 20,),
-            Text("Enjoy Real-Time Exercising\nwhile you Track your Weigth Progression With Us\nWith Us",
+            Text("Enjoy Exercising With Us",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                    fontSize: 15)),
+                    color: Colors.white,
+                    fontSize: 20)),
           ],
         ),
       ),

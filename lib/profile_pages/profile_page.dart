@@ -90,6 +90,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return age.toString();
   }
 
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+
 
 
   @override
@@ -138,13 +144,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       // Display User's Name from Firebase
                       Text(
-                        "${user?['firstname'] ?? 'Unknown'} ${user?['lastname'] ?? 'User'}",
+                        "${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}",
                         style: TextStyle(
                           fontSize: 40,
                           color: AppColor.textwhite,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+
 
                       SizedBox(height: 5),
 

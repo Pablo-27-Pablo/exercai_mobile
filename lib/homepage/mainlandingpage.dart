@@ -15,6 +15,7 @@ import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/utils/constant.dart';
 import 'package:exercai_mobile/pages/Main_Pages/Exercises_Page.dart';
 import 'package:exercai_mobile/pages/arcade_mode_page.dart';
+import 'dart:io';
 
 
 class MainLandingPage extends StatefulWidget {
@@ -28,6 +29,55 @@ class _MainLandingPageState extends State<MainLandingPage> {
 
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkInternetConnection();
+    });
+  }
+
+
+  /// ✅ Function to check internet connection and show a warning if not connected
+  Future<void> _checkInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isEmpty || result[0].rawAddress.isEmpty) {
+        _showNoInternetDialog();
+      }
+    } on SocketException catch (_) {
+      _showNoInternetDialog();
+    }
+  }
+
+
+  /// ✅ Show a dialog if no internet connection is detected
+  void _showNoInternetDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents closing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("No Internet Connection", style: TextStyle(color: Colors.red)),
+          content: const Text("Some features may not work properly and your progress may not be saved.\n\nPlease connect to the internet to continue."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _checkInternetConnection(); // Retry connection
+              },
+              child: const Text("Retry"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text("Continue Offline"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Future to fetch user details
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
     return await FirebaseFirestore.instance
@@ -35,6 +85,12 @@ class _MainLandingPageState extends State<MainLandingPage> {
         .doc(currentUser?.email)
         .get();
   }
+
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
 
 
   @override
@@ -66,7 +122,7 @@ class _MainLandingPageState extends State<MainLandingPage> {
 
             // Extract user's first name in real-time
             Map<String, dynamic>? userData = snapshot.data!.data();
-            String firstName = userData?['firstname'] ?? 'User';
+            String firstName = _capitalize(userData?['firstname'] ?? 'User');
 
             return Text(
               "Hi, $firstName",

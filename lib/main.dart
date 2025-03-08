@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/auth/auth.dart';
 import 'package:exercai_mobile/auth/login_or_register.dart';
 import 'package:exercai_mobile/food_nutrition/nutrients_show_screen.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
@@ -119,7 +120,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       id: 1001,
       title: "Come Back to Finish Your Exercise!",
       body: "You're making great progress! Get back to your workout now. 💪",
-      intervalSeconds: 60,
+      intervalSeconds: 3600,
     );
   }
 
@@ -158,7 +159,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           //home: RestimeTutorial(),
           //home: NutritionScreen(),
           //home: WelcomePage(),
-          home: LoginOrRegister(),
+          //home: LoginOrRegister(),
+          home: AuthPage(),
           //home: WelcomeUser(),
           //home: ThirdOnboarding(),
           //home: MyHome(),

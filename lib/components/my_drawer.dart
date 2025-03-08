@@ -151,7 +151,7 @@ class MyDrawer extends StatelessWidget {
                     color: Colors.white, // Change the color of the icon
                   ),
                   title: Text(
-                    "N U T R I E N T S\nS U G G E S T I O N",
+                    "N U T R I T I O N  A N D\nC A L O R I E S",
                     style: TextStyle(color: Colors.white), // Change text color if needed
                   ),
                   onTap: () {

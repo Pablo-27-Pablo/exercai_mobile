@@ -148,7 +148,7 @@ class NotiService {
       id,
       title,
       body,
-      RepeatInterval.everyMinute, // The lowest interval available is 1 minute
+      RepeatInterval.hourly, // The lowest interval available is 1 minute
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'reminder_channel_id',
