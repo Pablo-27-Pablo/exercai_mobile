@@ -44,8 +44,8 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     return groupedExercises;
   }
 
-
-  String getRepsTimeDisplay(Map<String, dynamic> exercise) {
+    //This is the latest that shows all infos in the card
+  /*String getRepsTimeDisplay(Map<String, dynamic> exercise) {
     String repsTimeDisplay = 'N/A';
     String burnCaloriesInfo = '';
 
@@ -57,7 +57,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     } else if (exercise['baseSetsSecs'] != null && exercise['baseSecs'] != null) {
       repsTimeDisplay = _formatTimeDisplay(exercise['baseSetsSecs'], exercise['baseSecs']);
       if (exercise['burnCalperSec'] != null) {
-        burnCaloriesInfo = "\nBurn Calories per Second: ${exercise['burnCalperSec']} kcal/sec";
+        burnCaloriesInfo = "\nBurn Calories per Sec: ${exercise['burnCalperSec']} kcal/sec";
       }
     } else if (exercise['baseSecs'] != null) {
       repsTimeDisplay = _formatSingleDuration(exercise['baseSecs']);
@@ -67,7 +67,20 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     }
 
     return "$repsTimeDisplay$burnCaloriesInfo";
+  }*/
+
+  //This is the experiment to only shows 3 infos in the card
+  String getRepsTimeDisplay(Map<String, dynamic> exercise) {
+    if (exercise['baseSetsReps'] != null && exercise['baseReps'] != null) {
+      return "${exercise['baseSetsReps']} sets × ${exercise['baseReps']} reps";
+    } else if (exercise['baseSetsSecs'] != null && exercise['baseSecs'] != null) {
+      return _formatTimeDisplay(exercise['baseSetsSecs'], exercise['baseSecs']);
+    } else if (exercise['baseSecs'] != null) {
+      return _formatSingleDuration(exercise['baseSecs']);
+    }
+    return 'N/A';
   }
+
 
   String _formatTimeDisplay(int sets, int totalSecs) {
     String time = _secondsToTimeString(totalSecs);
@@ -522,8 +535,11 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                 // Create a map of exerciseId to totalExerciseTime
                 final exerciseTimes = {
                   for (var doc in timesSnapshot.data!.docs)
-                    doc['exerciseId'].toString(): doc['totalExerciseTime'] ?? 0
+                    if (doc.data() != null && (doc.data() as Map<String, dynamic>).containsKey('exerciseId'))
+                      (doc['exerciseId'] ?? '').toString(): doc['totalExerciseTime'] ?? 0
                 };
+
+
 
                 final exercises = exercisesSnapshot.data!.docs.map((doc) {
                   final exercise = doc.data() as Map<String, dynamic>;
@@ -606,19 +622,35 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                   ),
                                 ),
 
-                                title: Text(exercise['name'].toString().toUpperCase(),style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
-                                subtitle: Text(
-                                    "Target: ${exercise['target']}\n"
-                                        "Equipment: ${exercise['equipment']}\n"
-                                        "Reps/Time: ${getRepsTimeDisplay(exercise)}\n"
-                                        "Burn Calories: $burnCaloriesDisplay\n"
-                                        "Total Time: ${_formatTotalTime(totalTime)}\n"
-                                  //"ID: ${exercise['id']}",
-                                ,style: TextStyle(color: Colors.white),),
+                                title: Text(
+                                  exercise['name'].toString().toUpperCase(),
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                                ),
+                                subtitle: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: "TARGET: ${exercise['target'].toString().toUpperCase()}\n",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: "Reps/Time: ${getRepsTimeDisplay(exercise)}\n"
+                                            "Burn Calories: $burnCaloriesDisplay\n",
+                                        style: TextStyle(
+                                          color: AppColor.backgroundgrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 trailing: isCompleted
                                     ? Icon(Icons.check_circle, color: Colors.green)
                                     : null,
-                                // Modify the onTap handler in the ListTile
+
                                 onTap: () async {
                                   //start of remove gifurl
                                   String exerciseId = exercise['id'].toString();

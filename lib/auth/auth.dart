@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_or_register.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:exercai_mobile/login_register_pages/login.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -60,7 +61,7 @@ class _AuthPageState extends State<AuthPage> {
         if (snapshot.hasData) {
           return const MainLandingPage(); // User is logged in
         } else {
-          return const LoginOrRegister(); // Show auth flow
+          return LoginPage(); // Show auth flow
         }
       },
     );

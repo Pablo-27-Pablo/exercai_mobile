@@ -13,8 +13,7 @@ import 'dart:io';
 
 
 class Createaccount extends StatefulWidget {
-  final void Function()? onTap;
-  Createaccount({super.key, required this.onTap});
+  Createaccount({super.key});
 
 
   @override
@@ -217,7 +216,7 @@ class _CreateaccountState extends State<Createaccount> {
             passwordController.clear();
             confirmpassController.clear();
           });
-          navigateWithSlideTransition(context, LoginOrRegister(), slideRight: false);
+          navigateWithSlideTransition(context, LoginPage(), slideRight: false);
           }, // Slide left to go back
       ),
 
@@ -263,7 +262,18 @@ class _CreateaccountState extends State<Createaccount> {
           style: TextStyle(color: Colors.white),
         ),
         GestureDetector(
-            onTap: widget.onTap,//() {Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+              setState(() {
+                // Clear fields when navigating to Create Account
+                emailController.clear();
+                fnameController.clear();
+                lnameController.clear();
+                passwordController.clear();
+                confirmpassController.clear();
+              });
+              navigateWithSlideTransition(context, LoginPage(), slideRight: false);
+            },
             child: Text("Log In",
                 style: TextStyle(
                     color: AppColor.yellowtext, fontWeight: FontWeight.bold)))

@@ -11,7 +11,7 @@ class MyDrawer extends StatelessWidget {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => LoginPage(onTap: () => login(context)),
+        builder: (context) => LoginPage(),
       ),
     );
   }

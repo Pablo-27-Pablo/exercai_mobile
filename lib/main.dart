@@ -141,7 +141,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_token');
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginOrRegister()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
   @override
@@ -178,7 +178,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           //home: FilterExerciseFirestore(),
 
           routes: {
-            '/login_register_page': (context) => LoginOrRegister(),
+            //'/login_register_page': (context) => LoginOrRegister(),
             '/home_page': (context) => MainLandingPage(),
             '/profile_page': (context) => ProfilePage(),
             '/progress_tracking': (context) => ProgressTrackingScreen(),

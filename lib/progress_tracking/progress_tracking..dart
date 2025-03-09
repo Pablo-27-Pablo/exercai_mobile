@@ -15,12 +15,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await computeAndStoreTotalCalories();
-      await computeAndStoreTotalExerciseForAllTime();
-      print("Functions executed in initState!");
-    });
+    computeAndStoreTotalCalories();
   }
+
 
 
   // Fetch user details from Firestore
@@ -28,7 +25,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     return await FirebaseFirestore.instance
         .collection("Users")
         .doc(currentUser!.email)
-        .get();
+        .get(const GetOptions(source: Source.server));
   }
 
   String computeAge(Timestamp? dob) {
@@ -77,11 +74,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
 
     try {
       // Fetch all exercises
-      QuerySnapshot exercisesSnapshot = await userExercisesRef.get();
-
+      QuerySnapshot exercisesSnapshot = await userExercisesRef.get(const GetOptions(source: Source.server));
       double totalCaloriesBurned = 0;
 
-      // Calculate total calories burned from exercises
       for (var doc in exercisesSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         double finalTotalBurnCalRep = (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
@@ -91,7 +86,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       }
 
       // Fetch the existing data
-      DocumentSnapshot totalCaloriesDoc = await totalCaloriesRef.get();
+      DocumentSnapshot totalCaloriesDoc = await totalCaloriesRef.get(const GetOptions(source: Source.server));
       List<double> totalCaloriesBurnedArray = [];
       double existingFinalTotalCaloriesBurned = 0;
 
@@ -110,18 +105,17 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       // Append new totalCaloriesBurned to the array
       totalCaloriesBurnedArray.add(totalCaloriesBurned);
 
-      // Compute the change
+      // Compute the change based on the last two values
       double change = 0;
       if (totalCaloriesBurnedArray.length > 1) {
         double previousValue = totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
         double newValue = totalCaloriesBurnedArray.last;
 
-        // New condition: If new value is 0 and previous value > 0, skip computation
-        if (!(newValue == 0 && previousValue > 0)) {
+        if (newValue >= previousValue || (newValue == 0 && previousValue == 0)) {
           change = newValue - previousValue;
         }
       } else {
-        // First index, subtract from 0
+        // First index case, subtract from 0
         change = totalCaloriesBurnedArray.first;
       }
 
@@ -142,8 +136,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     }
   }
 
-  Future<void> computeAndStoreTotalExerciseForAllTime() async {
-    if (currentUser == null) return;
+
+  Future<int> computeTotalExerciseTimeForAllDays() async {
+    if (currentUser == null) return 0;
 
     final userMetadataRef = FirebaseFirestore.instance
         .collection('Users')
@@ -151,47 +146,45 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
         .collection('UserExercises')
         .doc('--metadata--');
 
-    final totalExerciseTimeRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(currentUser!.email)
-        .collection('UserExerciseTimes')
-        .doc('TotalExerciseTime');
-
     try {
-      // Fetch currentDay array from metadata
-      DocumentSnapshot metadataSnapshot = await userMetadataRef.get();
+      DocumentSnapshot metadataSnapshot = await userMetadataRef.get(const GetOptions(source: Source.server));
       List<dynamic> currentDays = metadataSnapshot.exists
           ? (metadataSnapshot.data() as Map<String, dynamic>)['currentDay'] ?? []
           : [];
 
+      print('Current Days: $currentDays'); // Debug current days
+
       int totalExerciseTimeAll = 0;
 
       for (var day in currentDays) {
-        // Fetch all exercise times for this day
+        print('Processing Day $day'); // Debug each day
+
         QuerySnapshot timesSnapshot = await FirebaseFirestore.instance
             .collection('Users')
             .doc(currentUser!.email)
             .collection('UserExerciseTimes')
             .doc('Day$day')
             .collection('times')
-            .get();
+            .get(const GetOptions(source: Source.server));
+
+        print('Found ${timesSnapshot.docs.length} time docs for Day $day'); // Debug doc count
 
         for (var timeDoc in timesSnapshot.docs) {
-          totalExerciseTimeAll += (timeDoc['totalExerciseTime'] ?? 0) as int;
+          int time = (timeDoc['totalExerciseTime'] ?? 0) as int;
+          totalExerciseTimeAll += time;
+          print('Added $time seconds from doc ${timeDoc.id}'); // Debug each doc's time
         }
       }
 
-      // Store the computed total exercise time in Firestore
-      await totalExerciseTimeRef.set({
-        'TotalExerciseTime': totalExerciseTimeAll,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      print('Total Exercise Time stored: ${_formatTotalTime(totalExerciseTimeAll)}');
+      print('Total Exercise Time: $totalExerciseTimeAll seconds'); // Debug total time
+      return totalExerciseTimeAll;
     } catch (e) {
       print('Error computing total exercise time: $e');
+      return 0;
     }
   }
+
+
 
 
 
@@ -387,11 +380,15 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Total Calories Burn',
-                            style: TextStyle(
-                                color: AppColor.yellowtext,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+
+                        Text(
+                          'Total Calories Burn',
+                          style: TextStyle(
+                            color: AppColor.yellowtext,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 8),
                         Container(
                           padding: EdgeInsets.all(16),
@@ -399,12 +396,12 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             color: AppColor.buttonPrimary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Expanded(
-                            child: Row(
-                              children: [
-                                Icon(Icons.local_fire_department, color: AppColor.primary, size: 30),
-                                SizedBox(width: 16),
-                                StreamBuilder<DocumentSnapshot>(
+                          child: Row(  // ❌ Remove Expanded here
+                            children: [
+                              Icon(Icons.local_fire_department, color: AppColor.primary, size: 30),
+                              SizedBox(width: 16),
+                              Expanded(  // ✅ Use Expanded here to make StreamBuilder flexible inside Row
+                                child: StreamBuilder<DocumentSnapshot>(
                                   stream: FirebaseFirestore.instance
                                       .collection('Users')
                                       .doc(currentUser!.email)
@@ -431,6 +428,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                     double finalTotalCalories = (data?['FinalTotalCaloriesBurned'] ?? 0).toDouble();
 
                                     return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start, // ✅ Align text properly
                                       children: [
                                         Text(
                                           'Total Burned Calories: ${finalTotalCalories.toStringAsFixed(2)} Kcal',
@@ -444,14 +442,15 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                     );
                                   },
                                 ),
-
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
 
+
+                        //'Total Minutes Exercise Today (Hours:Min:Sec)'
                         SizedBox(height: 16),
-                        Text('Total Minutes Exercise Today (Hours:Min:Sec)',
+                        Text("Today's Exercise Time (Hours:Min:Sec)",
                             style: TextStyle(
                                 color: AppColor.yellowtext,
                                 fontSize: 18,
@@ -490,7 +489,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.access_time, color: AppColor.primary, size: 30),
+                                      Icon(Icons.timer, color: AppColor.primary, size: 30),
                                       SizedBox(width: 16),
                                       Text(
                                         'Total Time: ${_formatTotalTime(totalExerciseTime)}',
@@ -505,128 +504,64 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         ),
 
                         SizedBox(height: 16),
+                        //'Total Exercise Time (Hours:Min:Sec)',
                         Text(
-                          'Total Exercise Time (Hours:Min:Sec)',
+                          'Recent Exercise Time (Hours:Min:Sec)',
                           style: TextStyle(
                               color: AppColor.yellowtext,
                               fontSize: 18,
                               fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 8),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColor.buttonPrimary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              StreamBuilder<DocumentSnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('Users')
-                                    .doc(currentUser!.email)
-                                    .collection('UserExercises')
-                                    .doc('--metadata--')
-                                    .snapshots(),
-                                builder: (context, metadataSnapshot) {
-                                  if (metadataSnapshot.hasError) {
-                                    return Center(child: Text('Error: ${metadataSnapshot.error}'));
-                                  }
+                        StreamBuilder<DocumentSnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('Users')
+                              .doc(currentUser!.email)
+                              .collection('UserExercises')
+                              .doc('--metadata--')
+                              .snapshots(),
+                          builder: (context, metadataSnapshot) {
+                            if (metadataSnapshot.hasError) {
+                              return Text('Error: ${metadataSnapshot.error}');
+                            }
+                            if (metadataSnapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            }
 
-                                  if (metadataSnapshot.connectionState == ConnectionState.waiting) {
-                                    return Center(child: CircularProgressIndicator());
-                                  }
+                            final data = metadataSnapshot.data?.data() as Map<String, dynamic>?;
+                            final List<dynamic> days = data?['currentDay'] ?? [];
 
-                                  final data = metadataSnapshot.data?.data() as Map<String, dynamic>?;
+                            return FutureBuilder<int>(
+                              future: computeTotalExerciseTimeForAllDays(),
+                              builder: (context, totalSnapshot) {
+                                if (totalSnapshot.connectionState == ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                }
+                                if (totalSnapshot.hasError) {
+                                  return Text('Error: ${totalSnapshot.error}');
+                                }
 
-                                  // Get stored days
-                                  final List<dynamic> days = List.from(data?['currentDay'] ?? []);
-
-                                  if (days.isEmpty) {
-                                    return Center(child: Text('No exercise data available.'));
-                                  }
-
-                                  return StreamBuilder<List<QuerySnapshot>>(
-                                    stream: Stream.fromFuture(Future.wait(
-                                      days.map((day) => FirebaseFirestore.instance
-                                          .collection('Users')
-                                          .doc(currentUser!.email)
-                                          .collection('UserExerciseTimes')
-                                          .doc('Day$day')
-                                          .collection('times')
-                                          .get()),
-                                    )),
-                                    builder: (context, timesSnapshot) {
-                                      if (timesSnapshot.hasError) {
-                                        return Center(child: Text('Error: ${timesSnapshot.error}'));
-                                      }
-
-                                      if (timesSnapshot.connectionState == ConnectionState.waiting) {
-                                        return Center(child: CircularProgressIndicator());
-                                      }
-
-                                      // Flatten all documents into a single list
-                                      final List<QueryDocumentSnapshot> exerciseTimes = timesSnapshot.data!
-                                          .expand((querySnapshot) => querySnapshot.docs)
-                                          .toList();
-
-                                      if (exerciseTimes.isEmpty) {
-                                        return Center(child: Text('No exercise data available.'));
-                                      }
-
-                                      // Sum total exercise time across all days
-                                      int totalExerciseTimeAll = exerciseTimes.fold<int>(
-                                        0,
-                                            (sum, doc) => sum + (doc['totalExerciseTime'] ?? 0) as int,
-                                      );
-
-                                      return FutureBuilder<QuerySnapshot>(
-                                        future: FirebaseFirestore.instance
-                                            .collection('Users')
-                                            .doc(currentUser!.email)
-                                            .collection('UserExerciseTimes')
-                                            .get(),
-                                        builder: (context, totalMinutesSnapshot) {
-                                          if (totalMinutesSnapshot.connectionState == ConnectionState.waiting) {
-                                            return CircularProgressIndicator();
-                                          }
-
-                                          // Compute today's total minutes exercise
-                                          int totalExerciseTimeToday = totalMinutesSnapshot.data?.docs
-                                              .fold<int>(0, (sum, doc) => sum + (doc['totalExerciseTime'] ?? 0) as int) ??
-                                              0;
-
-                                          // Final computed Total Exercise Time (All Time + Today)
-                                          int finalTotalExerciseTime = totalExerciseTimeAll + totalExerciseTimeToday;
-
-                                          return Container(
-                                            padding: EdgeInsets.all(16),
-                                            decoration: BoxDecoration(
-                                              color: AppColor.buttonPrimary,
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.timer, color: AppColor.primary, size: 30),
-                                                SizedBox(width: 16),
-                                                Text(
-                                                  'Total Time: ${_formatTotalTime(finalTotalExerciseTime)}',
-                                                  style: TextStyle(color: AppColor.textwhite, fontSize: 18),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-
-
-
-                            ],
-                          ),
+                                int totalTime = totalSnapshot.data ?? 0;
+                                return Container(
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.buttonPrimary,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.timer, color: AppColor.primary, size: 30),
+                                      SizedBox(width: 16),
+                                      Text(
+                                        'Total Time: ${_formatTotalTime(totalTime)}',
+                                        style: TextStyle(color: AppColor.textwhite, fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
 
 
@@ -717,9 +652,13 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             // Get all stored days
                             final List<dynamic> days = List.from(data?['currentDay'] ?? []);
 
-                            if (days.isEmpty) {
+                            /*if (days.isEmpty) {
                               return Center(child: Text('No exercise data available.'));
+                            }*/
+                            if (days == null || days.isEmpty) {
+                              return const SizedBox(); // Returns an empty widget if days is null or empty
                             }
+
 
                             return StreamBuilder<List<QuerySnapshot>>(
                               stream: Stream.fromFuture(Future.wait(

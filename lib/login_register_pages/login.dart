@@ -13,8 +13,7 @@ import 'dart:io'; // For Internet check
 
 
 class LoginPage extends StatefulWidget {
-  final void Function()? onTap;
-  LoginPage({super.key, required this.onTap});
+  LoginPage({super.key});
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -183,7 +182,9 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.white),
         ),
         GestureDetector(
-            onTap:widget.onTap,
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));
+            },
                     //(){Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));},
             child: Text("Sign Up",
                 style: TextStyle(

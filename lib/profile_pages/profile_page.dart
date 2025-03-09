@@ -41,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Prevent going back to the previous page
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage(onTap: () => login(context))),
+      MaterialPageRoute(builder: (context) => LoginPage()),
           (route) => false, // Removes all previous routes
     );
   }
