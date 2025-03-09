@@ -18,6 +18,7 @@ import 'package:exercai_mobile/profile_pages/profile_page.dart';
 import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/welcome.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
+import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
 import 'package:exercai_mobile/show_all_exercises/exercise_show.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/download_button_exercises_firebase.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/exercise_download_firebase.dart';
@@ -160,22 +161,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          //home: isLoggedIn ? MainLandingPage() : LoginOrRegister(),
-          //home: RestimeTutorial(),
-          //home: NutritionScreen(),
-          //home: WelcomePage(),
-          //home: LoginOrRegister(),
-          home: AuthPage(),
-          //home: WelcomeUser(),
-          //home: ThirdOnboarding(),
-          //home: MyHome(),
-          //home: ProgressTrackingScreen(),
-          //home: CompleteWorkout(),
-          //home: FilterRepsKcal(),
-          //home: ExerciseApp(),
-          //home: ButtonDownloadExercises(),
-          //home: ExerciseFirestore(),
-          //home: FilterExerciseFirestore(),
+          home: ForgotPasswordPage(),
+          //home: AuthPage(),
+
 
           routes: {
             //'/login_register_page': (context) => LoginOrRegister(),

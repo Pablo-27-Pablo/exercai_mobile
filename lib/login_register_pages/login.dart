@@ -1,6 +1,7 @@
 import 'package:exercai_mobile/components/my_button.dart';
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:exercai_mobile/homepage/starter_page.dart';
+import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -115,8 +116,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     // Clear the email and password fields when the user leaves the page
-    emailController.clear();
-    passwordController.clear();
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -316,7 +317,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
           GestureDetector(
               onTap: () {
-                print("Wala pang Data to");
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
+
               },
               child: Padding(
                 padding: const EdgeInsets.only(right: 30),
