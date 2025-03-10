@@ -116,8 +116,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     // Clear the email and password fields when the user leaves the page
-    emailController.dispose();
-    passwordController.dispose();
+    emailController.clear();
+    passwordController.clear();
     super.dispose();
   }
 

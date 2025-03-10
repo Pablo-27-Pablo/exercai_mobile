@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/auth/auth.dart';
 import 'package:exercai_mobile/auth/login_or_register.dart';
+import 'package:exercai_mobile/exercise_posture/exerciseposturepage1.dart';
 import 'package:exercai_mobile/food_nutrition/nutrients_show_screen.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
 import 'package:exercai_mobile/intro_pages/intro3.dart';
 import 'package:exercai_mobile/intro_pages/openingpage.dart';
-import 'package:exercai_mobile/intro_pages/warning_for_healthproblem.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
@@ -19,11 +19,8 @@ import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/welcome.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
 import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
-import 'package:exercai_mobile/show_all_exercises/exercise_show.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/download_button_exercises_firebase.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/exercise_download_firebase.dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/show_screen_get_in_firestore/exercise_firestore_list_screen.dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/show_screen_get_in_firestore/filter_exercises.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/show_with_reps_kcals/filter_reps_kcal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -162,6 +159,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           home: AuthPage(),
+          //home :ButtonDownloadExercises(),
 
 
           routes: {

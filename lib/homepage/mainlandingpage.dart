@@ -1,11 +1,11 @@
 import 'package:exercai_mobile/components/my_drawer.dart';
+import 'package:exercai_mobile/different_exercises/all_exercises.dart';
 import 'package:exercai_mobile/exercise_posture/exerciseposturepage1.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/show_screen_get_in_firestore/filter_exercises.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/show_with_reps_kcals/filter_reps_kcal.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -264,6 +264,23 @@ class _MainLandingPageState extends State<MainLandingPage> {
                       MaterialPageRoute(builder: (context) => ArcadeModePage()));
                 },
               ),
+
+              const SizedBox(height: 20),
+              GestureDetector(
+                child: _buildFeatureCard(
+                  'Different Exercises',
+                  'Try Many Exercises\nThat you Like',
+                  Colors.black,
+                  Colors.white,
+                  'assets/gym7.jpg',
+                ),
+                onTap: (){
+                  // Navigator.push(context, MaterialPageRoute(builder: (context)=> FilterExerciseFirestore()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> AllExercises()));
+
+                },
+              ),
+
             ],
           ),
         ),

@@ -164,11 +164,11 @@ class _CreateaccountState extends State<Createaccount> {
   void initState() {
     super.initState();
     // Clear fields when navigating to Create Account
-    emailController.dispose();
-    fnameController.dispose();
-    lnameController.dispose();
-    passwordController.dispose();
-    confirmpassController.dispose();
+    emailController.clear();
+    fnameController.clear();
+    lnameController.clear();
+    passwordController.clear();
+    confirmpassController.clear();
   }
   @override
   Widget build(BuildContext context) {

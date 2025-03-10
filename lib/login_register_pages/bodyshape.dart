@@ -1,7 +1,6 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
 import 'package:exercai_mobile/login_register_pages/workout_level.dart';
-import 'package:exercai_mobile/recommend_services_try/exercise_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
