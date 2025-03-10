@@ -688,7 +688,8 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                       ),
                                       TextSpan(
                                         text: "Reps/Time: ${getRepsTimeDisplay(exercise)}\n"
-                                            "Burn Calories: $burnCaloriesDisplay\n",
+                                            "Burn Calories: $burnCaloriesDisplay\n"
+                                            "ID: ${exercise['id']}",
                                         style: TextStyle(
                                           color: AppColor.backgroundgrey,
                                         ),

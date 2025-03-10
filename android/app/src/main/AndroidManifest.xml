@@ -60,6 +60,18 @@
             </intent-filter>
         </activity>
 
+        <!-- ✅ FileProvider Configuration -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
+
         <!-- ✅ Firebase Messaging Notification Channel -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"

@@ -6,6 +6,8 @@ import '../../homepage/mainlandingpage.dart';
 import 'dart:math';
 import 'list_all_exercises.dart';
 
+
+
 class AllExercises extends StatefulWidget {
   @override
   _AllExercisesState createState() => _AllExercisesState();
@@ -14,7 +16,7 @@ class AllExercises extends StatefulWidget {
 class _AllExercisesState extends State<AllExercises> {
 
 
-  late Stream<QuerySnapshot> _exercisesStream;
+  Stream<QuerySnapshot> _exercisesStream = const Stream.empty();
   bool isLoading = true;
   User? _currentUser;
   Map<String, double> finalBurnCalMap = {};
@@ -70,8 +72,8 @@ class _AllExercisesState extends State<AllExercises> {
 
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
+
     try {
-      setState(() => isLoading = true);
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('Users')
           .doc(_currentUser!.email)
@@ -79,33 +81,37 @@ class _AllExercisesState extends State<AllExercises> {
 
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
+        final updatedUserAge = userData['age'];
+        final injuryArea = userData['injuryArea'] ?? '';
+
+        List<String> updatedInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
+        if (updatedInjuries.contains('none of them')) updatedInjuries.clear();
+
+        // Batch update state once
         setState(() {
-          userAge = userData['age'];
-          String injuryArea = userData['injuryArea'] ?? '';
-          _userInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
-          if (_userInjuries.contains('none of them')) _userInjuries.clear();
+          userAge = updatedUserAge;
+          _userInjuries = updatedInjuries;
         });
-        await _initializeExercisesStream();
+
+         _initializeExercisesStream();
         await fetchFinalBurnCalValues();
       }
-      setState(() => isLoading = false);
     } catch (e) {
       print("Error fetching user data: $e");
-      setState(() => isLoading = false);
     }
   }
 
-  Future<void> _initializeExercisesStream() async {
-    if (_currentUser == null) return;
-    setState(() {
-      _exercisesStream = FirebaseFirestore.instance
-          .collection('Users')
-          .doc(_currentUser!.email)
-          .collection('AllExercises')
-          .where('isActive', isEqualTo: true)
-          .snapshots();
-    });
+
+  void _initializeExercisesStream() {
+    _exercisesStream = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(_currentUser!.email)
+        .collection('AllExercises')
+        .where('isActive', isEqualTo: true)
+        .snapshots();
   }
+
+
 
   Future<void> fetchFinalBurnCalValues() async {
     if (_currentUser == null) return;
@@ -161,7 +167,7 @@ class _AllExercisesState extends State<AllExercises> {
 
         final mergedData = Map<String, dynamic>.from(firestoreExercise)
           ..addAll({
-            'firestoreId': exerciseId, // Store original Firestore ID
+            'firestoreId': exerciseId,
             'baseSetsReps': localData['baseSetsReps'],
             'baseReps': localData['baseReps'],
             'baseSetsSecs': localData['baseSetsSecs'],
@@ -169,6 +175,7 @@ class _AllExercisesState extends State<AllExercises> {
             'burnCalperRep': localData['burnCalperRep'],
             'burnCalperSec': localData['burnCalperSec'],
             'baseCalories': localData['baseCalories'],
+            'gifPath': localData['gifPath'], // Add this line
             'completed': false,
             'restTime': 30,
             'isActive': true,
@@ -205,6 +212,17 @@ class _AllExercisesState extends State<AllExercises> {
     if (age >= 18 && age <= 59) return "adults";
     if (age >= 60) return "seniors";
     return "unknown";
+  }
+
+  String _getLocalGifPath(String exerciseName) {
+    for (var bodyPart in allExercises.keys) {
+      for (var exercise in allExercises[bodyPart]!) {
+        if (exercise['name'] == exerciseName) {
+          return exercise['gifPath'];
+        }
+      }
+    }
+    return 'assets/exercaiGif/fallback.gif'; // Add a fallback image
   }
 
   Future<void> updateCaloriesBurned(String exerciseName, double caloriesBurned, bool isRepBased) async {
@@ -281,7 +299,7 @@ class _AllExercisesState extends State<AllExercises> {
     }
   };
 
-  Future<String> _fetchExerciseGifUrl(String exerciseId) async {
+  /*Future<String> _fetchExerciseGifUrl(String exerciseId) async {
     try {
       DocumentSnapshot exerciseDoc = await FirebaseFirestore.instance
           .collection('BodyweightExercises')
@@ -296,16 +314,23 @@ class _AllExercisesState extends State<AllExercises> {
       print("Error fetching gifUrl: $e");
     }
     return ''; // Return empty string if there's an error
-  }
+  }*/
 
   // ... Keep the allowedExercises mapping and other existing code ...
   @override
   void initState() {
     super.initState();
     _currentUser = FirebaseAuth.instance.currentUser;
-    fetchUserData();
-    fetchExercisesFromFirestore();
+    _initializeData(); // Call the async helper function
   }
+
+  Future<void> _initializeData() async {
+    await fetchUserData();  // Ensure user data is loaded first
+    await fetchExercisesFromFirestore();  // Then fetch exercises
+    _initializeExercisesStream(); // ✅ Fix 2: Ensures stream is assigned
+    if (mounted) setState(() => isLoading = false);  // Update UI only if widget is still active
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -313,6 +338,7 @@ class _AllExercisesState extends State<AllExercises> {
       child: Scaffold(
         backgroundColor: AppColor.backgroundgrey,
         appBar: AppBar(
+          backgroundColor: AppColor.backgroundgrey,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pushReplacement(
@@ -324,7 +350,14 @@ class _AllExercisesState extends State<AllExercises> {
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         body: isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Downloading Files For You Exercise\nPlease wait a moment...',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),textAlign: TextAlign.center,),
+                SizedBox(height: 15,),
+                CircularProgressIndicator(),
+              ],
+            ))
             : _currentUser == null
             ? Center(child: Text("Please log in"))
             : StreamBuilder<QuerySnapshot>(
@@ -370,7 +403,7 @@ class _AllExercisesState extends State<AllExercises> {
                         .collection('Users')
                         .doc(_currentUser!.email)
                         .collection('AllExercises')
-                        .doc(exercise['name'].toString())
+                        .doc(doc.id)
                         .update({'TotalCalBurnSec': exercise['TotalCalBurnSec']});
                   }
 
@@ -429,8 +462,8 @@ class _AllExercisesState extends State<AllExercises> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: AspectRatio(
                                     aspectRatio: 1,
-                                    child: Image.network(
-                                      exercise['gifUrl'],
+                                    child: Image.asset( // Changed from Image.network
+                                      _getLocalGifPath(exercise['name']), // New helper function
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.download_for_offline, size: 60),
@@ -469,11 +502,11 @@ class _AllExercisesState extends State<AllExercises> {
                                     ? Icon(Icons.check_circle, color: Colors.green)
                                     : null,
                                 onTap: () async {
-                                  String exerciseId = exercise['id'].toString();
+                                  /*String exerciseId = exercise['id'].toString();
                                   String latestGifUrl = await _fetchExerciseGifUrl(exerciseId);
                                   if (latestGifUrl.isNotEmpty) {
                                     exercise['gifUrl'] = latestGifUrl;
-                                  }
+                                  }*/
                                   String bodyPart = (exercise['bodyPart'] ?? '').toLowerCase();
 
                                   if (userAge != null) {

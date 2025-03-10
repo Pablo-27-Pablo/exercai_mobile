@@ -22,6 +22,7 @@ import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/download_button_exercises_firebase.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/exercise_download_firebase.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/show_with_reps_kcals/filter_reps_kcal.dart';
+import 'package:exercai_mobile/show_firestore_exercises_download/device_download_gif.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -159,7 +160,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           home: AuthPage(),
-          //home :ButtonDownloadExercises(),
+          //home :DownloadGifsScreen(),
 
 
           routes: {
