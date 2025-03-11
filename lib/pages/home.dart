@@ -139,6 +139,7 @@ class _MyHomeState extends State<MyHome> {
                   peopleBox.put("situp", 0);
                   peopleBox.put("finalcoloriesburn", 0);
                   peopleBox.put("final", 5);
+                  print("calories: "+peopleBox.get('finalcoloriesburn').toString());
                 }
 
                 Navigator.pushReplacement(context,
