@@ -3,6 +3,7 @@ import 'package:exercai_mobile/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart'; // For date formatting
+import '../utils/constant.dart';
 
 class ProgressTrackingScreen extends StatefulWidget {
   @override
@@ -17,8 +18,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     super.initState();
     computeAndStoreTotalCalories();
   }
-
-
 
   // Fetch user details from Firestore
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
@@ -74,32 +73,41 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
 
     try {
       // Fetch all exercises
-      QuerySnapshot exercisesSnapshot = await userExercisesRef.get(const GetOptions(source: Source.server));
+      QuerySnapshot exercisesSnapshot = await userExercisesRef.get(
+        const GetOptions(source: Source.server),
+      );
       double totalCaloriesBurned = 0;
 
       for (var doc in exercisesSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        double finalTotalBurnCalRep = (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
+        double finalTotalBurnCalRep =
+            (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
         double totalCalBurnSec = (data['TotalCalBurnSec'] ?? 0).toDouble();
 
         totalCaloriesBurned += (finalTotalBurnCalRep + totalCalBurnSec);
       }
 
       // Fetch the existing data
-      DocumentSnapshot totalCaloriesDoc = await totalCaloriesRef.get(const GetOptions(source: Source.server));
+      DocumentSnapshot totalCaloriesDoc = await totalCaloriesRef.get(
+        const GetOptions(source: Source.server),
+      );
       List<double> totalCaloriesBurnedArray = [];
       double existingFinalTotalCaloriesBurned = 0;
 
       if (totalCaloriesDoc.exists) {
         final data = totalCaloriesDoc.data() as Map<String, dynamic>;
 
-        if (data.containsKey('TotalCaloriesBurned') && data['TotalCaloriesBurned'] is List) {
+        if (data.containsKey('TotalCaloriesBurned') &&
+            data['TotalCaloriesBurned'] is List) {
           totalCaloriesBurnedArray = List<double>.from(
-              (data['TotalCaloriesBurned'] as List).map((e) => (e is num ? e.toDouble() : 0))
+            (data['TotalCaloriesBurned'] as List).map(
+              (e) => (e is num ? e.toDouble() : 0),
+            ),
           );
         }
 
-        existingFinalTotalCaloriesBurned = (data['FinalTotalCaloriesBurned'] ?? 0).toDouble();
+        existingFinalTotalCaloriesBurned =
+            (data['FinalTotalCaloriesBurned'] ?? 0).toDouble();
       }
 
       // Append new totalCaloriesBurned to the array
@@ -108,10 +116,12 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       // Compute the change based on the last two values
       double change = 0;
       if (totalCaloriesBurnedArray.length > 1) {
-        double previousValue = totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
+        double previousValue =
+            totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
         double newValue = totalCaloriesBurnedArray.last;
 
-        if (newValue >= previousValue || (newValue == 0 && previousValue == 0)) {
+        if (newValue >= previousValue ||
+            (newValue == 0 && previousValue == 0)) {
           change = newValue - previousValue;
         }
       } else {
@@ -120,7 +130,8 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       }
 
       // Update FinalTotalCaloriesBurned
-      double newFinalTotalCaloriesBurned = existingFinalTotalCaloriesBurned + change;
+      double newFinalTotalCaloriesBurned =
+          existingFinalTotalCaloriesBurned + change;
 
       // Store the updated values in Firestore
       await totalCaloriesRef.set({
@@ -130,12 +141,13 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       }, SetOptions(merge: true));
 
       print('Total Calories Burned updated: $totalCaloriesBurnedArray');
-      print('Final Total Calories Burned updated: $newFinalTotalCaloriesBurned');
+      print(
+        'Final Total Calories Burned updated: $newFinalTotalCaloriesBurned',
+      );
     } catch (e) {
       print('Error computing total calories: $e');
     }
   }
-
 
   Future<int> computeTotalExerciseTimeForAllDays() async {
     if (currentUser == null) return 0;
@@ -147,10 +159,15 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
         .doc('--metadata--');
 
     try {
-      DocumentSnapshot metadataSnapshot = await userMetadataRef.get(const GetOptions(source: Source.server));
-      List<dynamic> currentDays = metadataSnapshot.exists
-          ? (metadataSnapshot.data() as Map<String, dynamic>)['currentDay'] ?? []
-          : [];
+      DocumentSnapshot metadataSnapshot = await userMetadataRef.get(
+        const GetOptions(source: Source.server),
+      );
+      List<dynamic> currentDays =
+          metadataSnapshot.exists
+              ? (metadataSnapshot.data()
+                      as Map<String, dynamic>)['currentDay'] ??
+                  []
+              : [];
 
       print('Current Days: $currentDays'); // Debug current days
 
@@ -167,28 +184,28 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
             .collection('times')
             .get(const GetOptions(source: Source.server));
 
-        print('Found ${timesSnapshot.docs.length} time docs for Day $day'); // Debug doc count
+        print(
+          'Found ${timesSnapshot.docs.length} time docs for Day $day',
+        ); // Debug doc count
 
         for (var timeDoc in timesSnapshot.docs) {
           int time = (timeDoc['totalExerciseTime'] ?? 0) as int;
           totalExerciseTimeAll += time;
-          print('Added $time seconds from doc ${timeDoc.id}'); // Debug each doc's time
+          print(
+            'Added $time seconds from doc ${timeDoc.id}',
+          ); // Debug each doc's time
         }
       }
 
-      print('Total Exercise Time: $totalExerciseTimeAll seconds'); // Debug total time
+      print(
+        'Total Exercise Time: $totalExerciseTimeAll seconds',
+      ); // Debug total time
       return totalExerciseTimeAll;
     } catch (e) {
       print('Error computing total exercise time: $e');
       return 0;
     }
   }
-
-
-
-
-
-
 
   // Add this helper function
   /*Future<int> _calculateTotalExerciseTime(List<QueryDocumentSnapshot> dayDocs) async {
@@ -204,7 +221,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     return totalExerciseTime;
   }*/
 
-  Future<int> _calculateTotalExerciseTime(List<QueryDocumentSnapshot> exerciseDocs) async {
+  Future<int> _calculateTotalExerciseTime(
+    List<QueryDocumentSnapshot> exerciseDocs,
+  ) async {
     int totalExerciseTime = 0;
 
     for (var exerciseDoc in exerciseDocs) {
@@ -223,11 +242,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,7 +249,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       appBar: AppBar(
         title: const Text(
           'Progress Tracking',
-          style: TextStyle(color: AppColor.primary,fontSize: 25),
+          style: TextStyle(color: AppColor.primary, fontSize: 25),
         ),
         backgroundColor: Colors.transparent,
         leading: BackButton(
@@ -280,21 +294,19 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                 Text(
                                   '${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}',
                                   style: TextStyle(
-                                      color: AppColor.textwhite,
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold),
+                                    color: AppColor.textwhite,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 SizedBox(width: 8),
                                 // Ternary condition to display gender icon
                                 user?['gender'] == 'Male'
                                     ? Icon(
-                                  Icons.male,
-                                  color: AppColor.yellowtext,
-                                )
-                                    : Icon(
-                                  Icons.female,
-                                  color: Colors.pink,
-                                ),
+                                      Icons.male,
+                                      color: AppColor.yellowtext,
+                                    )
+                                    : Icon(Icons.female, color: Colors.pink),
                               ],
                             ),
                             Row(
@@ -302,16 +314,19 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                 Text(
                                   'Age: ',
                                   style: TextStyle(
-                                      color: AppColor.yellowtext,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                    color: AppColor.yellowtext,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 Text(
                                   user?['dateOfBirth'] != null
                                       ? computeAge(user!['dateOfBirth'])
                                       : 'N/A',
                                   style: TextStyle(
-                                      color: AppColor.textwhite, fontSize: 14),
+                                    color: AppColor.textwhite,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ],
                             ),
@@ -319,35 +334,47 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Text('Weight: ',
-                                        style: TextStyle(
-                                            color: AppColor.yellowtext,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold)),
-                                    Text('${user?['weight'] ?? 'N/A'} Kg',
-                                        style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 14)),
+                                    Text(
+                                      'Weight: ',
+                                      style: TextStyle(
+                                        color: AppColor.yellowtext,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${user?['weight'] ?? 'N/A'} Kg',
+                                      style: TextStyle(
+                                        color: AppColor.textwhite,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 SizedBox(width: 8),
                                 Row(
                                   children: [
-                                    Text('Height: ',
-                                        style: TextStyle(
-                                            color: AppColor.yellowtext,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold)),
-                                    Text('${user?['height'] ?? 'N/A'} CM',
-                                        style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 14)),
+                                    Text(
+                                      'Height: ',
+                                      style: TextStyle(
+                                        color: AppColor.yellowtext,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${user?['height'] ?? 'N/A'} CM',
+                                      style: TextStyle(
+                                        color: AppColor.textwhite,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -359,9 +386,12 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColor.yellowtext),
-                          child: Text('Workout Log',
-                              style: TextStyle(color: AppColor.buttonPrimary)),
+                            backgroundColor: AppColor.yellowtext,
+                          ),
+                          child: Text(
+                            'Workout Log',
+                            style: TextStyle(color: AppColor.buttonPrimary),
+                          ),
                         ),
                         /*OutlinedButton(
                           onPressed: () {
@@ -380,7 +410,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         Text(
                           'Total Calories Burn',
                           style: TextStyle(
@@ -396,47 +425,80 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             color: AppColor.buttonPrimary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Row(  // ❌ Remove Expanded here
+                          child: Row(
+                            // ❌ Remove Expanded here
                             children: [
-                              Icon(Icons.local_fire_department, color: AppColor.primary, size: 30),
+                              Icon(
+                                Icons.local_fire_department,
+                                color: AppColor.primary,
+                                size: 30,
+                              ),
                               SizedBox(width: 16),
-                              Expanded(  // ✅ Use Expanded here to make StreamBuilder flexible inside Row
+                              Expanded(
+                                // ✅ Use Expanded here to make StreamBuilder flexible inside Row
                                 child: StreamBuilder<DocumentSnapshot>(
-                                  stream: FirebaseFirestore.instance
-                                      .collection('Users')
-                                      .doc(currentUser!.email)
-                                      .collection('TotalCaloriesExercises')
-                                      .doc('TotalCaloriesBurnofUser')
-                                      .snapshots(),
+                                  stream:
+                                      FirebaseFirestore.instance
+                                          .collection('Users')
+                                          .doc(currentUser!.email)
+                                          .collection('TotalCaloriesExercises')
+                                          .doc('TotalCaloriesBurnofUser')
+                                          .snapshots(),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasError) {
-                                      return Text('Error', style: TextStyle(color: Colors.red));
+                                      return Text(
+                                        'Error',
+                                        style: TextStyle(color: Colors.red),
+                                      );
                                     }
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
                                       return CircularProgressIndicator();
                                     }
 
-                                    final data = snapshot.data?.data() as Map<String, dynamic>?;
+                                    final data =
+                                        snapshot.data?.data()
+                                            as Map<String, dynamic>?;
 
                                     List<double> totalCaloriesBurnedArray = [];
-                                    if (data != null && data.containsKey('TotalCaloriesBurned') && data['TotalCaloriesBurned'] is List) {
-                                      totalCaloriesBurnedArray = List<double>.from(
-                                          (data['TotalCaloriesBurned'] as List).map((e) => (e is num ? e.toDouble() : 0))
+                                    if (data != null &&
+                                        data.containsKey(
+                                          'TotalCaloriesBurned',
+                                        ) &&
+                                        data['TotalCaloriesBurned'] is List) {
+                                      totalCaloriesBurnedArray = List<
+                                        double
+                                      >.from(
+                                        (data['TotalCaloriesBurned'] as List)
+                                            .map(
+                                              (e) =>
+                                                  (e is num ? e.toDouble() : 0),
+                                            ),
                                       );
                                     }
 
-                                    double finalTotalCalories = (data?['FinalTotalCaloriesBurned'] ?? 0).toDouble();
+                                    double finalTotalCalories =
+                                        (data?['FinalTotalCaloriesBurned'] ?? 0)
+                                            .toDouble();
 
                                     return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start, // ✅ Align text properly
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment
+                                              .start, // ✅ Align text properly
                                       children: [
                                         Text(
-                                          'Total Burned Calories: ${finalTotalCalories.toStringAsFixed(2)} Kcal',
-                                          style: TextStyle(color: AppColor.textwhite, fontSize: 16),
+                                          'Total Burned Calories: ${(finalTotalCalories + peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                                          style: TextStyle(
+                                            color: AppColor.textwhite,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                         Text(
                                           'Burned Calories Today: ${totalCaloriesBurnedArray.isNotEmpty ? totalCaloriesBurnedArray.last.toStringAsFixed(2) : "0"} Kcal',
-                                          style: TextStyle(color: AppColor.textwhite, fontSize: 16),
+                                          style: TextStyle(
+                                            color: AppColor.textwhite,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       ],
                                     );
@@ -446,40 +508,103 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             ],
                           ),
                         ),
-
+                        SizedBox(height: 16),
+                        Text(
+                          'Pose Estimation Burn Calories',
+                          style: TextStyle(
+                            color: AppColor.yellowtext,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColor.buttonPrimary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.local_fire_department,
+                                color: AppColor.primary,
+                                size: 30,
+                              ),
+                              SizedBox(width: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '100 days exercise calories burn: ${(peopleBox.get("daychallenge", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                                    style: TextStyle(
+                                      color: AppColor.textwhite,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Arcade calories burn: ${(peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal', // Static placeholder value
+                                    style: TextStyle(
+                                      color: AppColor.textwhite,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                   Text(
+                                    'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                                    style: TextStyle(
+                                      color: AppColor.textwhite,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
 
                         //'Total Minutes Exercise Today (Hours:Min:Sec)'
                         SizedBox(height: 16),
-                        Text("Today's Exercise Time (Hours:Min:Sec)",
-                            style: TextStyle(
-                                color: AppColor.yellowtext,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+                        Text(
+                          "Today's Exercise Time (Hours:Min:Sec)",
+                          style: TextStyle(
+                            color: AppColor.yellowtext,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 8),
                         // Updated StreamBuilder for Total Exercise Time
                         StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('Users')
-                              .doc(currentUser!.email)
-                              .collection('UserExerciseTimes')
-                              .snapshots(),
+                          stream:
+                              FirebaseFirestore.instance
+                                  .collection('Users')
+                                  .doc(currentUser!.email)
+                                  .collection('UserExerciseTimes')
+                                  .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              );
                             }
 
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return Center(child: CircularProgressIndicator());
                             }
 
                             return FutureBuilder<int>(
-                              future: _calculateTotalExerciseTime(snapshot.data!.docs),
+                              future: _calculateTotalExerciseTime(
+                                snapshot.data!.docs,
+                              ),
                               builder: (context, totalTimeSnapshot) {
-                                if (totalTimeSnapshot.connectionState == ConnectionState.waiting) {
+                                if (totalTimeSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
                                   return CircularProgressIndicator();
                                 }
 
-                                int totalExerciseTime = totalTimeSnapshot.data ?? 0;
+                                int totalExerciseTime =
+                                    totalTimeSnapshot.data ?? 0;
 
                                 return Container(
                                   padding: EdgeInsets.all(16),
@@ -489,11 +614,18 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.timer, color: AppColor.primary, size: 30),
+                                      Icon(
+                                        Icons.timer,
+                                        color: AppColor.primary,
+                                        size: 30,
+                                      ),
                                       SizedBox(width: 16),
                                       Text(
                                         'Total Time: ${_formatTotalTime(totalExerciseTime)}',
-                                        style: TextStyle(color: AppColor.textwhite, fontSize: 18),
+                                        style: TextStyle(
+                                          color: AppColor.textwhite,
+                                          fontSize: 18,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -508,33 +640,40 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         Text(
                           'Recent Exercise Time (Hours:Min:Sec)',
                           style: TextStyle(
-                              color: AppColor.yellowtext,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
+                            color: AppColor.yellowtext,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 8),
                         StreamBuilder<DocumentSnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('Users')
-                              .doc(currentUser!.email)
-                              .collection('UserExercises')
-                              .doc('--metadata--')
-                              .snapshots(),
+                          stream:
+                              FirebaseFirestore.instance
+                                  .collection('Users')
+                                  .doc(currentUser!.email)
+                                  .collection('UserExercises')
+                                  .doc('--metadata--')
+                                  .snapshots(),
                           builder: (context, metadataSnapshot) {
                             if (metadataSnapshot.hasError) {
                               return Text('Error: ${metadataSnapshot.error}');
                             }
-                            if (metadataSnapshot.connectionState == ConnectionState.waiting) {
+                            if (metadataSnapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return CircularProgressIndicator();
                             }
 
-                            final data = metadataSnapshot.data?.data() as Map<String, dynamic>?;
-                            final List<dynamic> days = data?['currentDay'] ?? [];
+                            final data =
+                                metadataSnapshot.data?.data()
+                                    as Map<String, dynamic>?;
+                            final List<dynamic> days =
+                                data?['currentDay'] ?? [];
 
                             return FutureBuilder<int>(
                               future: computeTotalExerciseTimeForAllDays(),
                               builder: (context, totalSnapshot) {
-                                if (totalSnapshot.connectionState == ConnectionState.waiting) {
+                                if (totalSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
                                   return CircularProgressIndicator();
                                 }
                                 if (totalSnapshot.hasError) {
@@ -550,11 +689,18 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.timer, color: AppColor.primary, size: 30),
+                                      Icon(
+                                        Icons.timer,
+                                        color: AppColor.primary,
+                                        size: 30,
+                                      ),
                                       SizedBox(width: 16),
                                       Text(
                                         'Total Time: ${_formatTotalTime(totalTime)}',
-                                        style: TextStyle(color: AppColor.textwhite, fontSize: 18),
+                                        style: TextStyle(
+                                          color: AppColor.textwhite,
+                                          fontSize: 18,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -563,9 +709,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             );
                           },
                         ),
-
-
-
 
                         SizedBox(height: 16),
                         Text(
@@ -578,48 +721,65 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         ),
                         SizedBox(height: 8),
                         StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('Users')
-                              .doc(currentUser!.email)
-                              .collection('UserExerciseTimes')
-                              .snapshots(),
+                          stream:
+                              FirebaseFirestore.instance
+                                  .collection('Users')
+                                  .doc(currentUser!.email)
+                                  .collection('UserExerciseTimes')
+                                  .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              );
                             }
 
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return Center(child: CircularProgressIndicator());
                             }
 
                             final exerciseTimes = snapshot.data!.docs;
 
                             return Column(
-                              children: exerciseTimes.map((doc) {
-                                final data = doc.data() as Map<String, dynamic>?; // Ensure data is a map
+                              children:
+                                  exerciseTimes.map((doc) {
+                                    final data =
+                                        doc.data()
+                                            as Map<
+                                              String,
+                                              dynamic
+                                            >?; // Ensure data is a map
 
-                                if (data == null) return SizedBox(); // Handle null case safely
+                                    if (data == null)
+                                      return SizedBox(); // Handle null case safely
 
-                                final String exerciseName = data['exerciseName'] ?? 'Unknown Exercise';
-                                final int totalTime = data['totalExerciseTime'] ?? 0;
-                                final Timestamp? lastUpdated = data['lastUpdated'] as Timestamp?;
+                                    final String exerciseName =
+                                        data['exerciseName'] ??
+                                        'Unknown Exercise';
+                                    final int totalTime =
+                                        data['totalExerciseTime'] ?? 0;
+                                    final Timestamp? lastUpdated =
+                                        data['lastUpdated'] as Timestamp?;
 
-                                // Convert timestamp to readable date format
-                                final String formattedDate = lastUpdated != null
-                                    ? DateFormat('MMM dd, yyyy - hh:mm a').format(lastUpdated.toDate())
-                                    : 'N/A';
+                                    // Convert timestamp to readable date format
+                                    final String formattedDate =
+                                        lastUpdated != null
+                                            ? DateFormat(
+                                              'MMM dd, yyyy - hh:mm a',
+                                            ).format(lastUpdated.toDate())
+                                            : 'N/A';
 
-                                return ActivityCard(
-                                  title: exerciseName,
-                                  exeID: 'Date: $formattedDate',
-                                  duration: _formatTotalTime(totalTime),
-                                  timeanddate: '',
-                                );
-                              }).toList(),
+                                    return ActivityCard(
+                                      title: exerciseName,
+                                      exeID: 'Date: $formattedDate',
+                                      duration: _formatTotalTime(totalTime),
+                                      timeanddate: '',
+                                    );
+                                  }).toList(),
                             );
                           },
                         ),
-
 
                         SizedBox(height: 16),
                         Text(
@@ -632,25 +792,32 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         ),
                         SizedBox(height: 8),
                         StreamBuilder<DocumentSnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('Users')
-                              .doc(currentUser!.email)
-                              .collection('UserExercises')
-                              .doc('--metadata--')
-                              .snapshots(),
+                          stream:
+                              FirebaseFirestore.instance
+                                  .collection('Users')
+                                  .doc(currentUser!.email)
+                                  .collection('UserExercises')
+                                  .doc('--metadata--')
+                                  .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              );
                             }
 
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return Center(child: CircularProgressIndicator());
                             }
 
-                            final data = snapshot.data?.data() as Map<String, dynamic>?;
+                            final data =
+                                snapshot.data?.data() as Map<String, dynamic>?;
 
                             // Get all stored days
-                            final List<dynamic> days = List.from(data?['currentDay'] ?? []);
+                            final List<dynamic> days = List.from(
+                              data?['currentDay'] ?? [],
+                            );
 
                             /*if (days.isEmpty) {
                               return Center(child: Text('No exercise data available.'));
@@ -659,72 +826,98 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                               return const SizedBox(); // Returns an empty widget if days is null or empty
                             }
 
-
                             return StreamBuilder<List<QuerySnapshot>>(
-                              stream: Stream.fromFuture(Future.wait(
-                                days.map((day) => FirebaseFirestore.instance
-                                    .collection('Users')
-                                    .doc(currentUser!.email)
-                                    .collection('UserExerciseTimes')
-                                    .doc('Day$day')
-                                    .collection('times')
-                                    .get()),
-                              )),
+                              stream: Stream.fromFuture(
+                                Future.wait(
+                                  days.map(
+                                    (day) =>
+                                        FirebaseFirestore.instance
+                                            .collection('Users')
+                                            .doc(currentUser!.email)
+                                            .collection('UserExerciseTimes')
+                                            .doc('Day$day')
+                                            .collection('times')
+                                            .get(),
+                                  ),
+                                ),
+                              ),
                               builder: (context, timesSnapshot) {
                                 if (timesSnapshot.hasError) {
-                                  return Center(child: Text('Error: ${timesSnapshot.error}'));
+                                  return Center(
+                                    child: Text(
+                                      'Error: ${timesSnapshot.error}',
+                                    ),
+                                  );
                                 }
 
-                                if (timesSnapshot.connectionState == ConnectionState.waiting) {
-                                  return Center(child: CircularProgressIndicator());
+                                if (timesSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
                                 }
 
                                 // Flatten all documents into a single list
-                                List<QueryDocumentSnapshot> exerciseTimes = timesSnapshot.data!
-                                    .expand((querySnapshot) => querySnapshot.docs)
-                                    .toList();
+                                List<QueryDocumentSnapshot> exerciseTimes =
+                                    timesSnapshot.data!
+                                        .expand(
+                                          (querySnapshot) => querySnapshot.docs,
+                                        )
+                                        .toList();
 
                                 if (exerciseTimes.isEmpty) {
-                                  return Center(child: Text('No recent activities available.'));
+                                  return Center(
+                                    child: Text(
+                                      'No recent activities available.',
+                                    ),
+                                  );
                                 }
 
                                 // **Sort activities by timestamp (latest first)**
                                 exerciseTimes.sort((a, b) {
-                                  Timestamp timeA = a['lastUpdated'] ?? Timestamp(0, 0);
-                                  Timestamp timeB = b['lastUpdated'] ?? Timestamp(0, 0);
-                                  return timeB.compareTo(timeA); // Descending order (latest first)
+                                  Timestamp timeA =
+                                      a['lastUpdated'] ?? Timestamp(0, 0);
+                                  Timestamp timeB =
+                                      b['lastUpdated'] ?? Timestamp(0, 0);
+                                  return timeB.compareTo(
+                                    timeA,
+                                  ); // Descending order (latest first)
                                 });
 
                                 return Column(
-                                  children: exerciseTimes.map((doc) {
-                                    final data = doc.data() as Map<String, dynamic>;
+                                  children:
+                                      exerciseTimes.map((doc) {
+                                        final data =
+                                            doc.data() as Map<String, dynamic>;
 
-                                    final String exerciseName = data['exerciseName'] ?? 'Unknown Exercise';
-                                    final int totalTime = data['totalExerciseTime'] ?? 0;
-                                    final Timestamp? lastUpdated = data['lastUpdated'] as Timestamp?;
+                                        final String exerciseName =
+                                            data['exerciseName'] ??
+                                            'Unknown Exercise';
+                                        final int totalTime =
+                                            data['totalExerciseTime'] ?? 0;
+                                        final Timestamp? lastUpdated =
+                                            data['lastUpdated'] as Timestamp?;
 
-                                    // **Format date correctly**
-                                    final String formattedDate = lastUpdated != null
-                                        ? DateFormat('MMM d yyyy - hh:mm a').format(lastUpdated.toDate())
-                                        : 'N/A';
+                                        // **Format date correctly**
+                                        final String formattedDate =
+                                            lastUpdated != null
+                                                ? DateFormat(
+                                                  'MMM d yyyy - hh:mm a',
+                                                ).format(lastUpdated.toDate())
+                                                : 'N/A';
 
-                                    return ActivityCard(
-                                      title: exerciseName,
-                                      exeID: 'Date: $formattedDate',
-                                      duration: _formatTotalTime(totalTime),
-                                      timeanddate: '',
-                                    );
-                                  }).toList(),
+                                        return ActivityCard(
+                                          title: exerciseName,
+                                          exeID: 'Date: $formattedDate',
+                                          duration: _formatTotalTime(totalTime),
+                                          timeanddate: '',
+                                        );
+                                      }).toList(),
                                 );
                               },
                             );
                           },
                         ),
-
-
-
-
-
                       ],
                     ),
                   ),
@@ -759,8 +952,9 @@ class ActivityCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: AppColor.textwhite.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10)),
+        color: AppColor.textwhite.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Row(
         children: [
           Icon(Icons.directions_run, color: AppColor.primary, size: 30),
@@ -768,23 +962,34 @@ class ActivityCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: TextStyle(color: AppColor.textwhite, fontSize: 16)),
+              Text(
+                title,
+                style: TextStyle(color: AppColor.textwhite, fontSize: 16),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('$timeanddate',
-                      style:
-                      TextStyle(color: AppColor.yellowtext, fontSize: 14)),
+                  Text(
+                    '$timeanddate',
+                    style: TextStyle(color: AppColor.yellowtext, fontSize: 14),
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Duration: $duration',
-                          style:
-                          TextStyle(color: AppColor.yellowtext, fontSize: 14,)),
-                      Text('$exeID',
-                          style:
-                          TextStyle(color: AppColor.yellowtext, fontSize: 14)),
+                      Text(
+                        'Duration: $duration',
+                        style: TextStyle(
+                          color: AppColor.yellowtext,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        '$exeID',
+                        style: TextStyle(
+                          color: AppColor.yellowtext,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ],

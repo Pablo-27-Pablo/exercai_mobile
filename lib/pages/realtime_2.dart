@@ -57,7 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-
   void SecondOutput() {
     if (ExerciseName == "plank" ||
         ExerciseName == "rightplank" ||
@@ -65,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {}
   }
 
-// Updated countingTimer function
+  // Updated countingTimer function
   void countingTimer() {
     if (timer == null || !(timer!.isActive)) {
       startTimer();
@@ -77,14 +76,26 @@ class _MyHomePageState extends State<MyHomePage> {
       if (exercises2[i]["name"] == ExerciseName) {
         print("Exercise found: ${exercises2[i]}");
         double formula =
-            (((exercises2[i]["MET"] * 85 * 3.5) / 200) / 60) * raise;
+            (((exercises2[i]["MET"] as num).toDouble() *
+                    85 *
+                    raise.toDouble()) /
+                1000);
         totalCaloriesBurn = totalCaloriesBurn + formula;
         totalCaloriesBurnDatabase = peopleBox.get("finalcoloriesburn");
-        peopleBox.put("finalcoloriesburn", totalCaloriesBurnDatabase);
-        print(peopleBox.get("finalcoloriesburn"));
+        double ArcadeCaloriesDatabase = peopleBox.get("arcadecoloriesburn");
+        double total = totalCaloriesBurnDatabase + totalCaloriesBurn;
+        double totalArcade = ArcadeCaloriesDatabase + totalCaloriesBurn;
 
-        print("         $ExerciseName                " +
-            totalCaloriesBurn.toString());
+
+
+        peopleBox.put("finalcoloriesburn", total);
+        peopleBox.put("arcadecoloriesburn", totalArcade);
+        print(peopleBox.get("arcadecoloriesburn"));
+
+        print(
+          "         $ExerciseName                " +
+              totalCaloriesBurn.toString(),
+        );
         print("                         " + totalCaloriesBurn.toString());
         print("                         " + totalCaloriesBurn.toString());
         print("                         " + totalCaloriesBurn.toString());
@@ -122,20 +133,25 @@ class _MyHomePageState extends State<MyHomePage> {
           } else {
             Formula();
 
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => RestimeTutorial()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => RestimeTutorial()),
+            );
 
             arcadeNumber = arcadeNumber + 1;
           }
         } else if (Mode == "postureCorrection") {
           timer?.cancel();
-          
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Trypage()));
-        } else if (Mode == "dayChallenge") {
 
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Trypage()));
+            context,
+            MaterialPageRoute(builder: (context) => Trypage()),
+          );
+        } else if (Mode == "dayChallenge") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Trypage()),
+          );
         }
 
         ExerciseName = "";
@@ -148,7 +164,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> initializeCamera() async {
     poseDetector = PoseDetector(
-        options: PoseDetectorOptions(mode: PoseDetectionMode.stream));
+      options: PoseDetectorOptions(mode: PoseDetectionMode.stream),
+    );
 
     controller = CameraController(
       cameras[selectedCameraIndex],
@@ -223,7 +240,8 @@ class _MyHomePageState extends State<MyHomePage> {
       bytes: nv21Bytes,
       metadata: InputImageMetadata(
         size: Size(img!.width.toDouble(), img!.height.toDouble()),
-        rotation: rotation ??
+        rotation:
+            rotation ??
             InputImageRotation.rotation0deg, // Provide a default value
         format: InputImageFormat.nv21,
         bytesPerRow: img!.planes[0].bytesPerRow,
@@ -238,9 +256,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Pose> poses = await poseDetector.processImage(inputImage);
     _scanResults = poses;
     for (Pose pose in poses) {
-// Extract key landmarks from the detected pose
+      // Extract key landmarks from the detected pose
 
-// **Upper Body Landmarks**
+      // **Upper Body Landmarks**
       PoseLandmark rightEars = pose.landmarks[PoseLandmarkType.rightEar]!;
       PoseLandmark leftEars = pose.landmarks[PoseLandmarkType.leftEar]!;
       PoseLandmark leftShoulder =
@@ -251,22 +269,23 @@ class _MyHomePageState extends State<MyHomePage> {
       PoseLandmark rightElbow = pose.landmarks[PoseLandmarkType.rightElbow]!;
       PoseLandmark leftWrist = pose.landmarks[PoseLandmarkType.leftWrist]!;
       PoseLandmark rightWrist = pose.landmarks[PoseLandmarkType.rightWrist]!;
-      PoseLandmark head = pose.landmarks[
-          PoseLandmarkType.rightEye]!; // Using right eye as head reference
+      PoseLandmark head =
+          pose.landmarks[PoseLandmarkType
+              .rightEye]!; // Using right eye as head reference
       PoseLandmark nose = pose.landmarks[PoseLandmarkType.nose]!;
-// **Lower Body Landmarks**
+      // **Lower Body Landmarks**
       PoseLandmark leftHip = pose.landmarks[PoseLandmarkType.leftHip]!;
       PoseLandmark rightHip = pose.landmarks[PoseLandmarkType.rightHip]!;
 
-// **Legs Landmarks**
+      // **Legs Landmarks**
       PoseLandmark leftKnee = pose.landmarks[PoseLandmarkType.leftKnee]!;
       PoseLandmark rightKnee = pose.landmarks[PoseLandmarkType.rightKnee]!;
       PoseLandmark leftAnkle = pose.landmarks[PoseLandmarkType.leftAnkle]!;
       PoseLandmark rightAnkle = pose.landmarks[PoseLandmarkType.rightAnkle]!;
 
-// **Calculating Averages for Key Body Sections**
+      // **Calculating Averages for Key Body Sections**
 
-// **Upper Body Averages**
+      // **Upper Body Averages**
       double averageShoulderX = (leftShoulder.x + rightShoulder.x) / 2;
       double averageShoulderY = (leftShoulder.y + rightShoulder.y) / 2;
       double averageElbowY = (leftElbow.y + rightElbow.y) / 2;
@@ -275,11 +294,11 @@ class _MyHomePageState extends State<MyHomePage> {
       double averageWristX = (leftWrist.x + rightWrist.x) / 2;
       double averageEarsY = (leftEars.y + rightEars.y) / 2;
 
-// **Lower Body Averages**
+      // **Lower Body Averages**
       double averageHipsX = (leftHip.x + rightHip.x) / 2;
       double averageHipsY = (leftHip.y + rightHip.y) / 2;
 
-// **Legs Averages**
+      // **Legs Averages**
       double averageKneeY = (leftKnee.y + rightKnee.y) / 2;
       double averageKneeX = (leftKnee.x + rightKnee.x) / 2;
       double averageAnkleY = (leftAnkle.y + rightAnkle.y) / 2;
@@ -297,55 +316,120 @@ class _MyHomePageState extends State<MyHomePage> {
         errorWholebody = "";
 
         if (ExerciseName == "squat") {
-          squatExercise(context, leftHip, leftKnee, leftAnkle, averageShoulderX,
-              averageHipsX, averageShoulderY, averageHipsY);
+          squatExercise(
+            context,
+            leftHip,
+            leftKnee,
+            leftAnkle,
+            averageShoulderX,
+            averageHipsX,
+            averageShoulderY,
+            averageHipsY,
+          );
         } else if (ExerciseName == "pushup") {
-          pushupExercise(context, averageWristY, averageShoulderY,
-              averageElbowY, averageHipsY, averageKneeY, averageAnkleY);
+          pushupExercise(
+            context,
+            averageWristY,
+            averageShoulderY,
+            averageElbowY,
+            averageHipsY,
+            averageKneeY,
+            averageAnkleY,
+          );
         } else if (ExerciseName == "jumpingjacks") {
           jumpingJacksExercise(
-              averageWristY,
-              averageShoulderY,
-              leftAnkle.x,
-              rightAnkle.x,
-              leftShoulder.x,
-              rightShoulder.x,
-              averageHipsY,
-              averageShoulderX,
-              averageHipsX,
-              averageAnkleY);
+            averageWristY,
+            averageShoulderY,
+            leftAnkle.x,
+            rightAnkle.x,
+            leftShoulder.x,
+            rightShoulder.x,
+            averageHipsY,
+            averageShoulderX,
+            averageHipsX,
+            averageAnkleY,
+          );
         } else if (ExerciseName == "legraises") {
-          legRaiseExercise(context, averageHipsY, averageKneeY, averageAnkleY,
-              averageShoulderY, averageEarsY);
+          legRaiseExercise(
+            context,
+            averageHipsY,
+            averageKneeY,
+            averageAnkleY,
+            averageShoulderY,
+            averageEarsY,
+          );
         } else if (ExerciseName == "situp") {
-          sitUpExercise(context, nose.y, averageShoulderY, averageHipsY,
-              averageKneeY, averageAnkleY);
+          sitUpExercise(
+            context,
+            nose.y,
+            averageShoulderY,
+            averageHipsY,
+            averageKneeY,
+            averageAnkleY,
+          );
         } else if (ExerciseName == "mountainclimbers") {
           mountainClimbersExercise(
-              averageKneeY,
-              averageHipsX,
-              leftKnee.x,
-              leftKnee.y,
-              rightKnee.x,
-              rightKnee.y,
-              averageWristY,
-              averageShoulderY,
-              averageHipsY);
+            averageKneeY,
+            averageHipsX,
+            leftKnee.x,
+            leftKnee.y,
+            rightKnee.x,
+            rightKnee.y,
+            averageWristY,
+            averageShoulderY,
+            averageHipsY,
+          );
         } else if (ExerciseName == "highknee") {
-          highKneeExercise(leftKnee.y, rightKnee.y, averageHipsY, averageHipsX,
-              averageShoulderX, averageShoulderY, averageAnkleY);
+          highKneeExercise(
+            leftKnee.y,
+            rightKnee.y,
+            averageHipsY,
+            averageHipsX,
+            averageShoulderX,
+            averageShoulderY,
+            averageAnkleY,
+          );
         } else if (ExerciseName == "lunges") {
-          lungesExercise(averageHipsY, averageHipsX, leftKnee.y, rightKnee.y,
-              leftAnkle.y, rightAnkle.y, averageShoulderX, averageShoulderY);
+          lungesExercise(
+            averageHipsY,
+            averageHipsX,
+            leftKnee.y,
+            rightKnee.y,
+            leftAnkle.y,
+            rightAnkle.y,
+            averageShoulderX,
+            averageShoulderY,
+          );
         } else if (ExerciseName == "plank") {
-          normalPlankExercise(averageShoulderY, averageHipsY, averageAnkleY,
-              leftElbow.y, leftKnee.y, rightKnee.y, rightShoulder.y);
+          normalPlankExercise(
+            averageShoulderY,
+            averageHipsY,
+            averageAnkleY,
+            leftElbow.y,
+            leftKnee.y,
+            rightKnee.y,
+            rightShoulder.y,
+          );
         } else if (ExerciseName == "rightplank") {
-          sidePlankRightExercise(averageShoulderY, averageHipsY, averageAnkleY,
-              rightElbow.y, rightKnee.y, leftElbow.y, leftShoulder.y);
+          sidePlankRightExercise(
+            averageShoulderY,
+            averageHipsY,
+            averageAnkleY,
+            rightElbow.y,
+            rightKnee.y,
+            leftElbow.y,
+            leftShoulder.y,
+          );
         } else if (ExerciseName == "leftplank") {
-          sidePlankLeftExercise(averageShoulderY, averageHipsY, averageAnkleY,
-              leftElbow.y, leftKnee.y, rightElbow.y, rightShoulder.y);
+          sidePlankLeftExercise(
+            averageShoulderY,
+            averageHipsY,
+            averageAnkleY,
+            leftElbow.y,
+            leftKnee.y,
+            rightElbow.y,
+            rightShoulder.y,
+          );
         }
       } else {
         if (ExerciseName != "") {
@@ -361,7 +445,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         raise = raise;
       });
-///////////////////////////////
+      ///////////////////////////////
       pose.landmarks.forEach((_, landmark) {
         final x = landmark.x;
         final y = landmark.y;
@@ -387,9 +471,7 @@ class _MyHomePageState extends State<MyHomePage> {
       controller.value.previewSize!.width,
     );
     CustomPainter painter = PosePainter(imageSize, _scanResults);
-    return CustomPaint(
-      painter: painter,
-    );
+    return CustomPaint(painter: painter);
   }
 
   @override
@@ -419,283 +501,318 @@ class _MyHomePageState extends State<MyHomePage> {
           width: size.width,
           height: size.height,
           child: Container(
-            child: (controller.value.isInitialized)
-                ? AspectRatio(
-                    aspectRatio: controller.value.aspectRatio,
-                    child: CameraPreview(controller),
-                  )
-                : Container(),
+            child:
+                (controller.value.isInitialized)
+                    ? AspectRatio(
+                      aspectRatio: controller.value.aspectRatio,
+                      child: CameraPreview(controller),
+                    )
+                    : Container(),
           ),
         ),
       );
 
       fixingcamera
           ? stackChildren.add(
-              Positioned(
-                top: 0.0,
-                left: 0.0,
-                width: size.width,
-                height: size.height,
-                child: Transform(
-                  alignment: Alignment
-                      .center, // Ensure the flip happens around the center
-                  transform: Matrix4.identity()
-                    ..scale(-1.0, 1.0), // Horizontal flip
-                  child: buildResult(),
-                ),
+            Positioned(
+              top: 0.0,
+              left: 0.0,
+              width: size.width,
+              height: size.height,
+              child: Transform(
+                alignment:
+                    Alignment
+                        .center, // Ensure the flip happens around the center
+                transform:
+                    Matrix4.identity()..scale(-1.0, 1.0), // Horizontal flip
+                child: buildResult(),
               ),
-            )
+            ),
+          )
           : stackChildren.add(
-              Positioned(
-                  top: 0.0,
-                  left: 0.0,
-                  width: size.width,
-                  height: size.height,
-                  child: buildResult()),
-            );
+            Positioned(
+              top: 0.0,
+              left: 0.0,
+              width: size.width,
+              height: size.height,
+              child: buildResult(),
+            ),
+          );
 
       //output screen
 
       stackChildren.add(
         Positioned(
-            top: 0.0,
-            left: 0.0,
-            width: size.width,
-            height: size.height,
-            child: Container(
-              padding: EdgeInsets.only(bottom: 80),
-              decoration: warningIndicatorScreen
-                  ? BoxDecoration()
-                  : BoxDecoration(
+          top: 0.0,
+          left: 0.0,
+          width: size.width,
+          height: size.height,
+          child: Container(
+            padding: EdgeInsets.only(bottom: 80),
+            decoration:
+                warningIndicatorScreen
+                    ? BoxDecoration()
+                    : BoxDecoration(
                       border: Border.all(width: 2, color: Colors.red),
-                      color: Colors.red.withOpacity(0.1)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        PrimaryExerciseName,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30,
-                            color: AppColor.yellowtext),
+                      color: Colors.red.withOpacity(0.1),
+                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      PrimaryExerciseName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                        color: AppColor.yellowtext,
                       ),
-                      Text(
-                        raise.toString(),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 70,
-                            color: Colors.yellow),
+                    ),
+                    Text(
+                      raise.toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 70,
+                        color: Colors.yellow,
                       ),
-                      ExerciseName == "plank" ||
-                              ExerciseName == "rightplank" ||
-                              ExerciseName == "leftplank"
-                          ? Text(
-                              "Second/s",
-                              style: TextStyle(color: AppColor.yellowtext),
-                            )
-                          : Text(
-                              "Reps Count/s",
-                              style: TextStyle(color: AppColor.yellowtext),
-                            ),
-                      SizedBox(
-                        height: 10,
+                    ),
+                    ExerciseName == "plank" ||
+                            ExerciseName == "rightplank" ||
+                            ExerciseName == "leftplank"
+                        ? Text(
+                          "Second/s",
+                          style: TextStyle(color: AppColor.yellowtext),
+                        )
+                        : Text(
+                          "Reps Count/s",
+                          style: TextStyle(color: AppColor.yellowtext),
+                        ),
+                    SizedBox(height: 10),
+                    Container(
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: AppColor.textwhite,
+                        borderRadius: BorderRadius.circular(13),
                       ),
-                      Container(
-                          width: 100,
-                          decoration: BoxDecoration(
-                              color: AppColor.textwhite,
-                              borderRadius: BorderRadius.circular(13)),
-                          child: Mode == "dayChallenge"
+                      child:
+                          Mode == "dayChallenge"
                               ? Container()
                               : Column(
-                                  children: [
-                                    Text("Time"),
-                                    Text(
-                                      seconds.toString(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 30,
-                                          color: AppColor.shadow),
+                                children: [
+                                  Text("Time"),
+                                  Text(
+                                    seconds.toString(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 30,
+                                      color: AppColor.shadow,
                                     ),
-                                  ],
-                                )),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      largeGap,
-                      largeGap,
-                      largeGap,
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Container(
-                          padding: EdgeInsets.only(left: 25, right: 25),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                  width: 250,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
+                                  ),
+                                ],
+                              ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    largeGap,
+                    largeGap,
+                    largeGap,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Container(
+                        padding: EdgeInsets.only(left: 25, right: 25),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: 250,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 180,
+                                    height: 27,
+                                    decoration: BoxDecoration(
+                                      color: AppColor.bottonPrimary.withOpacity(
+                                        0.8,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      "Exercise Feedback: ",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: AppColor.purpletext,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  errorWholebody == ""
+                                      ? Container()
+                                      : Container(
                                         width: 180,
-                                        height: 27,
                                         decoration: BoxDecoration(
-                                          color: AppColor.bottonPrimary
-                                              .withOpacity(0.8),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          color: const Color.fromARGB(
+                                            255,
+                                            247,
+                                            247,
+                                            247,
+                                          ).withOpacity(0.7),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            width: 1,
+                                            color: const Color.fromARGB(
+                                              255,
+                                              255,
+                                              255,
+                                              255,
+                                            ),
+                                          ),
                                         ),
                                         child: Text(
-                                          "Exercise Feedback: ",
+                                          errorWholebody,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: AppColor.purpletext),
+                                            color: AppColor.solidtext,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      errorWholebody == ""
-                                          ? Container()
-                                          : Container(
-                                              width: 180,
-                                              decoration: BoxDecoration(
-                                                  color: const Color.fromARGB(
-                                                          255, 247, 247, 247)
-                                                      .withOpacity(0.7),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                      width: 1,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              255,
-                                                              255,
-                                                              255))),
-                                              child: Text(
-                                                errorWholebody,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: AppColor.solidtext,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16),
-                                              ),
+                                  SizedBox(height: 10),
+                                  warningIndicatorText == ""
+                                      ? Container()
+                                      : Container(
+                                        width: 180,
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                            255,
+                                            247,
+                                            247,
+                                            247,
+                                          ).withOpacity(0.7),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            width: 1,
+                                            color: const Color.fromARGB(
+                                              255,
+                                              255,
+                                              255,
+                                              255,
                                             ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      warningIndicatorText == ""
-                                          ? Container()
-                                          : Container(
-                                              width: 180,
-                                              decoration: BoxDecoration(
-                                                  color: const Color.fromARGB(
-                                                          255, 247, 247, 247)
-                                                      .withOpacity(0.7),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                      width: 1,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              255,
-                                                              255,
-                                                              255))),
-                                              child: Text(
-                                                warningIndicatorText,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: AppColor.solidtext,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16),
-                                              ),
-                                            ),
-
-                                      SizedBox(
-                                        height: 10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          warningIndicatorText,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: AppColor.solidtext,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                       ),
 
-                                      //error indicator in exercise
-                                      warningIndicatorTextExercise == ""
-                                          ? Container()
-                                          : Container(
-                                              width: 180,
-                                              decoration: BoxDecoration(
-                                                  color: const Color.fromARGB(
-                                                          255, 247, 247, 247)
-                                                      .withOpacity(0.7),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                      width: 1,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              255,
-                                                              255,
-                                                              255))),
-                                              child: Text(
-                                                warningIndicatorTextExercise,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: AppColor.solidtext,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16),
-                                              ),
+                                  SizedBox(height: 10),
+
+                                  //error indicator in exercise
+                                  warningIndicatorTextExercise == ""
+                                      ? Container()
+                                      : Container(
+                                        width: 180,
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                            255,
+                                            247,
+                                            247,
+                                            247,
+                                          ).withOpacity(0.7),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            width: 1,
+                                            color: const Color.fromARGB(
+                                              255,
+                                              255,
+                                              255,
+                                              255,
                                             ),
-                                    ],
-                                  )),
-                              Flexible(
-                                child: Container(
-                                  width: 90,
-                                  height: 140,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.asset(
-                                      'assets/image/$image',
-                                      fit: BoxFit.cover,
-                                    ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          warningIndicatorTextExercise,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: AppColor.solidtext,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                ],
+                              ),
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 90,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.asset(
+                                    'assets/image/$image',
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                      largeGap,
-                    ],
-                  ),
-                ],
-              ),
-            )),
+                    ),
+                    largeGap,
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
     return Scaffold(
       appBar: AppBar(
-        
-        leading: Mode == "dayChallenge" || Mode == "Arcade" ? IconButton(onPressed: (){
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => ArcadeModePage()),
-            );
-        }, icon: Icon(Icons.arrow_back,color: AppColor.primary,)): IconButton(onPressed: (){
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Trypage()),
-          );
-        }, icon: Icon(Icons.arrow_back,color: AppColor.primary,)),
+        leading:
+            Mode == "dayChallenge" || Mode == "Arcade"
+                ? IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ArcadeModePage()),
+                    );
+                  },
+                  icon: Icon(Icons.arrow_back, color: AppColor.primary),
+                )
+                : IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => Trypage()),
+                    );
+                  },
+                  icon: Icon(Icons.arrow_back, color: AppColor.primary),
+                ),
         title: const Text(
           "Pose Estimation",
           style: TextStyle(color: AppColor.primary),
@@ -703,21 +820,17 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: AppColor.backgroundgrey,
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.flip_camera_android,
-              color: AppColor.primary,
-            ),
+            icon: Icon(Icons.flip_camera_android, color: AppColor.primary),
             onPressed: toggleCamera,
           ),
         ],
       ),
       backgroundColor: Colors.black,
       body: Container(
-          margin: const EdgeInsets.only(top: 0),
-          color: Colors.black,
-          child: Stack(
-            children: stackChildren,
-          )),
+        margin: const EdgeInsets.only(top: 0),
+        color: Colors.black,
+        child: Stack(children: stackChildren),
+      ),
     );
   }
 }
@@ -733,85 +846,152 @@ class PosePainter extends CustomPainter {
     final double scaleX = size.width / absoluteImageSize.width;
     final double scaleY = size.height / absoluteImageSize.height;
 
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0
-      ..color = Colors.green;
+    final paint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4.0
+          ..color = Colors.green;
 
-    final leftPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.yellow;
+    final leftPaint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..color = Colors.yellow;
 
-    final rightPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
+    final rightPaint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..color = Colors.blueAccent;
 
-    final facePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = const Color.fromARGB(255, 207, 6, 207);
+    final facePaint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..color = const Color.fromARGB(255, 207, 6, 207);
 
     for (final pose in poses) {
       pose.landmarks.forEach((_, landmark) {
         canvas.drawCircle(
-            Offset(landmark.x * scaleX, landmark.y * scaleY), 1, paint);
+          Offset(landmark.x * scaleX, landmark.y * scaleY),
+          1,
+          paint,
+        );
       });
 
       void paintLine(
-          PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
+        PoseLandmarkType type1,
+        PoseLandmarkType type2,
+        Paint paintType,
+      ) {
         final PoseLandmark joint1 = pose.landmarks[type1]!;
         final PoseLandmark joint2 = pose.landmarks[type2]!;
-        canvas.drawLine(Offset(joint1.x * scaleX, joint1.y * scaleY),
-            Offset(joint2.x * scaleX, joint2.y * scaleY), paintType);
+        canvas.drawLine(
+          Offset(joint1.x * scaleX, joint1.y * scaleY),
+          Offset(joint2.x * scaleX, joint2.y * scaleY),
+          paintType,
+        );
       }
 
       //Draw arms
       paintLine(
-          PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
+        PoseLandmarkType.leftShoulder,
+        PoseLandmarkType.leftElbow,
+        leftPaint,
+      );
       paintLine(
-          PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-      paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow,
-          rightPaint);
+        PoseLandmarkType.leftElbow,
+        PoseLandmarkType.leftWrist,
+        leftPaint,
+      );
       paintLine(
-          PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
+        PoseLandmarkType.rightShoulder,
+        PoseLandmarkType.rightElbow,
+        rightPaint,
+      );
+      paintLine(
+        PoseLandmarkType.rightElbow,
+        PoseLandmarkType.rightWrist,
+        rightPaint,
+      );
 
       //Draw Body
       paintLine(
-          PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-      paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip,
-          rightPaint);
+        PoseLandmarkType.leftShoulder,
+        PoseLandmarkType.leftHip,
+        leftPaint,
+      );
       paintLine(
-          PoseLandmarkType.leftHip, PoseLandmarkType.rightHip, rightPaint);
+        PoseLandmarkType.rightShoulder,
+        PoseLandmarkType.rightHip,
+        rightPaint,
+      );
+      paintLine(
+        PoseLandmarkType.leftHip,
+        PoseLandmarkType.rightHip,
+        rightPaint,
+      );
 
-      paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.rightShoulder,
-          rightPaint);
+      paintLine(
+        PoseLandmarkType.leftShoulder,
+        PoseLandmarkType.rightShoulder,
+        rightPaint,
+      );
       //Draw legs
       paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
       paintLine(
-          PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
+        PoseLandmarkType.leftKnee,
+        PoseLandmarkType.leftAnkle,
+        leftPaint,
+      );
       paintLine(
-          PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
+        PoseLandmarkType.rightHip,
+        PoseLandmarkType.rightKnee,
+        rightPaint,
+      );
       paintLine(
-          PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+        PoseLandmarkType.rightKnee,
+        PoseLandmarkType.rightAnkle,
+        rightPaint,
+      );
 
       //Draw face
 
       paintLine(
-          PoseLandmarkType.leftEyeOuter, PoseLandmarkType.leftEye, facePaint);
+        PoseLandmarkType.leftEyeOuter,
+        PoseLandmarkType.leftEye,
+        facePaint,
+      );
       paintLine(
-          PoseLandmarkType.leftEye, PoseLandmarkType.leftEyeInner, facePaint);
+        PoseLandmarkType.leftEye,
+        PoseLandmarkType.leftEyeInner,
+        facePaint,
+      );
       paintLine(
-          PoseLandmarkType.leftEyeInner, PoseLandmarkType.nose, facePaint);
+        PoseLandmarkType.leftEyeInner,
+        PoseLandmarkType.nose,
+        facePaint,
+      );
       paintLine(
-          PoseLandmarkType.nose, PoseLandmarkType.rightEyeInner, facePaint);
+        PoseLandmarkType.nose,
+        PoseLandmarkType.rightEyeInner,
+        facePaint,
+      );
       paintLine(
-          PoseLandmarkType.rightEyeInner, PoseLandmarkType.rightEye, facePaint);
+        PoseLandmarkType.rightEyeInner,
+        PoseLandmarkType.rightEye,
+        facePaint,
+      );
       paintLine(
-          PoseLandmarkType.rightEye, PoseLandmarkType.rightEyeOuter, facePaint);
+        PoseLandmarkType.rightEye,
+        PoseLandmarkType.rightEyeOuter,
+        facePaint,
+      );
       paintLine(
-          PoseLandmarkType.leftMouth, PoseLandmarkType.rightMouth, facePaint);
+        PoseLandmarkType.leftMouth,
+        PoseLandmarkType.rightMouth,
+        facePaint,
+      );
     }
   }
 
