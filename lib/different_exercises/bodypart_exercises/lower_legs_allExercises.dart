@@ -349,7 +349,7 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
                         bool isTimeBased = exercise['baseSetsSecs'] != null ||
                             exercise['baseSecs'] != null;
 
-                        //double? finalTotalBurnCalRep = finalBurnCalMap[exerciseName];
+
 
                         // Use preloaded FinalTotalBurnCalRep values from finalBurnCalMap
                         double? finalTotalBurnCalRep = finalBurnCalMap[exerciseName];
