@@ -54,6 +54,10 @@ void main() async {
   await Hive.openBox("Box");
   cameras = await availableCameras(); // Initialize cameras
   await Hive.openBox('reminders'); // Open Hive box for storing reminders
+  FirebaseFirestore.instance.settings = Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
   runApp(MyApp());
 }
 
@@ -160,7 +164,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: ProgressTrackingScreen(),
+          //home: ProgressTrackingScreen(),
+          home: AuthPage(),
           //home :DownloadGifsScreen(),
 
 

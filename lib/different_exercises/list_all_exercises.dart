@@ -27,7 +27,7 @@ final Map<String, List<Map<String, dynamic>>> allExercises = {
     {'name': 'wide hand push-up', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wide hand push-up.gif'},
     {'name': 'push and pull bodyweight', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push and pull bodyweight.gif'},
     {'name': 'kneeling push-up (male)', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.35, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/kneeling push-up (male).gif'},
-    {'name': 'archer push-up', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.5, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/archer push-up.gif'},
+    {'name': 'archer push up', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.5, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/archer push up.gif'},
   ],
 
   'cardio': [

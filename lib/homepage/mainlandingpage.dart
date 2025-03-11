@@ -1,5 +1,6 @@
 import 'package:exercai_mobile/components/my_drawer.dart';
 import 'package:exercai_mobile/different_exercises/all_exercises.dart';
+import 'package:exercai_mobile/different_exercises/choose_bodyparts.dart';
 import 'package:exercai_mobile/exercise_posture/exerciseposturepage1.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
@@ -276,7 +277,7 @@ class _MainLandingPageState extends State<MainLandingPage> {
                 ),
                 onTap: (){
                   // Navigator.push(context, MaterialPageRoute(builder: (context)=> FilterExerciseFirestore()));
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> AllExercises()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ChooseBodyparts()));
 
                 },
               ),
