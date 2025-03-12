@@ -30,6 +30,7 @@ int days = 0;
 var peopleBox = Hive.box("Box");
 double totalCaloriesBurn = 0;
 double totalCaloriesBurnDatabase = 0;
+int repsWants = 0;
 
 //small Gap
 

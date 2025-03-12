@@ -1,4 +1,5 @@
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
+import 'package:exercai_mobile/pages/repsCounter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:exercai_mobile/pages/home.dart';
@@ -68,7 +69,7 @@ class _TrypageState extends State<Trypage> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => MyHomePage()),
+      MaterialPageRoute(builder: (context) => AgeSelectorScreen()),
     );
   }
 

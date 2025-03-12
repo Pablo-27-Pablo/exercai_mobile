@@ -1,11 +1,14 @@
 import 'dart:math';
 import 'package:exercai_mobile/utils/constant.dart';
+import 'package:exercai_mobile/utils/music_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:async';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../pages/Awarding_Page.dart';
+
+final musicPlayer2 = MusicPlayerService();
 
 FlutterTts _flutterTts = FlutterTts();
 speak(text) async {
@@ -23,8 +26,9 @@ Formula() {
               1000);
       totalCaloriesBurn = totalCaloriesBurn + formula;
       totalCaloriesBurnDatabase =
-          (peopleBox.get("finalcoloriesburn",defaultValue: 0)).toDouble();
-      double daysDatabase = (peopleBox.get("daychallenge",defaultValue: 0)).toDouble();
+          (peopleBox.get("finalcoloriesburn", defaultValue: 0)).toDouble();
+      double daysDatabase =
+          (peopleBox.get("daychallenge", defaultValue: 0)).toDouble();
       double totaldayschallenge = daysDatabase + totalCaloriesBurn;
       double total = totalCaloriesBurn + totalCaloriesBurnDatabase;
       peopleBox.put("finalcoloriesburn", total);
@@ -117,14 +121,6 @@ void pushupExercise(
   averageKneeY,
   averageAnkleY,
 ) {
-  pushupError(
-    averageHipsY,
-    avgShoulderY,
-    avgWristY,
-    averageKneeY,
-    averageAnkleY,
-  );
-
   if (avgWristY + 30 > averageAnkleY) {
     // Detect "down" position (elbows near shoulders)
     if (avgElbowY < avgShoulderY + 30 && avgWristY > avgShoulderY) {
@@ -194,13 +190,25 @@ pushupError(
   averageKneeY,
   averageAnkleY,
 ) {
+  int currentTime = DateTime.now().millisecondsSinceEpoch;
+
   if ((averageHipsY < avgShoulderY - 10 || averageKneeY - 10 > averageAnkleY) &&
       avgWristY + 20 > averageAnkleY &&
       staticIsUp) {
     warningIndicatorScreen = false;
     warningIndicatorTextExercise =
         "Your hips are not align, Make your body straight";
-    speak(warningIndicatorTextExercise);
+
+    if (currentTime - lastUpdateTime3 >= 2000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 2), () {
+          musicPlayer2.resume();
+        });
+      }
+      speak(warningIndicatorTextExercise);
+      // Update the last update time
+    }
   } else if ((averageHipsY < avgShoulderY - 23 ||
           averageHipsY + 10 > avgWristY) &&
       avgWristY + 20 > averageAnkleY &&
@@ -208,7 +216,16 @@ pushupError(
     warningIndicatorScreen = false;
     warningIndicatorTextExercise =
         "Your hips are not  not align, Make your body straight";
-    speak(warningIndicatorTextExercise);
+    if (currentTime - lastUpdateTime3 >= 2000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 2), () {
+          musicPlayer2.resume();
+        });
+      }
+      speak(warningIndicatorTextExercise);
+      // Update the last update time
+    }
   }
 }
 
@@ -233,6 +250,12 @@ StandStraight(shoulder, hips) {
 
   if (shoulder >= hips + 30 || shoulder <= hips - 30) {
     if (currentTime - lastUpdateTime3 >= 2000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 2), () {
+          musicPlayer2.resume();
+        });
+      }
       warningIndicatorScreen = false;
       warningIndicatorText = "The body is not align";
       speak(warningIndicatorText); // Increment raise every second
@@ -267,6 +290,12 @@ void legRaiseExercise(
 
     if (avgHipY < avgAnkleY + 1) {
       if (currentTime - lastUpdateTime3 >= 2000) {
+        if (Mode == "Arcade") {
+          musicPlayer2.pause();
+          Future.delayed(Duration(seconds: 2), () {
+            musicPlayer2.resume();
+          });
+        }
         warningIndicatorText = "don't let your ankle drop too low!";
         speak(warningIndicatorText); // Increment raise every second
         lastUpdateTime3 = currentTime; // Update the last update time
@@ -282,6 +311,12 @@ void legRaiseExercise(
 
       if (avgHipY - 30 > avgKneeY || avgKneeY < avgAnkleY - 5) {
         if (currentTime - lastUpdateTime3 >= 2000) {
+          if (Mode == "Arcade") {
+            musicPlayer2.pause();
+            Future.delayed(Duration(seconds: 2), () {
+              musicPlayer2.resume();
+            });
+          }
           warningIndicatorTextExercise = "Don't bend your knee!";
           speak(warningIndicatorTextExercise); // Increment raise every second
           lastUpdateTime3 = currentTime; // Update the last update time
@@ -606,7 +641,13 @@ void sidePlankRightExercise(
 
 void plankError(avgShoulderY, avgHipY, currentTime) {
   if (avgShoulderY + 10 > avgHipY || avgShoulderY + 50 < avgHipY) {
-    if (currentTime - lastUpdateTime3 >= 2000) {
+    if (currentTime - lastUpdateTime3 >= 3000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 3), () {
+          musicPlayer2.resume();
+        });
+      }
       warningIndicatorScreen = false;
       warningIndicatorText = "The body is not align";
       speak(warningIndicatorText);

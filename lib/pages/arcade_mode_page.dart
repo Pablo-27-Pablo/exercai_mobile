@@ -6,7 +6,7 @@ import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
 import 'package:exercai_mobile/utils/constant.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/utils/constant.dart';
-
+import '../utils/music_background.dart';
 class ArcadeModePage extends StatefulWidget {
   const ArcadeModePage({super.key});
 
@@ -15,13 +15,15 @@ class ArcadeModePage extends StatefulWidget {
 }
 
 class _ArcadeModePageState extends State<ArcadeModePage> {
+  final musicPlayer = MusicPlayerService();
+
   final List<Map<String, String>> exercises = [
     {"name": "Push Up", "PrimaryName": "pushup", "image": "pushup.gif"},
     {"name": "Sit Up", "PrimaryName": "situp", "image": "situp.gif"},
     {
       "name": "Leg Raises",
       "PrimaryName": "legraises",
-      "image": "legraises.gif"
+      "image": "legraises.gif",
     },
     {"name": "Squat", "PrimaryName": "squat", "image": "squat.gif"},
   ];
@@ -40,6 +42,13 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       MaterialPageRoute(builder: (context) => ThirtyDaysChallenge()),
     );
   }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    musicPlayer.stop();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,21 +57,22 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainLandingPage()),
-                );
-              },
-              icon: Icon(
-                Icons.arrow_back,
-                color: AppColor.textwhite,
-              )),
-          title: const Text("Arcade Mode",
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.textwhite)),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => MainLandingPage()),
+              );
+            },
+            icon: Icon(Icons.arrow_back, color: AppColor.textwhite),
+          ),
+          title: const Text(
+            "Arcade Mode",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColor.textwhite,
+            ),
+          ),
           centerTitle: true,
           backgroundColor: AppColor.primary,
         ),
@@ -81,9 +91,10 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                      color: AppColor.primary.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(width: 2, color: AppColor.primary)),
+                    color: AppColor.primary.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(width: 2, color: AppColor.primary),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -115,10 +126,11 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                           "assets/image/arcade.gif",
                           height: 65,
                           color: Colors.transparent, // Apply transparency
-                          colorBlendMode: BlendMode
-                              .multiply, // Adjust blend mode based on background color
+                          colorBlendMode:
+                              BlendMode
+                                  .multiply, // Adjust blend mode based on background color
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -139,8 +151,12 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                   itemBuilder: (context, index) {
                     final exercise = exercises[index];
                     return GestureDetector(
-                      onDoubleTap: () => startExercise(exercise["PrimaryName"]!,
-                          exercise["image"]!, exercise["name"]!),
+                      onDoubleTap:
+                          () => startExercise(
+                            exercise["PrimaryName"]!,
+                            exercise["image"]!,
+                            exercise["name"]!,
+                          ),
                       child: Container(
                         height: 85,
                         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -149,8 +165,9 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                           color: AppColor.backgroundgrey,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColor.textwhite.withOpacity(0.3),
-                              width: 1),
+                            color: AppColor.textwhite.withOpacity(0.3),
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: AppColor.primary.withOpacity(0.1),
@@ -165,12 +182,17 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                             Text(
                               exercise["name"]!,
                               style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColor.textwhite),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColor.textwhite,
+                              ),
                             ),
-                            Image.asset("assets/image/" + exercise['image']!,
-                                height: 75, width: 75, fit: BoxFit.cover),
+                            Image.asset(
+                              "assets/image/" + exercise['image']!,
+                              height: 75,
+                              width: 75,
+                              fit: BoxFit.cover,
+                            ),
                           ],
                         ),
                       ),
