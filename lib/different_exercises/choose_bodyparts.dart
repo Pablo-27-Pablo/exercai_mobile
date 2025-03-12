@@ -8,6 +8,7 @@ import 'package:exercai_mobile/different_exercises/bodypart_exercises/shoulders_
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/upper_arms_allExercises.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/upper_legs_allExercises.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/waist_allExercises.dart';
+import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:exercai_mobile/main.dart';
 
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.yellow,),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>MainLandingPage()));
           },
         ),
       ),

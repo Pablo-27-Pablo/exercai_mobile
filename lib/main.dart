@@ -172,6 +172,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           home: AuthPage(),
+          //home: ButtonDownloadExercises(),
           //home :DownloadGifsScreen(),
           routes: {
             //'/login_register_page': (context) => LoginOrRegister(),
