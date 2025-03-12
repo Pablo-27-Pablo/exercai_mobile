@@ -12,6 +12,7 @@ import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dar
 import 'package:exercai_mobile/login_register_pages/createaccount.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
 import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
+import 'package:exercai_mobile/pages/backup/BackupTrypage.dart';
 import 'package:exercai_mobile/pages/home.dart';
 import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page.dart';
@@ -171,7 +172,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: AuthPage(),
+          home: RestimeTutorial(),
           //home :DownloadGifsScreen(),
           routes: {
             //'/login_register_page': (context) => LoginOrRegister(),
