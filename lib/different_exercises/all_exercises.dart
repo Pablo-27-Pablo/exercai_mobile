@@ -6,16 +6,13 @@ import '../../homepage/mainlandingpage.dart';
 import 'dart:math';
 import 'list_all_exercises.dart';
 
-
-
 class AllExercises extends StatefulWidget {
   @override
   _AllExercisesState createState() => _AllExercisesState();
 }
 
-class _AllExercisesState extends State<AllExercises> {
-
-
+class _AllExercisesState extends State<AllExercises>
+    with AutomaticKeepAliveClientMixin<AllExercises> {
   Stream<QuerySnapshot> _exercisesStream = const Stream.empty();
   bool isLoading = true;
   User? _currentUser;
@@ -30,7 +27,8 @@ class _AllExercisesState extends State<AllExercises> {
     return _currentUser!.email.hashCode + daysSinceEpoch;
   }
 
-  Map<String, List<Map<String, dynamic>>> groupExercisesByBodyPart(List<Map<String, dynamic>> exercises) {
+  Map<String, List<Map<String, dynamic>>> groupExercisesByBodyPart(
+      List<Map<String, dynamic>> exercises) {
     Map<String, List<Map<String, dynamic>>> groupedExercises = {};
     for (var exercise in exercises) {
       String bodyPart = exercise['bodyPart'] ?? 'Unknown';
@@ -45,7 +43,8 @@ class _AllExercisesState extends State<AllExercises> {
   String getRepsTimeDisplay(Map<String, dynamic> exercise) {
     if (exercise['baseSetsReps'] != null && exercise['baseReps'] != null) {
       return "${exercise['baseSetsReps']} sets × ${exercise['baseReps']} reps";
-    } else if (exercise['baseSetsSecs'] != null && exercise['baseSecs'] != null) {
+    } else if (exercise['baseSetsSecs'] != null &&
+        exercise['baseSecs'] != null) {
       return _formatTimeDisplay(exercise['baseSetsSecs'], exercise['baseSecs']);
     } else if (exercise['baseSecs'] != null) {
       return _formatSingleDuration(exercise['baseSecs']);
@@ -68,8 +67,6 @@ class _AllExercisesState extends State<AllExercises> {
     return "$totalSecs sec";
   }
 
-
-
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
 
@@ -84,23 +81,24 @@ class _AllExercisesState extends State<AllExercises> {
         final updatedUserAge = userData['age'];
         final injuryArea = userData['injuryArea'] ?? '';
 
-        List<String> updatedInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
+        List<String> updatedInjuries = injuryArea
+            .split(', ')
+            .where((s) => s.isNotEmpty)
+            .toList();
         if (updatedInjuries.contains('none of them')) updatedInjuries.clear();
 
-        // Batch update state once
         setState(() {
           userAge = updatedUserAge;
           _userInjuries = updatedInjuries;
         });
 
-         _initializeExercisesStream();
+        _initializeExercisesStream();
         await fetchFinalBurnCalValues();
       }
     } catch (e) {
       print("Error fetching user data: $e");
     }
   }
-
 
   void _initializeExercisesStream() {
     _exercisesStream = FirebaseFirestore.instance
@@ -110,8 +108,6 @@ class _AllExercisesState extends State<AllExercises> {
         .where('isActive', isEqualTo: true)
         .snapshots();
   }
-
-
 
   Future<void> fetchFinalBurnCalValues() async {
     if (_currentUser == null) return;
@@ -125,7 +121,8 @@ class _AllExercisesState extends State<AllExercises> {
       setState(() {
         finalBurnCalMap = {
           for (var doc in snapshot.docs)
-            if ((doc.data() as Map<String, dynamic>).containsKey('FinalTotalBurnCalRep'))
+            if ((doc.data() as Map<String, dynamic>)
+                .containsKey('FinalTotalBurnCalRep'))
               doc.id: (doc['FinalTotalBurnCalRep'] as num).toDouble()
         };
       });
@@ -154,7 +151,7 @@ class _AllExercisesState extends State<AllExercises> {
       for (var doc in snapshot.docs) {
         final firestoreExercise = doc.data() as Map<String, dynamic>;
         final exerciseName = firestoreExercise['name']?.toString() ?? '';
-        final exerciseId = doc.id; // Get the Firestore document ID
+        final exerciseId = doc.id;
 
         print("Processing exercise: $exerciseName (ID: $exerciseId)");
 
@@ -175,13 +172,12 @@ class _AllExercisesState extends State<AllExercises> {
             'burnCalperRep': localData['burnCalperRep'],
             'burnCalperSec': localData['burnCalperSec'],
             'baseCalories': localData['baseCalories'],
-            'gifPath': localData['gifPath'], // Add this line
+            'gifPath': localData['gifPath'],
             'completed': false,
             'restTime': 30,
             'isActive': true,
           });
 
-        // Use Firestore's original document ID as the key
         await userExercisesRef
             .doc(exerciseId)
             .set(mergedData, SetOptions(merge: true));
@@ -205,7 +201,6 @@ class _AllExercisesState extends State<AllExercises> {
     return null;
   }
 
-
   String determineAgeGroup(int age) {
     if (age >= 4 && age <= 12) return "children";
     if (age >= 13 && age <= 17) return "teens";
@@ -222,7 +217,7 @@ class _AllExercisesState extends State<AllExercises> {
         }
       }
     }
-    return 'assets/exercaiGif/fallback.gif'; // Add a fallback image
+    return 'assets/exercaiGif/fallback.gif';
   }
 
   Future<void> updateCaloriesBurned(String exerciseName, double caloriesBurned, bool isRepBased) async {
@@ -245,7 +240,6 @@ class _AllExercisesState extends State<AllExercises> {
     }
   }
 
-  //local notification for exercise complete
   Future<bool> areAllExercisesCompleted() async {
     if (_currentUser == null) return true;
 
@@ -261,7 +255,6 @@ class _AllExercisesState extends State<AllExercises> {
         .where('bodyPart', whereIn: targetBodyParts)
         .get();
 
-    // Check if all exercises in the target body parts are marked as completed
     return snapshot.docs.every((doc) => doc['completed'] == true);
   }
 
@@ -299,40 +292,23 @@ class _AllExercisesState extends State<AllExercises> {
     }
   };
 
-  /*Future<String> _fetchExerciseGifUrl(String exerciseId) async {
-    try {
-      DocumentSnapshot exerciseDoc = await FirebaseFirestore.instance
-          .collection('BodyweightExercises')
-          .doc(exerciseId)
-          .get();
-
-      if (exerciseDoc.exists) {
-        final data = exerciseDoc.data() as Map<String, dynamic>?;
-        return data?['gifUrl'] ?? ''; // Return the latest gifUrl
-      }
-    } catch (e) {
-      print("Error fetching gifUrl: $e");
-    }
-    return ''; // Return empty string if there's an error
-  }*/
-
-  // ... Keep the allowedExercises mapping and other existing code ...
   @override
   void initState() {
     super.initState();
     _currentUser = FirebaseAuth.instance.currentUser;
-    _initializeData(); // Call the async helper function
+    _initializeData();
   }
 
   Future<void> _initializeData() async {
-    await fetchUserData();  // Ensure user data is loaded first
-    await fetchExercisesFromFirestore();  // Then fetch exercises
-    _initializeExercisesStream(); // ✅ Fix 2: Ensures stream is assigned
-    if (mounted) setState(() => isLoading = false);  // Update UI only if widget is still active
+    await fetchUserData();
+    await fetchExercisesFromFirestore();
+    _initializeExercisesStream();
+    if (mounted) setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -341,20 +317,25 @@ class _AllExercisesState extends State<AllExercises> {
           backgroundColor: AppColor.backgroundgrey,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MainLandingPage()),
-            ),
+            // Use Navigator.pop instead of pushReplacement to keep this widget in the stack.
+            onPressed: () => Navigator.pop(context),
           ),
-          title: Text("Exercises You Can Do",
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white)),
+          title: Text(
+            "Exercises You Can Do",
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
         ),
         body: isLoading
-            ? Center(child: Column(
+            ? Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Downloading Files For You Exercise\nPlease wait a moment...',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),textAlign: TextAlign.center,),
-                SizedBox(height: 15,),
+                Text(
+                  'Downloading Files For Your Exercise\nPlease wait a moment...',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 15),
                 CircularProgressIndicator(),
               ],
             ))
@@ -388,7 +369,8 @@ class _AllExercisesState extends State<AllExercises> {
 
                 final exerciseTimes = {
                   for (var doc in timesSnapshot.data!.docs)
-                    if (doc.data() != null && (doc.data() as Map<String, dynamic>).containsKey('exerciseId'))
+                    if (doc.data() != null &&
+                        (doc.data() as Map<String, dynamic>).containsKey('exerciseId'))
                       (doc['exerciseId'] ?? '').toString(): doc['totalExerciseTime'] ?? 0
                 };
 
@@ -411,13 +393,14 @@ class _AllExercisesState extends State<AllExercises> {
                 }).toList();
 
                 return exercises.isEmpty
-                    ? Center(child: Text("Tap Reload Button if there's no Exercise Showing",
-                    style: TextStyle(color: Colors.white)))
+                    ? Center(
+                    child: Text(
+                        "Tap Reload Button if there's no Exercise Showing",
+                        style: TextStyle(color: Colors.white)))
                     : ListView(
                   children: groupExercisesByBodyPart(exercises).entries.map((entry) {
                     String bodyPart = entry.key;
                     List<Map<String, dynamic>> exercisesList = entry.value;
-
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -462,8 +445,8 @@ class _AllExercisesState extends State<AllExercises> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: AspectRatio(
                                     aspectRatio: 1,
-                                    child: Image.asset( // Changed from Image.network
-                                      _getLocalGifPath(exercise['name']), // New helper function
+                                    child: Image.asset(
+                                      _getLocalGifPath(exercise['name']),
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.download_for_offline, size: 60),
@@ -502,12 +485,10 @@ class _AllExercisesState extends State<AllExercises> {
                                     ? Icon(Icons.check_circle, color: Colors.green)
                                     : null,
                                 onTap: () async {
-                                  /*String exerciseId = exercise['id'].toString();
-                                  String latestGifUrl = await _fetchExerciseGifUrl(exerciseId);
-                                  if (latestGifUrl.isNotEmpty) {
-                                    exercise['gifUrl'] = latestGifUrl;
-                                  }*/
-                                  String bodyPart = (exercise['bodyPart'] ?? '').toLowerCase();
+                                  // Get document ID first
+                                  final exerciseId = exercise['firestoreId'] ?? exercise['id'];
+                                  final isRepBased = exercise['baseSetsReps'] != null;
+                                  final bodyPart = (exercise['bodyPart'] ?? '').toLowerCase();
 
                                   if (userAge != null) {
                                     String ageGroup = determineAgeGroup(userAge!);
@@ -521,8 +502,7 @@ class _AllExercisesState extends State<AllExercises> {
                                             title: Text("Age Suitability Warning",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold, color: Colors.red)),
-                                            content: Text(
-                                                "This exercise might not be suitable for your age group. Do you want to continue?"),
+                                            content: Text("This exercise might not be suitable for your age group. Do you want to continue?"),
                                             actions: [
                                               TextButton(
                                                 onPressed: () => Navigator.of(context).pop(false),
@@ -547,8 +527,7 @@ class _AllExercisesState extends State<AllExercises> {
                                         title: Text("Injury Warning",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold, color: Colors.red)),
-                                        content: Text(
-                                            "You have an injury in your $bodyPart. Proceeding may aggravate it. Continue?"),
+                                        content: Text("You have an injury in your $bodyPart. Proceeding may aggravate it. Continue?"),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(false),
@@ -563,13 +542,6 @@ class _AllExercisesState extends State<AllExercises> {
                                     ) ?? false;
                                     if (!proceedInjury) return;
                                   }
-
-                                  /*Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ShowRepsKcal(exercise: exercise),
-                                    ),
-                                  );*/
                                 },
                               ),
                             );
@@ -586,4 +558,7 @@ class _AllExercisesState extends State<AllExercises> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
