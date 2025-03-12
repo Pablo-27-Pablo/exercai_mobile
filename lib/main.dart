@@ -171,7 +171,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: ProgressTrackingScreen(),
+          home: AuthPage(),
           //home :DownloadGifsScreen(),
           routes: {
             //'/login_register_page': (context) => LoginOrRegister(),

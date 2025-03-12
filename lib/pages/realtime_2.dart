@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'package:exercai_mobile/utils/music_background.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -30,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final musicPlayer = MusicPlayerService();
   late CameraController controller;
   bool isBusy = false;
 
@@ -152,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         if (Mode == "Arcade") {
           if (arcadeNumber == 11) {
+            musicPlayer.stop();
             setState(() {
               arcadeNumber = 1;
               ExerciseName = "";
@@ -476,11 +479,20 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         if (ExerciseName != "") {
           if (currentTime4 - lastUpdateTime3 >= 3000) {
+            if(Mode == "Arcade"){
+              musicPlayer.pause();
+              Future.delayed(Duration(seconds: 3), () {
+              musicPlayer.resume();
+            }); 
+            }
+            
             errorWholebody = "Show your whole Body or Move Backward!!";
             speak(errorWholebody);
             warningIndicatorScreen = false;
-            lastUpdateTime3 = currentTime4; // Update the last update time
+            lastUpdateTime3 = currentTime4;
+            // Update the last update time
           }
+          //musicPlayer.resume();
         }
       }
 
@@ -891,6 +903,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? IconButton(
                   onPressed: () {
                     if (Mode == "postureCorrection") {
+                      musicPlayer2.stop();
                       raise = 0;
                       Navigator.pushReplacement(
                         context,

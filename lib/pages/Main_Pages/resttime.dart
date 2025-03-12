@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:exercai_mobile/utils/music_background.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/pages/arcade_mode_page.dart';
 import 'package:exercai_mobile/pages/realtime_2.dart';
@@ -12,6 +13,7 @@ import '../../utils/constant.dart';
 Timer? timer;
 
 class RestimeTutorial extends StatefulWidget {
+  
   const RestimeTutorial({super.key});
 
   @override
@@ -26,12 +28,14 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
   String instruction = "";
   String instruction2 = "";
   String instruction3 = "";
+  final musicPlayer = MusicPlayerService();
 
   @override
   void initState() {
     super.initState();
     startTimer();
     ExerciseImage();
+    musicPlayer.play();
   }
 
   calculation() {
