@@ -118,7 +118,7 @@ final Map<String, List<Map<String, dynamic>>> allExercises = {
   ],
 
   'waist': [
-    {'name': '3/4 sit-up', 'baseSetsReps': 3, 'baseReps': 15, 'burnCalperRep': 0.6, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/3-4 sit-up.gif'},
+    //{'name': '3/4 sit-up', 'baseSetsReps': 3, 'baseReps': 15, 'burnCalperRep': 0.6, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/3-4 sit-up.gif'},
     {'name': 'air bike', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.7, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/air bike.gif'},
     {'name': 'alternate heel touchers', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.65, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/alternate heel touchers.gif'},
     {'name': 'bottoms-up', 'baseSetsReps': 3, 'baseReps': 12, 'burnCalperRep': 0.7, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/bottoms-up.gif'},

@@ -1,11 +1,11 @@
+import 'package:exercai_mobile/different_exercises/bodypart_exercises/configurations/show_reps_allExercises.dart';
+import 'package:exercai_mobile/different_exercises/choose_bodyparts.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../homepage/mainlandingpage.dart';
-import 'dart:math';
-import '../list_all_exercises.dart';
-import 'list_allowed_exercise_age.dart';
+import 'package:exercai_mobile/different_exercises/list_all_exercises.dart';
+import 'package:exercai_mobile/different_exercises/bodypart_exercises/list_allowed_exercise_age.dart';
 
 class NeckAllexercises extends StatefulWidget {
   @override
@@ -22,7 +22,8 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
 
   int _getDailySeed() {
     final now = DateTime.now();
-    final daysSinceEpoch = now.millisecondsSinceEpoch ~/ (1000 * 60 * 60 * 24);
+    final daysSinceEpoch =
+        now.millisecondsSinceEpoch ~/ (1000 * 60 * 60 * 24);
     return _currentUser!.email.hashCode + daysSinceEpoch;
   }
 
@@ -42,8 +43,7 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
   String getRepsTimeDisplay(Map<String, dynamic> exercise) {
     if (exercise['baseSetsReps'] != null && exercise['baseReps'] != null) {
       return "${exercise['baseSetsReps']} sets × ${exercise['baseReps']} reps";
-    } else if (exercise['baseSetsSecs'] != null &&
-        exercise['baseSecs'] != null) {
+    } else if (exercise['baseSetsSecs'] != null && exercise['baseSecs'] != null) {
       return _formatTimeDisplay(exercise['baseSetsSecs'], exercise['baseSecs']);
     } else if (exercise['baseSecs'] != null) {
       return _formatSingleDuration(exercise['baseSecs']);
@@ -91,6 +91,7 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
     }
   }
 
+  // Initializes the stream from AllExercises for neck exercises.
   void _initializeExercisesStream() {
     if (_currentUser != null) {
       setState(() {
@@ -127,9 +128,31 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
     }
   }
 
+  // Check if neck exercises exist in AllExercises.
+  // If none are found, fetch from BodyweightExercises and store them.
+  Future<void> checkAndFetchNeckExercises() async {
+    if (_currentUser == null) return;
+    try {
+      QuerySnapshot neckSnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(_currentUser!.email)
+          .collection('AllExercises')
+          .where('bodyPart', isEqualTo: 'neck')
+          .get();
+
+      if (neckSnapshot.docs.isEmpty) {
+        print("No neck exercises found in AllExercises. Fetching from BodyweightExercises...");
+        await fetchExercisesFromFirestoreInBackground();
+      } else {
+        print("Neck exercises already exist. Using real-time stream.");
+      }
+    } catch (e) {
+      print("Error checking neck exercises: $e");
+    }
+  }
+
   // This function merges data from the "BodyweightExercises" collection
   // and writes it to the "AllExercises" collection.
-  // It now runs in the background after the UI loads.
   Future<void> fetchExercisesFromFirestoreInBackground() async {
     if (_currentUser == null) return;
 
@@ -177,8 +200,7 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
             .collection('Users')
             .doc(_currentUser!.email)
             .collection('AllExercises')
-            .doc(exerciseId);
-
+            .doc(exerciseName);
         await docRef.set(mergedData, SetOptions(merge: true));
         print("✅ Merged exercise: $exerciseName");
       }
@@ -241,8 +263,16 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
     if (_currentUser == null) return true;
 
     List<String> targetBodyParts = [
-      'back', 'chest', 'cardio', 'lower arms', 'lower legs', 'neck',
-      'shoulders', 'upper arms', 'upper legs', 'waist'
+      'back',
+      'chest',
+      'cardio',
+      'lower arms',
+      'lower legs',
+      'neck',
+      'shoulders',
+      'upper arms',
+      'upper legs',
+      'waist'
     ];
 
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -264,11 +294,11 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
 
   Future<void> _initializeData() async {
     await fetchUserData();
-    // Initialize the UI stream and related data first.
+    // Check if neck exercises exist; if not, fetch and merge them.
+    await checkAndFetchNeckExercises();
+    // Reinitialize the stream (in case new data was added)
     _initializeExercisesStream();
     if (mounted) setState(() => isLoading = false);
-    // Then run the heavy merging process in the background without blocking UI.
-    fetchExercisesFromFirestoreInBackground();
   }
 
   @override
@@ -282,36 +312,48 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
           backgroundColor: AppColor.backgroundgrey,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChooseBodyparts())),
           ),
           title: Text(
             "Neck Exercises",
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
         ),
         body: isLoading
             ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Loading Your Exercise\nPlease wait a moment...',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 15),
-                CircularProgressIndicator(),
-              ],
-            ))
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Loading Your Exercise\nPlease wait a moment...',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 15),
+              CircularProgressIndicator(),
+            ],
+          ),
+        )
             : _currentUser == null
             ? Center(child: Text("Please log in"))
             : StreamBuilder<QuerySnapshot>(
           stream: _exercisesStream,
           builder: (context, exercisesSnapshot) {
             if (exercisesSnapshot.hasError) {
-              return Center(child: Text('Error: ${exercisesSnapshot.error}'));
+              return Center(
+                  child: Text('Error: ${exercisesSnapshot.error}'));
             }
-            if (exercisesSnapshot.connectionState == ConnectionState.waiting) {
+            if (exercisesSnapshot.connectionState ==
+                ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             }
 
@@ -321,15 +363,18 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
 
             return exercises.isEmpty
                 ? Center(
-                child: Text("No neck exercises found. Tap reload if needed.",
+                child: Text("No Neck exercises found. Tap reload if needed.",
                     style: TextStyle(color: Colors.white)))
                 : ListView(
-              children: groupExercisesByBodyPart(exercises).entries.map((entry) {
+              children: groupExercisesByBodyPart(exercises)
+                  .entries
+                  .map((entry) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
                       child: Text(
                         'NECK EXERCISES',
                         style: TextStyle(
@@ -341,45 +386,56 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
                     ),
                     Column(
                       children: exercises.map((exercise) {
-                        final isCompleted = exercise['completed'] == true;
-                        final exerciseName = exercise['name'].toString();
+                        final isCompleted =
+                            exercise['completed'] == true;
+                        final exerciseName =
+                        exercise['name'].toString();
 
-                        bool isRepBased = exercise['baseSetsReps'] != null &&
+                        bool isRepBased = exercise[
+                        'baseSetsReps'] != null &&
                             exercise['baseReps'] != null;
-                        bool isTimeBased = exercise['baseSetsSecs'] != null ||
+                        bool isTimeBased = exercise[
+                        'baseSetsSecs'] != null ||
                             exercise['baseSecs'] != null;
 
-
-
                         // Use preloaded FinalTotalBurnCalRep values from finalBurnCalMap
-                        double? finalTotalBurnCalRep = finalBurnCalMap[exerciseName];
+                        double? finalTotalBurnCalRep =
+                        finalBurnCalMap[exerciseName];
                         print('Exercise Name: $exerciseName, FinalTotalBurnCalRep: $finalTotalBurnCalRep');
 
                         String burnCaloriesDisplay = isRepBased
                             ? "${finalTotalBurnCalRep?.toStringAsFixed(2) ?? '0.00'} kcal"
                             : isTimeBased
-                            ? "${exercise['TotalCalBurnSec']?.toStringAsFixed(2) ?? 'N/A'} kcal"
+                            ? "${exercise['TotalCalBurnSec']?.toStringAsFixed(2) ?? '0.0'} kcal"
                             : "N/A";
 
                         return Card(
                           color: AppColor.primary,
-                          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
                           elevation: 3,
                           child: ListTile(
                             leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                              BorderRadius.circular(12),
                               child: AspectRatio(
                                 aspectRatio: 1,
                                 child: Image.asset(
-                                  _getLocalGifPath(exercise['name']),
+                                  _getLocalGifPath(
+                                      exercise['name']),
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.download_for_offline, size: 60),
+                                  errorBuilder: (context, error,
+                                      stackTrace) =>
+                                  const Icon(
+                                      Icons.download_for_offline,
+                                      size: 60),
                                 ),
                               ),
                             ),
                             title: Text(
-                              exercise['name'].toString().toUpperCase(),
+                              exercise['name']
+                                  .toString()
+                                  .toUpperCase(),
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -397,8 +453,8 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
                                     ),
                                   ),
                                   TextSpan(
-                                    text: "Reps/Time: ${getRepsTimeDisplay(exercise)}\n"
-                                        "Burn Calories: $burnCaloriesDisplay\n",
+                                    text:
+                                    "Reps/Time: ${getRepsTimeDisplay(exercise)}\nBurn Calories: $burnCaloriesDisplay\n",
                                     style: TextStyle(
                                       color: AppColor.backgroundgrey,
                                     ),
@@ -407,44 +463,71 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
                               ),
                             ),
                             trailing: isCompleted
-                                ? Icon(Icons.check_circle, color: Colors.green)
+                                ? Icon(Icons.check_circle,
+                                color: Colors.green)
                                 : null,
                             onTap: () async {
                               // Get the document ID from the exercise data.
-                              final exerciseId = exercise['firestoreId'] ?? exercise['id'];
-                              String bodyPart = (exercise['bodyPart'] ?? '').toLowerCase();
+                              final exerciseId = exercise['firestoreId'] ??
+                                  exercise['id'];
+                              String bodyPart = (exercise['bodyPart'] ??
+                                  '')
+                                  .toLowerCase();
 
                               if (userAge != null) {
-                                String ageGroup = determineAgeGroup(userAge!);
+                                String ageGroup =
+                                determineAgeGroup(userAge!);
                                 if (ageGroup != 'adults') {
-                                  String exerciseNameLower = exercise['name'].toString().toLowerCase();
-                                  List<String>? allowedList = allowedExercises[ageGroup]?[bodyPart];
-                                  if (allowedList != null && !allowedList.contains(exerciseNameLower)) {
-                                    bool proceedAge = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text("Age Suitability Warning",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold, color: Colors.red)),
-                                        content: Text(
-                                            "This exercise might not be suitable for your age group. Do you want to continue?"),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text("Cancel"),
-                                          ),
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text("Continue"),
-                                          ),
-                                        ],
-                                      ),
-                                    ) ?? false;
+                                  String exerciseNameLower =
+                                  exercise['name']
+                                      .toString()
+                                      .toLowerCase();
+                                  List<String>? allowedList =
+                                  allowedExercises[ageGroup]?[bodyPart];
+                                  if (allowedList != null &&
+                                      !allowedList
+                                          .contains(exerciseNameLower)) {
+                                    bool proceedAge =
+                                        await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) =>
+                                              AlertDialog(
+                                                title: Text("Age Suitability Warning",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                        FontWeight.bold,
+                                                        color: Colors.red)),
+                                                content: Text(
+                                                    "This exercise might not be suitable for your age group. Do you want to continue?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(false),
+                                                    child: Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(true),
+                                                    child: Text("Continue"),
+                                                  ),
+                                                ],
+                                              ),
+                                        ) ??
+                                            false;
                                     if (!proceedAge) return;
                                   }
                                 }
                               }
-                              // Existing onTap logic can be added here.
+                              // Navigate to exercise details.
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ShowRepsAllexercises(
+                                      exercise: exercise),
+                                ),
+                              );
                             },
                           ),
                         );
