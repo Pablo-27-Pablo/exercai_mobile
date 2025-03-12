@@ -71,6 +71,35 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  //   Formula() {
+  //   for (int i = 0; i < exercises2.length; i++) {
+  //     if (exercises2[i]["name"] == ExerciseName) {
+  //       print("Exercise found: ${exercises2[i]}");
+  //       double formula =
+  //           (((exercises2[i]["MET"] as num).toDouble() * 85 * raise.toDouble()) /
+  //               1000);
+  //       totalCaloriesBurn = totalCaloriesBurn + formula;
+  //       totalCaloriesBurnDatabase =
+  //           (peopleBox.get("finalcoloriesburn",defaultValue: 0)).toDouble();
+  //       double daysDatabase = (peopleBox.get("daychallenge",defaultValue: 0)).toDouble();
+  //       double totaldayschallenge = daysDatabase + totalCaloriesBurn;
+  //       double total = totalCaloriesBurn + totalCaloriesBurnDatabase;
+  //       peopleBox.put("finalcoloriesburn", total);
+  //       peopleBox.put("daychallenge", totaldayschallenge);
+
+  //       print(peopleBox.get("finalcoloriesburn"));
+
+  //       print(
+  //         "         $ExerciseName                " + totalCaloriesBurn.toString(),
+  //       );
+  //       print("                         " + totalCaloriesBurn.toString());
+  //       print("                         " + totalCaloriesBurn.toString());
+  //       print("                         " + totalCaloriesBurn.toString());
+  //       print("                         " + totalCaloriesBurn.toString());
+  //     }
+  //   }
+  // }
+
   Formula() {
     for (int i = 0; i < exercises2.length; i++) {
       if (exercises2[i]["name"] == ExerciseName) {
@@ -81,15 +110,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     raise.toDouble()) /
                 1000);
         totalCaloriesBurn = totalCaloriesBurn + formula;
-        totalCaloriesBurnDatabase = peopleBox.get("finalcoloriesburn");
-        double ArcadeCaloriesDatabase = peopleBox.get("arcadecoloriesburn");
+        totalCaloriesBurnDatabase =
+            (peopleBox.get("finalcoloriesburn", defaultValue: 0)).toDouble();
+        setState(() {});
+        double ArcadeCaloriesDatabase =
+            (peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toDouble();
         double total = totalCaloriesBurnDatabase + totalCaloriesBurn;
         double totalArcade = ArcadeCaloriesDatabase + totalCaloriesBurn;
 
-
+        peopleBox.put("arcadecoloriesburn", totalArcade);
 
         peopleBox.put("finalcoloriesburn", total);
-        peopleBox.put("arcadecoloriesburn", totalArcade);
+
         print(peopleBox.get("arcadecoloriesburn"));
 
         print(
@@ -312,7 +344,9 @@ class _MyHomePageState extends State<MyHomePage> {
           (rightShoulder.x > 50 && rightShoulder.x < 650) &&
           (leftAnkle.x > 50 && leftAnkle.x < 650) &&
           (rightAnkle.x > 50 && rightAnkle.x < 650)) {
-        Mode == "dayChallenge" ? Container() : countingTimer();
+        Mode == "dayChallenge" || Mode == "postureCorrection"
+            ? Container()
+            : countingTimer();
         errorWholebody = "";
 
         if (ExerciseName == "squat") {
@@ -431,6 +465,14 @@ class _MyHomePageState extends State<MyHomePage> {
             rightShoulder.y,
           );
         }
+        Future.delayed(Duration(seconds: 3), () {
+          if (Mode == "postureCorrection" && raise == repsWants) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => CongratsApp()),
+            );
+          }
+        });
       } else {
         if (ExerciseName != "") {
           if (currentTime4 - lastUpdateTime3 >= 3000) {
@@ -596,7 +638,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         borderRadius: BorderRadius.circular(13),
                       ),
                       child:
-                          Mode == "dayChallenge"
+                          Mode == "dayChallenge" || Mode == "postureCorrection"
                               ? Container()
                               : Column(
                                 children: [
@@ -624,160 +666,209 @@ class _MyHomePageState extends State<MyHomePage> {
                       padding: const EdgeInsets.only(left: 15),
                       child: Container(
                         padding: EdgeInsets.only(left: 25, right: 25),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            Container(
-                              width: 250,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 180,
-                                    height: 27,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  width: 250,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 180,
+                                        height: 27,
+                                        decoration: BoxDecoration(
+                                          color: AppColor.bottonPrimary
+                                              .withOpacity(0.8),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "Exercise Feedback: ",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: AppColor.purpletext,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      errorWholebody == ""
+                                          ? Container()
+                                          : Container(
+                                            width: 180,
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(
+                                                255,
+                                                247,
+                                                247,
+                                                247,
+                                              ).withOpacity(0.7),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                width: 1,
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  255,
+                                                  255,
+                                                  255,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              errorWholebody,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: AppColor.solidtext,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                      SizedBox(height: 10),
+                                      warningIndicatorText == ""
+                                          ? Container()
+                                          : Container(
+                                            width: 180,
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(
+                                                255,
+                                                247,
+                                                247,
+                                                247,
+                                              ).withOpacity(0.7),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                width: 1,
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  255,
+                                                  255,
+                                                  255,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              warningIndicatorText,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: AppColor.solidtext,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+
+                                      SizedBox(height: 10),
+
+                                      //error indicator in exercise
+                                      warningIndicatorTextExercise == ""
+                                          ? Container()
+                                          : Container(
+                                            width: 180,
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(
+                                                255,
+                                                247,
+                                                247,
+                                                247,
+                                              ).withOpacity(0.7),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                width: 1,
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  255,
+                                                  255,
+                                                  255,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              warningIndicatorTextExercise,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: AppColor.solidtext,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                    ],
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Container(
+                                    width: 90,
+                                    height: 140,
                                     decoration: BoxDecoration(
-                                      color: AppColor.bottonPrimary.withOpacity(
-                                        0.8,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                    child: Text(
-                                      "Exercise Feedback: ",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: AppColor.purpletext,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.asset(
+                                        'assets/image/$image',
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 10),
-                                  errorWholebody == ""
-                                      ? Container()
-                                      : Container(
-                                        width: 180,
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                            255,
-                                            247,
-                                            247,
-                                            247,
-                                          ).withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          border: Border.all(
-                                            width: 1,
-                                            color: const Color.fromARGB(
-                                              255,
-                                              255,
-                                              255,
-                                              255,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          errorWholebody,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: AppColor.solidtext,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                  SizedBox(height: 10),
-                                  warningIndicatorText == ""
-                                      ? Container()
-                                      : Container(
-                                        width: 180,
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                            255,
-                                            247,
-                                            247,
-                                            247,
-                                          ).withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          border: Border.all(
-                                            width: 1,
-                                            color: const Color.fromARGB(
-                                              255,
-                                              255,
-                                              255,
-                                              255,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          warningIndicatorText,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: AppColor.solidtext,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-
-                                  SizedBox(height: 10),
-
-                                  //error indicator in exercise
-                                  warningIndicatorTextExercise == ""
-                                      ? Container()
-                                      : Container(
-                                        width: 180,
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                            255,
-                                            247,
-                                            247,
-                                            247,
-                                          ).withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          border: Border.all(
-                                            width: 1,
-                                            color: const Color.fromARGB(
-                                              255,
-                                              255,
-                                              255,
-                                              255,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          warningIndicatorTextExercise,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: AppColor.solidtext,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                ],
-                              ),
-                            ),
-                            Flexible(
-                              child: Container(
-                                width: 90,
-                                height: 140,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.asset(
-                                    'assets/image/$image',
-                                    fit: BoxFit.cover,
+                              ],
+                            ),
+                            Mode == "postureCorrection"
+                                ? GestureDetector(
+                                  onDoubleTap: () {
+                                    raise = 0;
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Trypage(),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 30,
+                                      right: 50,
+                                      left: 50,
+                                    ),
+                                    child: Container(
+                                      height: 50,
+                                      width: 150,
+                                      decoration: BoxDecoration(
+                                        color: AppColor.primary.withOpacity(
+                                          0.9,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color:
+                                              AppColor
+                                                  .solidtext, // You can change the border color
+                                          width: 2.0, // Thickness of the border
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Finish",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColor.textwhite,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
+                                )
+                                : Container(),
                           ],
                         ),
                       ),
@@ -794,13 +885,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         leading:
-            Mode == "dayChallenge" || Mode == "Arcade"
+            Mode == "dayChallenge" ||
+                    Mode == "Arcade" ||
+                    Mode == "postureCorrection"
                 ? IconButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => ArcadeModePage()),
-                    );
+                    if (Mode == "postureCorrection") {
+                      raise = 0;
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Trypage()),
+                      );
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ArcadeModePage(),
+                        ),
+                      );
+                    }
                   },
                   icon: Icon(Icons.arrow_back, color: AppColor.primary),
                 )

@@ -1,3 +1,5 @@
+import 'package:exercai_mobile/homepage/mainlandingpage.dart';
+import 'package:exercai_mobile/pages/Main_Pages/Exercises_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/pages/home.dart';
 import 'package:exercai_mobile/pages/realtime_2.dart';
@@ -14,9 +16,7 @@ class CongratsApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: AppColor.backgroundgrey,
-        body: Center(
-          child: CongratulationsCard(),
-        ),
+        body: Center(child: CongratulationsCard()),
       ),
     );
   }
@@ -36,12 +36,15 @@ class CongratulationsCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-              decoration: BoxDecoration(
-                  color: Colors.pink,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16))),
-              child: Image.asset("assets/image/trophy.webp")),
+            decoration: BoxDecoration(
+              color: Colors.pink,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Image.asset("assets/image/trophy.webp"),
+          ),
           SizedBox(height: 40),
           Padding(
             padding: const EdgeInsets.only(left: 30.0, right: 30),
@@ -56,20 +59,24 @@ class CongratulationsCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 10),
-                Mode == "dayChallenge"?
-                Text(
-                  'Congratulations! You have completed the 100 $ExerciseName in 30 Days Challenge. Your total calories burned: " $totalCaloriesBurn ".',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColor.textwhite,
+                if (Mode == "dayChallenge")
+                  Text(
+                    'You have completed the 100 $ExerciseName in 30 Days Challenge. Your total calories burned: $totalCaloriesBurn.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColor.textwhite),
+                  )
+                else if (Mode == "Arcade")
+                  Text(
+                    "You have completed the arcade exercise. Your total calories burned: $totalCaloriesBurn.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColor.textwhite),
+                  )
+                else if (Mode == "postureCorrection")
+                  Text(
+                    "You have Completed the Pose Estimation Exercise.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColor.textwhite),
                   ),
-                ):Text(
-                  "Congratulations! You have completed the arcade exercise. Your total calories burned: $totalCaloriesBurn.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColor.textwhite,
-                  ),
-                ),
               ],
             ),
           ),
@@ -77,47 +84,57 @@ class CongratulationsCard extends StatelessWidget {
           GestureDetector(
             onDoubleTap: () {
               totalCaloriesBurn = 0;
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MyHome()),
-              );
+              if (Mode == "postureCorrection") {
+                raise = 0;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Trypage()),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainLandingPage()),
+                );
+              }
             },
             child: Container(
               height: 60,
               width: 220,
               decoration: BoxDecoration(
-                  color: AppColor.bottonPrimary,
-                  borderRadius: BorderRadius.circular(14)),
+                color: AppColor.bottonPrimary,
+                borderRadius: BorderRadius.circular(14),
+              ),
               child: Center(
-                  child: Text(
-                "Finish",
-                style: TextStyle(color: Colors.white),
-              )),
+                child: Text("Finish", style: TextStyle(color: Colors.white)),
+              ),
             ),
           ),
           smallGap,
-          Mode == "dayChallenge" ? 
-          GestureDetector(
-            onDoubleTap: () {
-              totalCaloriesBurn = 0;
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MyHomePage()),
-              );
-            },
-            child: Container(
-              height: 60,
-              width: 220,
-              decoration: BoxDecoration(
-                  color: AppColor.bottonPrimary,
-                  borderRadius: BorderRadius.circular(14)),
-              child: Center(
-                  child: Text(
-                "Continue",
-                style: TextStyle(color: Colors.white),
-              )),
-            ),
-          ) : Container(),
+          Mode == "dayChallenge"
+              ? GestureDetector(
+                onDoubleTap: () {
+                  totalCaloriesBurn = 0;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyHomePage()),
+                  );
+                },
+                child: Container(
+                  height: 60,
+                  width: 220,
+                  decoration: BoxDecoration(
+                    color: AppColor.bottonPrimary,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Continue",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              )
+              : Container(),
           SizedBox(height: 30),
         ],
       ),

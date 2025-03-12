@@ -11,7 +11,6 @@ import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
 import 'package:exercai_mobile/login_register_pages/createaccount.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
-import 'package:exercai_mobile/pages/Constant_Pages/configurationPage.dart';
 import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
 import 'package:exercai_mobile/pages/home.dart';
 import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
@@ -40,23 +39,22 @@ import 'package:camera/camera.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:exercai_mobile/services/my_firebase_messaging_service.dart';
-
+import 'pages/repsCounter.dart';
 
 late List<CameraDescription> cameras;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();  // This should be called only once
+  await Firebase.initializeApp(); // This should be called only once
   // ✅ Initialize Firebase Messaging
   MyFirebaseMessagingService messagingService = MyFirebaseMessagingService();
   await messagingService.setupFirebaseMessaging();
-  await Permission.contacts.status;  // Ensures permission handler is initialized
+  await Permission.contacts.status; // Ensures permission handler is initialized
   await Hive.initFlutter();
   await Hive.openBox("Box");
   cameras = await availableCameras(); // Initialize cameras
   await Hive.openBox('reminders'); // Open Hive box for storing reminders
   runApp(MyApp());
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -66,7 +64,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-
   /*@override
   void initState() {
     super.initState();
@@ -106,16 +103,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (user == null) return true;
 
     List<String> targetBodyParts = [
-      'back', 'chest', 'cardio', 'lower arms', 'lower legs', 'neck',
-      'shoulders', 'upper arms', 'upper legs', 'waist'
+      'back',
+      'chest',
+      'cardio',
+      'lower arms',
+      'lower legs',
+      'neck',
+      'shoulders',
+      'upper arms',
+      'upper legs',
+      'waist',
     ];
 
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(user.email)
-        .collection('UserExercises')
-        .where('bodyPart', whereIn: targetBodyParts)
-        .get();
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.email)
+            .collection('UserExercises')
+            .where('bodyPart', whereIn: targetBodyParts)
+            .get();
 
     return snapshot.docs.every((doc) => doc['completed'] == true);
   }
@@ -141,7 +147,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_token');
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 
   @override
@@ -151,19 +160,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const MaterialApp(
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
 
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: ProgressTrackingScreen(),
+          home: AuthPage(),
+
           //home :DownloadGifsScreen(),
-
-
           routes: {
             //'/login_register_page': (context) => LoginOrRegister(),
             '/home_page': (context) => MainLandingPage(),
