@@ -164,6 +164,25 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+
+    // Compute burned calories regardless of exercise type
+    double burnedCalories = 0.0;
+    if (widget.isRepBased) {
+      burnedCalories =
+          _totalBurnCalRep.fold(0.0, (sum, cal) => sum + (cal as double));
+    } else {
+      // For time-based exercise, get only the TotalCalBurnSec from the UserExercises document
+      DocumentReference exerciseRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.email)
+          .collection('AllExercises')
+          .doc(widget.exercise['name'].toString());
+      DocumentSnapshot snapshot = await exerciseRef.get();
+      burnedCalories = snapshot.exists && snapshot.data() != null
+          ? (snapshot.data() as Map<String, dynamic>)['TotalCalBurnSec']?.toDouble() ?? 0.0
+          : 0.0;
+    }
+
     // Save the current total exercise time.
     await FirebaseFirestore.instance
         .collection('Users')
@@ -174,6 +193,7 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
       'exerciseId': widget.exercise['id'],
       'exerciseName': widget.exercise['name'],
       'totalExerciseTime': _totalExerciseTime,
+      'burnCalories': burnedCalories,
       'lastUpdated': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 

@@ -190,6 +190,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 }
 
 class AppColor {
+  // **Newly Added Colors**
+  static const Color backgroundWhite = Colors.white; // White background
+  static const Color primaryNavy = Color(0xFF1976D2); // Navy Blue primary color
+  static const Color accentTeal = Color(0xFF26A69A); // Soft teal accent color
+  static const Color textCharcoal = Color(0xFF424242); // Charcoal Grey for text
+  static const Color textLightGrey = Color(0xFFB0BEC5); // Light grey for secondary text
+
+  // **Existing Colors**
   static const Color bottonPrimary = Color.fromARGB(255, 51, 51, 51);
   static const Color bottonSecondary = Color.fromARGB(255, 146, 146, 146);
   static const Color primary = Color(0xFF9575CD);
@@ -202,3 +210,4 @@ class AppColor {
   static const Color purpletext = Color.fromARGB(255, 179, 160, 255);
   static const Color backgroundgrey = Color.fromARGB(255, 19, 19, 19);
 }
+

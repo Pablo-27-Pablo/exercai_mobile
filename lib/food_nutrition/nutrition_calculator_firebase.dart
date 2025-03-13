@@ -18,7 +18,7 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   String? activityLevel;
   Map<String, dynamic>? nutritionData;
   String errorMessage = '';
-  bool isLoading = false; // <-- Added loading state
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -29,13 +29,16 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   /// Fetch user data from Firebase Firestore
   Future<void> fetchUserData() async {
     setState(() {
-      isLoading = true; // Show loading indicator
+      isLoading = true;
     });
 
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(user.email).get();
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(user.email)
+            .get();
 
         if (userDoc.exists) {
           setState(() {
@@ -45,7 +48,6 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
             gender = userDoc["gender"];
             activityLevel = userDoc["nutriActivitylevel"];
           });
-
           await fetchNutritionData();
         }
       } catch (e) {
@@ -54,9 +56,8 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
         });
       }
     }
-
     setState(() {
-      isLoading = false; // Hide loading indicator
+      isLoading = false;
     });
   }
 
@@ -108,22 +109,146 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
     }
   }
 
+  // Helper method to build a beautifully styled table with cards.
+  Widget _buildTable(String title, List<List<String>> data) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.symmetric(vertical: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+            SizedBox(height: 12),
+            Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: {
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(3),
+              },
+              children: data.map((row) {
+                int index = data.indexOf(row);
+                return TableRow(
+                  decoration: BoxDecoration(
+                    color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+                  ),
+                  children: row.map((cell) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        cell,
+                        style: TextStyle(fontSize: 14, color: Colors.black87),
+                      ),
+                    );
+                  }).toList(),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper function to dynamically convert JSON list into a table format.
+  Widget _buildTableFromJson(String title, dynamic jsonData) {
+    if (jsonData == null || jsonData is! List) return SizedBox();
+    List<List<String>> tableData = jsonData.map<List<String>>((row) {
+      return row.map<String>((cell) => cell.toString()).toList();
+    }).toList();
+    return _buildTable(title, tableData);
+  }
+
+  Widget _buildEnteredValues() {
+    return _buildTable("User's Information", [
+      ["Sex", gender ?? "N/A"],
+      ["Age", "$age years"],
+      ["Height", "$height cm"],
+      ["Weight", "$weight kg"],
+      ["Activity Level", activityLevel ?? "N/A"],
+    ]);
+  }
+
+  Widget _buildResultsTable() {
+    return _buildTable("Your Calculated Results", [
+      ["Body Mass Index (BMI)", _getData("BMI_EER", "BMI")],
+      ["Estimated Daily Caloric Needs", _getData("BMI_EER", "Estimated Daily Caloric Needs")],
+    ]);
+  }
+
+  Widget _buildMacronutrientsTable() {
+    return _buildTableFromJson(
+        "Daily Recommended Macronutrient Intake", nutritionData?['macronutrients_table']?['macronutrients-table']);
+  }
+
+  Widget _buildVitaminsTable() {
+    return _buildTableFromJson(
+        "Daily Recommended Vitamin Intake", nutritionData?['vitamins_table']?['vitamins-table']);
+  }
+
+  Widget _buildMineralsTable() {
+    return _buildTableFromJson(
+        "Daily Recommended Mineral Intake", nutritionData?['minerals_table']?['essential-minerals-table']);
+  }
+
+  /// Helper function to retrieve values safely from JSON.
+  String _getData(String category, String key) {
+    return nutritionData?[category]?[key]?.toString() ?? "N/A";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(''),backgroundColor: AppColor.primary,),
+      appBar: AppBar(
+        title: Text('Nutrition Calculator'),
+        centerTitle: true,
+        backgroundColor: AppColor.primary,
+      ),
+      // Use a gradient background to enhance the visual appeal.
       body: Container(
-        color: AppColor.backgroundgrey,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColor.primary, AppColor.backgroundgrey],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: isLoading
-            ? Center(child: CircularProgressIndicator()) // Show loading spinner
+            ? Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Text("Nutrition and Calories Suggestion\nFor You",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.white),textAlign: TextAlign.center,),
-              if (errorMessage.isNotEmpty) Text(errorMessage, style: TextStyle(color: Colors.red)),
-              if (age != null && height != null && weight != null && gender != null && activityLevel != null) ...[
+              SizedBox(height: 20),
+              Text(
+                "Nutrition and Calories Suggestion\nFor You",
+                style: TextStyle(
+                    fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              if (errorMessage.isNotEmpty)
+                Card(
+                  color: Colors.red[100],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(errorMessage,
+                        style: TextStyle(color: Colors.red, fontSize: 16)),
+                  ),
+                ),
+              if (age != null &&
+                  height != null &&
+                  weight != null &&
+                  gender != null &&
+                  activityLevel != null) ...[
                 _buildEnteredValues(),
+                SizedBox(height: 20),
                 if (nutritionData != null) ...[
                   _buildResultsTable(),
                   _buildMacronutrientsTable(),
@@ -138,95 +263,13 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
       floatingActionButton: FloatingActionButton(
         onPressed: fetchUserData,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30), // Adjust the radius as needed
+          borderRadius: BorderRadius.circular(30),
         ),
         child: isLoading
-            ? CircularProgressIndicator(color: Colors.white) // Show loading spinner inside button
+            ? CircularProgressIndicator(color: Colors.white)
             : Icon(Icons.refresh),
         tooltip: "Reload Data",
       ),
     );
-  }
-
-  Widget _buildEnteredValues() {
-    //User's Information ay dating Your entered values:
-    return _buildTable("User's Information", [
-      ["Sex", gender ?? "N/A"],
-      ["Age", "$age years"],
-      ["Height", "$height cm"],
-      ["Weight", "$weight kg"],
-      ["Activity level", activityLevel ?? "N/A"],
-    ]);
-  }
-
-  Widget _buildResultsTable() {
-    return _buildTable("Your Calculated Results", [
-      ["Body Mass Index (BMI)", _getData("BMI_EER", "BMI")],
-      ["Estimated Daily Caloric Needs", _getData("BMI_EER", "Estimated Daily Caloric Needs")],
-    ]);
-  }
-
-  Widget _buildMacronutrientsTable() {
-    return _buildTableFromJson(
-      "Daily Recommended Macronutrient Intake",
-      nutritionData?['macronutrients_table']?['macronutrients-table'],
-    );
-  }
-
-  Widget _buildVitaminsTable() {
-    return _buildTableFromJson(
-      "Daily Recommended Vitamin Intake",
-      nutritionData?['vitamins_table']?['vitamins-table'],
-    );
-  }
-
-  Widget _buildMineralsTable() {
-    return _buildTableFromJson(
-      "Daily Recommended Mineral Intake",
-      nutritionData?['minerals_table']?['essential-minerals-table'],
-    );
-  }
-
-  /// Helper function to retrieve values safely from JSON
-  String _getData(String category, String key) {
-    return nutritionData?[category]?[key]?.toString() ?? "N/A";
-  }
-
-  /// Helper function to build tables dynamically
-  Widget _buildTable(String title, List<List<String>> data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 20),
-        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white)),
-        SizedBox(height: 10),
-        Table(
-          border: TableBorder.all(color: Colors.black),
-          columnWidths: {0: FlexColumnWidth(2), 1: FlexColumnWidth(3)},
-          children: data.map((row) {
-            return TableRow(
-              children: row.map((cell) {
-                return Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(cell, style: TextStyle(fontSize: 14)),
-                );
-              }).toList(),
-              decoration: BoxDecoration(color: data.indexOf(row) % 2 == 0 ? Colors.grey[200] : Colors.white),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  /// Helper function to dynamically convert JSON list into a table format
-  Widget _buildTableFromJson(String title, dynamic jsonData) {
-    if (jsonData == null || jsonData is! List) return Container();
-
-    List<List<String>> tableData = jsonData.map<List<String>>((row) {
-      return row.map<String>((cell) => cell.toString()).toList();
-    }).toList();
-
-    return _buildTable(title, tableData);
   }
 }

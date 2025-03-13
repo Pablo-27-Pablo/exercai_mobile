@@ -1,3 +1,5 @@
+import 'package:exercai_mobile/different_exercises/bodypart_exercises/info_exercises/info_card_diffExercises.dart';
+import 'package:exercai_mobile/progress_tracking/info_card_exeRecommend.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -383,28 +385,17 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.yellowtext,
-                          ),
-                          child: Text(
-                            'Workout Log',
-                            style: TextStyle(color: AppColor.buttonPrimary),
-                          ),
-                        ),
-                        /*OutlinedButton(
-                          onPressed: () {
-                            //Navigator.push(context, MaterialPageRoute(builder: (context) => WarningPage()));
-                          },
-                          style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: AppColor.buttonPrimary)),
-                          child: Text('Charts',
-                              style: TextStyle(color: AppColor.yellowtext)),
-                        )*/
+                      Text(
+                      'Workout Log',
+                      style: TextStyle(color: AppColor.yellowtext,fontSize:25 ,fontWeight: FontWeight.bold),
+                      ),
                       ],
                     ),
                   ),
+
+
+                  // Lako mune ing keka keni ne Palitan ke kasing Exercise Recommendation, tsaka Maka Gesture Detector nala reng Kaku
+                  //Para a monitor dala gagawan da
                   Padding(
                     padding: EdgeInsets.all(16),
                     child: Column(
@@ -413,102 +404,105 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         Text(
                           'Total Calories Burn',
                           style: TextStyle(
-                            color: AppColor.yellowtext,
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 8),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColor.buttonPrimary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            // ❌ Remove Expanded here
-                            children: [
-                              Icon(
-                                Icons.local_fire_department,
-                                color: AppColor.primary,
-                                size: 30,
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                // ✅ Use Expanded here to make StreamBuilder flexible inside Row
-                                child: StreamBuilder<DocumentSnapshot>(
-                                  stream:
-                                      FirebaseFirestore.instance
-                                          .collection('Users')
-                                          .doc(currentUser!.email)
-                                          .collection('TotalCaloriesExercises')
-                                          .doc('TotalCaloriesBurnofUser')
-                                          .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasError) {
-                                      return Text(
-                                        'Error',
-                                        style: TextStyle(color: Colors.red),
-                                      );
-                                    }
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return CircularProgressIndicator();
-                                    }
-
-                                    final data =
-                                        snapshot.data?.data()
-                                            as Map<String, dynamic>?;
-
-                                    List<double> totalCaloriesBurnedArray = [];
-                                    if (data != null &&
-                                        data.containsKey(
-                                          'TotalCaloriesBurned',
-                                        ) &&
-                                        data['TotalCaloriesBurned'] is List) {
-                                      totalCaloriesBurnedArray = List<
-                                        double
-                                      >.from(
-                                        (data['TotalCaloriesBurned'] as List)
-                                            .map(
-                                              (e) =>
-                                                  (e is num ? e.toDouble() : 0),
-                                            ),
-                                      );
-                                    }
-
-                                    double finalTotalCalories =
-                                        (data?['FinalTotalCaloriesBurned'] ?? 0)
-                                            .toDouble();
-
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment
-                                              .start, // ✅ Align text properly
-                                      children: [
-                                        Text(
-                                          'Total Burned Calories: ${(finalTotalCalories + peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                                          style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Burned Calories Today: ${totalCaloriesBurnedArray.isNotEmpty ? totalCaloriesBurnedArray.last.toStringAsFixed(2) : "0"} Kcal',
-                                          style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
+                        GestureDetector(
+                          onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>InfoCardExerecommend())),
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColor.buttonPrimary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              // ❌ Remove Expanded here
+                              children: [
+                                Icon(
+                                  Icons.local_fire_department,
+                                  color: AppColor.primary,
+                                  size: 30,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 16),
+                                Expanded(
+                                  // ✅ Use Expanded here to make StreamBuilder flexible inside Row
+                                  child: StreamBuilder<DocumentSnapshot>(
+                                    stream:
+                                        FirebaseFirestore.instance
+                                            .collection('Users')
+                                            .doc(currentUser!.email)
+                                            .collection('TotalCaloriesExercises')
+                                            .doc('TotalCaloriesBurnofUser')
+                                            .snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasError) {
+                                        return Text(
+                                          'Error',
+                                          style: TextStyle(color: Colors.red),
+                                        );
+                                      }
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return CircularProgressIndicator();
+                                      }
+
+                                      final data =
+                                          snapshot.data?.data()
+                                              as Map<String, dynamic>?;
+
+                                      List<double> totalCaloriesBurnedArray = [];
+                                      if (data != null &&
+                                          data.containsKey(
+                                            'TotalCaloriesBurned',
+                                          ) &&
+                                          data['TotalCaloriesBurned'] is List) {
+                                        totalCaloriesBurnedArray = List<
+                                          double
+                                        >.from(
+                                          (data['TotalCaloriesBurned'] as List)
+                                              .map(
+                                                (e) =>
+                                                    (e is num ? e.toDouble() : 0),
+                                              ),
+                                        );
+                                      }
+
+                                      double finalTotalCalories =
+                                          (data?['FinalTotalCaloriesBurned'] ?? 0)
+                                              .toDouble();
+
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment
+                                                .start, // ✅ Align text properly
+                                        children: [
+                                          Text(
+                                            'Total Burned Calories: ${(finalTotalCalories + peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                                            style: TextStyle(
+                                              color: AppColor.textwhite,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Burned Calories Today: ${totalCaloriesBurnedArray.isNotEmpty ? totalCaloriesBurnedArray.last.toStringAsFixed(2) : "0"} Kcal',
+                                            style: TextStyle(
+                                              color: AppColor.textwhite,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        SizedBox(height: 30),
                         Text(
                           'Pose Estimation Burn Calories',
                           style: TextStyle(
@@ -562,362 +556,103 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                           ),
                         ),
 
-                        //'Total Minutes Exercise Today (Hours:Min:Sec)'
-                        SizedBox(height: 16),
+                        SizedBox(height: 30),
+                        // Inside the build method of ProgressTrackingScreen, replace the existing "Different Exercises Burn Calories" Container with:
+
                         Text(
-                          "Today's Exercise Time (Hours:Min:Sec)",
+                          "Different Exercises Burn Calories",
                           style: TextStyle(
                             color: AppColor.yellowtext,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>DiffExeCard())),
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColor.buttonPrimary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.local_fire_department,
+                                  color: AppColor.primary,
+                                  size: 30,
+                                ),
+                                SizedBox(width: 16),
+                                StreamBuilder<QuerySnapshot>(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('Users')
+                                      .doc(currentUser!.email)
+                                      .collection('AllExercises')
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return Text('Error: ${snapshot.error}',
+                                          style: TextStyle(color: Colors.white));
+                                    }
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    }
+
+                                    double totalRepCalories = 0.0;
+                                    double totalTimeCalories = 0.0;
+
+                                    for (var doc in snapshot.data!.docs) {
+                                      final data = doc.data() as Map<String, dynamic>;
+                                      final bool isRepBased =
+                                          data['baseSetsReps'] != null && data['baseReps'] != null;
+                                      final bool isTimeBased =
+                                          data['baseSetsSecs'] != null || data['baseSecs'] != null;
+
+                                      if (isRepBased) {
+                                        totalRepCalories +=
+                                            (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
+                                      } else if (isTimeBased) {
+                                        totalTimeCalories +=
+                                            (data['TotalCalBurnSec'] ?? 0).toDouble();
+                                      }
+                                    }
+
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Repetition Based Exercise: ${totalRepCalories.toStringAsFixed(2)} Kcal',
+                                          style: TextStyle(
+                                            color: AppColor.textwhite,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Time Based Exercise: ${totalTimeCalories.toStringAsFixed(2)} Kcal',
+                                          style: TextStyle(
+                                            color: AppColor.textwhite,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Total: ${(totalRepCalories + totalTimeCalories).toStringAsFixed(2)} Kcal',
+                                          style: TextStyle(
+                                            color: AppColor.textwhite,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         SizedBox(height: 8),
                         // Updated StreamBuilder for Total Exercise Time
-                        StreamBuilder<QuerySnapshot>(
-                          stream:
-                              FirebaseFirestore.instance
-                                  .collection('Users')
-                                  .doc(currentUser!.email)
-                                  .collection('UserExerciseTimes')
-                                  .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            }
 
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            }
-
-                            return FutureBuilder<int>(
-                              future: _calculateTotalExerciseTime(
-                                snapshot.data!.docs,
-                              ),
-                              builder: (context, totalTimeSnapshot) {
-                                if (totalTimeSnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return CircularProgressIndicator();
-                                }
-
-                                int totalExerciseTime =
-                                    totalTimeSnapshot.data ?? 0;
-
-                                return Container(
-                                  padding: EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.buttonPrimary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.timer,
-                                        color: AppColor.primary,
-                                        size: 30,
-                                      ),
-                                      SizedBox(width: 16),
-                                      Text(
-                                        'Total Time: ${_formatTotalTime(totalExerciseTime)}',
-                                        style: TextStyle(
-                                          color: AppColor.textwhite,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16),
-                        //'Total Exercise Time (Hours:Min:Sec)',
-                        Text(
-                          'Recent Exercise Time (Hours:Min:Sec)',
-                          style: TextStyle(
-                            color: AppColor.yellowtext,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        StreamBuilder<DocumentSnapshot>(
-                          stream:
-                              FirebaseFirestore.instance
-                                  .collection('Users')
-                                  .doc(currentUser!.email)
-                                  .collection('UserExercises')
-                                  .doc('--metadata--')
-                                  .snapshots(),
-                          builder: (context, metadataSnapshot) {
-                            if (metadataSnapshot.hasError) {
-                              return Text('Error: ${metadataSnapshot.error}');
-                            }
-                            if (metadataSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            }
-
-                            final data =
-                                metadataSnapshot.data?.data()
-                                    as Map<String, dynamic>?;
-                            final List<dynamic> days =
-                                data?['currentDay'] ?? [];
-
-                            return FutureBuilder<int>(
-                              future: computeTotalExerciseTimeForAllDays(),
-                              builder: (context, totalSnapshot) {
-                                if (totalSnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return CircularProgressIndicator();
-                                }
-                                if (totalSnapshot.hasError) {
-                                  return Text('Error: ${totalSnapshot.error}');
-                                }
-
-                                int totalTime = totalSnapshot.data ?? 0;
-                                return Container(
-                                  padding: EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.buttonPrimary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.timer,
-                                        color: AppColor.primary,
-                                        size: 30,
-                                      ),
-                                      SizedBox(width: 16),
-                                      Text(
-                                        'Total Time: ${_formatTotalTime(totalTime)}',
-                                        style: TextStyle(
-                                          color: AppColor.textwhite,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16),
-                        Text(
-                          'Activities Today',
-                          style: TextStyle(
-                            color: AppColor.yellowtext,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        StreamBuilder<QuerySnapshot>(
-                          stream:
-                              FirebaseFirestore.instance
-                                  .collection('Users')
-                                  .doc(currentUser!.email)
-                                  .collection('UserExerciseTimes')
-                                  .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            }
-
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            }
-
-                            final exerciseTimes = snapshot.data!.docs;
-
-                            return Column(
-                              children:
-                                  exerciseTimes.map((doc) {
-                                    final data =
-                                        doc.data()
-                                            as Map<
-                                              String,
-                                              dynamic
-                                            >?; // Ensure data is a map
-
-                                    if (data == null)
-                                      return SizedBox(); // Handle null case safely
-
-                                    final String exerciseName =
-                                        data['exerciseName'] ??
-                                        'Unknown Exercise';
-                                    final int totalTime =
-                                        data['totalExerciseTime'] ?? 0;
-                                    final Timestamp? lastUpdated =
-                                        data['lastUpdated'] as Timestamp?;
-
-                                    // Convert timestamp to readable date format
-                                    final String formattedDate =
-                                        lastUpdated != null
-                                            ? DateFormat(
-                                              'MMM dd, yyyy - hh:mm a',
-                                            ).format(lastUpdated.toDate())
-                                            : 'N/A';
-
-                                    return ActivityCard(
-                                      title: exerciseName,
-                                      exeID: 'Date: $formattedDate',
-                                      duration: _formatTotalTime(totalTime),
-                                      timeanddate: '',
-                                    );
-                                  }).toList(),
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16),
-                        Text(
-                          'Recent Activities',
-                          style: TextStyle(
-                            color: AppColor.yellowtext,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        StreamBuilder<DocumentSnapshot>(
-                          stream:
-                              FirebaseFirestore.instance
-                                  .collection('Users')
-                                  .doc(currentUser!.email)
-                                  .collection('UserExercises')
-                                  .doc('--metadata--')
-                                  .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            }
-
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            }
-
-                            final data =
-                                snapshot.data?.data() as Map<String, dynamic>?;
-
-                            // Get all stored days
-                            final List<dynamic> days = List.from(
-                              data?['currentDay'] ?? [],
-                            );
-
-                            /*if (days.isEmpty) {
-                              return Center(child: Text('No exercise data available.'));
-                            }*/
-                            if (days == null || days.isEmpty) {
-                              return const SizedBox(); // Returns an empty widget if days is null or empty
-                            }
-
-                            return StreamBuilder<List<QuerySnapshot>>(
-                              stream: Stream.fromFuture(
-                                Future.wait(
-                                  days.map(
-                                    (day) =>
-                                        FirebaseFirestore.instance
-                                            .collection('Users')
-                                            .doc(currentUser!.email)
-                                            .collection('UserExerciseTimes')
-                                            .doc('Day$day')
-                                            .collection('times')
-                                            .get(),
-                                  ),
-                                ),
-                              ),
-                              builder: (context, timesSnapshot) {
-                                if (timesSnapshot.hasError) {
-                                  return Center(
-                                    child: Text(
-                                      'Error: ${timesSnapshot.error}',
-                                    ),
-                                  );
-                                }
-
-                                if (timesSnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-
-                                // Flatten all documents into a single list
-                                List<QueryDocumentSnapshot> exerciseTimes =
-                                    timesSnapshot.data!
-                                        .expand(
-                                          (querySnapshot) => querySnapshot.docs,
-                                        )
-                                        .toList();
-
-                                if (exerciseTimes.isEmpty) {
-                                  return Center(
-                                    child: Text(
-                                      'No recent activities available.',
-                                    ),
-                                  );
-                                }
-
-                                // **Sort activities by timestamp (latest first)**
-                                exerciseTimes.sort((a, b) {
-                                  Timestamp timeA =
-                                      a['lastUpdated'] ?? Timestamp(0, 0);
-                                  Timestamp timeB =
-                                      b['lastUpdated'] ?? Timestamp(0, 0);
-                                  return timeB.compareTo(
-                                    timeA,
-                                  ); // Descending order (latest first)
-                                });
-
-                                return Column(
-                                  children:
-                                      exerciseTimes.map((doc) {
-                                        final data =
-                                            doc.data() as Map<String, dynamic>;
-
-                                        final String exerciseName =
-                                            data['exerciseName'] ??
-                                            'Unknown Exercise';
-                                        final int totalTime =
-                                            data['totalExerciseTime'] ?? 0;
-                                        final Timestamp? lastUpdated =
-                                            data['lastUpdated'] as Timestamp?;
-
-                                        // **Format date correctly**
-                                        final String formattedDate =
-                                            lastUpdated != null
-                                                ? DateFormat(
-                                                  'MMM d yyyy - hh:mm a',
-                                                ).format(lastUpdated.toDate())
-                                                : 'N/A';
-
-                                        return ActivityCard(
-                                          title: exerciseName,
-                                          exeID: 'Date: $formattedDate',
-                                          duration: _formatTotalTime(totalTime),
-                                          timeanddate: '',
-                                        );
-                                      }).toList(),
-                                );
-                              },
-                            );
-                          },
-                        ),
                       ],
                     ),
                   ),
@@ -928,75 +663,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
 
           return Center(child: Text("No user data found."));
         },
-      ),
-    );
-  }
-}
-
-class ActivityCard extends StatelessWidget {
-  final String title;
-  final String exeID;
-  final String duration;
-  final String timeanddate;
-
-  const ActivityCard({
-    required this.title,
-    required this.exeID,
-    required this.duration,
-    required this.timeanddate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColor.textwhite.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.directions_run, color: AppColor.primary, size: 30),
-          SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(color: AppColor.textwhite, fontSize: 16),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$timeanddate',
-                    style: TextStyle(color: AppColor.yellowtext, fontSize: 14),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Duration: $duration',
-                        style: TextStyle(
-                          color: AppColor.yellowtext,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        '$exeID',
-                        style: TextStyle(
-                          color: AppColor.yellowtext,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

@@ -35,7 +35,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
   List<int> _baseRepsConcat = [];
   List<double> _totalBurnCalRep = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -62,7 +61,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     return steps;
   }
 
-
   Future<void> _saveTotalBurnCalRep(int setIndex) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -81,16 +79,24 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
 
       List<dynamic> totalBurnCalRep = [];
 
-      if (!snapshot.exists || snapshot.data() == null || !(snapshot.data() as Map<String, dynamic>).containsKey('TotalBurnCalRep')) {
+      if (!snapshot.exists ||
+          snapshot.data() == null ||
+          !(snapshot.data() as Map<String, dynamic>)
+              .containsKey('TotalBurnCalRep')) {
         // Initialize the document with an empty TotalBurnCalRep array
-        transaction.set(exerciseRef, {
-          'TotalBurnCalRep': [],
-          'FinalTotalBurnCalRep': 0.0,
-          'burnCalperRep': widget.exercise['burnCalperRep']?.toDouble() ?? 0.0,
-          'lastUpdated': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        transaction.set(
+          exerciseRef,
+          {
+            'TotalBurnCalRep': [],
+            'FinalTotalBurnCalRep': 0.0,
+            'burnCalperRep': widget.exercise['burnCalperRep']?.toDouble() ?? 0.0,
+            'lastUpdated': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
       } else {
-        totalBurnCalRep = List.from((snapshot.data() as Map<String, dynamic>)['TotalBurnCalRep'] ?? []);
+        totalBurnCalRep = List.from(
+            (snapshot.data() as Map<String, dynamic>)['TotalBurnCalRep'] ?? []);
       }
 
       // Append new value, even if it's a duplicate
@@ -108,7 +114,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     await _updateFinalTotalBurnCalRep();
   }
 
-
   Future<void> _updateFinalTotalBurnCalRep() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -123,10 +128,12 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
       DocumentSnapshot snapshot = await transaction.get(exerciseRef);
 
       if (snapshot.exists) {
-        List<dynamic> totalBurnCalRep = snapshot['TotalBurnCalRep'] as List<dynamic>? ?? [];
+        List<dynamic> totalBurnCalRep =
+            snapshot['TotalBurnCalRep'] as List<dynamic>? ?? [];
 
         // Calculate sum of all values in TotalBurnCalRep
-        double finalTotalBurnCalRep = totalBurnCalRep.fold(0.0, (sum, val) => sum + (val as num).toDouble());
+        double finalTotalBurnCalRep = totalBurnCalRep.fold(
+            0.0, (sum, val) => sum + (val as num).toDouble());
 
         // Update Firestore document with the final sum
         transaction.update(exerciseRef, {
@@ -138,13 +145,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
       }
     });
   }
-
-
-
-
-
-
-
 
   Future<void> _loadTotalExerciseTime() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -170,7 +170,25 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    // Save total time to the new collection UserExerciseTimes
+    // Compute burned calories regardless of exercise type
+    double burnedCalories = 0.0;
+    if (widget.isRepBased) {
+      burnedCalories =
+          _totalBurnCalRep.fold(0.0, (sum, cal) => sum + (cal as double));
+    } else {
+      // For time-based exercise, get only the TotalCalBurnSec from the UserExercises document
+      DocumentReference exerciseRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.email)
+          .collection('UserExercises')
+          .doc(widget.exercise['name'].toString());
+      DocumentSnapshot snapshot = await exerciseRef.get();
+      burnedCalories = snapshot.exists && snapshot.data() != null
+          ? (snapshot.data() as Map<String, dynamic>)['TotalCalBurnSec']?.toDouble() ?? 0.0
+          : 0.0;
+    }
+
+    // Save total time and burned calories to the new collection UserExerciseTimes
     await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.email)
@@ -180,8 +198,9 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
       'exerciseId': widget.exercise['id'],
       'exerciseName': widget.exercise['name'],
       'totalExerciseTime': _totalExerciseTime,
+      'burnCalories': burnedCalories,
       'lastUpdated': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true)); // Merge to avoid overwriting other fields
+    }, SetOptions(merge: true));
   }
 
   void _startTimer() {
@@ -193,7 +212,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
         // Track exercise time only during sets (not rest)
         if (_isRunning && currentStep.type == StepType.set) {
           _totalExerciseTime++;
-          _saveTotalExerciseTime(); // Save total time to Firestore every second
+          _saveTotalExerciseTime(); // Save total time (and burned calories) to Firestore every second
         }
 
         if (currentStep.type == StepType.set && widget.isRepBased) {
@@ -238,7 +257,10 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
           .doc(user.email)
           .collection('UserExercises')
           .doc(widget.exercise['name'].toString())
-          .update({'completed': true, 'lastCompleted': FieldValue.serverTimestamp()});
+          .update({
+        'completed': true,
+        'lastCompleted': FieldValue.serverTimestamp()
+      });
     } catch (e) {
       print('Error marking exercise as completed: $e');
     }
@@ -318,14 +340,17 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     return Scaffold(
       backgroundColor: AppColor.backgroundgrey,
       appBar: AppBar(
-        title: Text(widget.exercise['name'] ?? 'Exercise Timer',style: TextStyle(color: Colors.black),),
+        title: Text(
+          widget.exercise['name'] ?? 'Exercise Timer',
+          style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 15,),
+            SizedBox(height: 15),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
@@ -341,7 +366,8 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
               currentStep.type == StepType.set
                   ? 'Set $setNumber of ${widget.setValues.length}'
                   : 'Rest $setNumber',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
+              style: const TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 10),
             Text(
@@ -350,7 +376,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   ? '${_formatTime(_currentCount)} / ${currentStep.duration} Reps'
                   : '$_secondsRemaining Seconds'
                   : '$_secondsRemaining Seconds Rest',
-              style: const TextStyle(fontSize: 18,color: Colors.white),
+              style: const TextStyle(fontSize: 18, color: Colors.white),
             ),
             const SizedBox(height: 10),
             Stack(
@@ -377,70 +403,71 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                       : '$_secondsRemaining'
                       : '$_secondsRemaining',
                   style: const TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white
-                  ),
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-           // if (!isLastRest) // Hide icon buttons during the last rest para sa last button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.fast_rewind),
-                    iconSize: 40,
-                    onPressed: _currentStepIndex > 0 ? _rewindStep : null,
-                    color: Colors.white,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.replay),
-                    iconSize: 40,
-                    onPressed: _resetTimer,
-                    color: Colors.white,
-                  ),
-                  IconButton(
-                    icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                    iconSize: 50,
-                    onPressed: () => _isRunning ? _stopTimer() : _startTimer(),
-                    color: Colors.white,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.double_arrow),
-                    iconSize: 40,
-                    onPressed: _skipForward,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.fast_rewind),
+                  iconSize: 40,
+                  onPressed: _currentStepIndex > 0 ? _rewindStep : null,
+                  color: Colors.white,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.replay),
+                  iconSize: 40,
+                  onPressed: _resetTimer,
+                  color: Colors.white,
+                ),
+                IconButton(
+                  icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                  iconSize: 50,
+                  onPressed: () => _isRunning ? _stopTimer() : _startTimer(),
+                  color: Colors.white,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.double_arrow),
+                  iconSize: 40,
+                  onPressed: _skipForward,
+                  color: Colors.white,
+                ),
+              ],
+            ),
             if (isRestAfterSet)
               Column(
                 children: [
-                  const SizedBox(height: 5,),
+                  const SizedBox(height: 5),
                   Text(
                     'Calories Burnt in Set: ${_calculateCurrentSetCalories(setNumber - 1).toStringAsFixed(2)} kcal',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
-                  const SizedBox(height: 10,),
-        
+                  const SizedBox(height: 10),
                   // Show TextField only for Rep-Based exercises
                   if (widget.isRepBased)
                     SizedBox(
-                      width: 120, // Adjust width as needed
-                      height: 40, // Adjust height as needed
+                      width: 120,
+                      height: 40,
                       child: TextField(
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.center,
                         decoration: InputDecoration(
-                          hintText: 'Enter reps', // Keeps text inside the field
-                          floatingLabelBehavior: FloatingLabelBehavior.never, // Prevents label from moving up
-                          border: OutlineInputBorder(), // Adds a border for better visibility
-                          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10), // Reduces internal padding
+                          hintText: 'Enter reps',
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
+                          border: OutlineInputBorder(),
+                          contentPadding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                         ),
-                        style: TextStyle(fontSize: 14,color: Colors.white), // Smaller text size
+                        style: TextStyle(fontSize: 14, color: Colors.white),
                         onChanged: (value) {
                           setState(() {
                             _baseRepsConcat[setNumber - 1] = int.tryParse(value) ?? 0;
@@ -448,41 +475,38 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                         },
                       ),
                     ),
-
-                  const SizedBox(height: 15,),
+                  const SizedBox(height: 15),
                   ElevatedButton(
                     onPressed: () {
                       double burnedCalories = _calculateCurrentSetCalories(setNumber - 1);
-        
                       // Save the burned calories in Firestore
                       _saveTotalBurnCalRep(setNumber - 1);
-        
                       // Add to the local list of TotalBurnCalRep
                       setState(() {
                         _totalBurnCalRep.add(burnedCalories);
                       });
-        
                       print("TotalBurnCalRep updated: $_totalBurnCalRep");
-        
                       _skipForward();
                     },
-        
-        
                     child: Text('Confirm & Proceed'),
                   ),
                 ],
               ),
-        
           ],
         ),
       ),
     );
   }
+
   double _calculateCurrentSetCalories(int setIndex) {
     if (widget.isRepBased) {
-      return (_baseRepsConcat[setIndex] * (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0)).toDouble();
+      return (_baseRepsConcat[setIndex] *
+          (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0))
+          .toDouble();
     }
-    return (widget.setValues[setIndex] * (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0)).toDouble();
+    return (widget.setValues[setIndex] *
+        (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0))
+        .toDouble();
   }
 }
 
