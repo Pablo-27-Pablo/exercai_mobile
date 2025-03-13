@@ -198,6 +198,7 @@ class AppColor {
   static const Color textCharcoal = Color(0xFF424242); // Charcoal Grey for text
   static const Color textLightGrey = Color(0xFFB0BEC5); // Light grey for secondary text
 
+  //can be used for different pages
   // **Existing Colors**
   static const Color bottonPrimary = Color.fromARGB(255, 51, 51, 51);
   static const Color bottonSecondary = Color.fromARGB(255, 146, 146, 146);
