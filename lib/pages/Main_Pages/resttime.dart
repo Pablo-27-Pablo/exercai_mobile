@@ -13,7 +13,6 @@ import '../../utils/constant.dart';
 Timer? timer;
 
 class RestimeTutorial extends StatefulWidget {
-  
   const RestimeTutorial({super.key});
 
   @override
@@ -44,91 +43,90 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
     return total;
   }
 
-void ArcadePlay() {
-  if (1 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Push-Up";
-      ExerciseName = "pushup";
-      image = "pushup.gif";
-    });
-  }
-  if (2 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Squat";
-      ExerciseName = "squat";
-      image = "squat.gif";
-    });
-  }
-  if (3 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Leg Raises";
-      ExerciseName = "legraises";
-      image = "legraises.gif";
-    });
-  }
-  if (4 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Sit-Up";
-      ExerciseName = "situp";
-      image = "situp.gif";
-    });
-  }
-  if (5 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Mountain Climbers";
-      ExerciseName = "mountainclimbers";
-      image = "mountainclimbers.gif";
-    });
-  }
-  if (6 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "High Knee";
-      ExerciseName = "highknee";
-      image = "highknee.gif";
-    });
-  }
-  if (7 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Lunges";
-      ExerciseName = "lunges";
-      image = "lunges.gif";
-    });
-  }
-  if (8 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Plank";
-      ExerciseName = "plank";
-      image = "plank.gif";
-    });
-  }
-  if (9 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Right Plank";
-      ExerciseName = "rightplank";
-      image = "rightplank.gif";
-    });
-  }
-  if (10 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Left Plank";
-      ExerciseName = "leftplank";
-      image = "leftplank.gif";
-    });
-  }
-  if (11 == arcadeNumber) {
-    setState(() {
-      PrimaryExerciseName = "Jumping Jacks";
-      ExerciseName = "jumpingjacks";
-      image = "jumpingjacks.gif";
-    });
-  }
+  void ArcadePlay() {
+    if (1 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Push-Up";
+        ExerciseName = "pushup";
+        image = "pushup.gif";
+      });
+    }
+    if (2 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Squat";
+        ExerciseName = "squat";
+        image = "squat.gif";
+      });
+    }
+    if (3 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Leg Raises";
+        ExerciseName = "legraises";
+        image = "legraises.gif";
+      });
+    }
+    if (4 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Sit-Up";
+        ExerciseName = "situp";
+        image = "situp.gif";
+      });
+    }
+    if (5 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Mountain Climbers";
+        ExerciseName = "mountainclimbers";
+        image = "mountainclimbers.gif";
+      });
+    }
+    if (6 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "High Knee";
+        ExerciseName = "highknee";
+        image = "highknee.gif";
+      });
+    }
+    if (7 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Lunges";
+        ExerciseName = "lunges";
+        image = "lunges.gif";
+      });
+    }
+    if (8 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Plank";
+        ExerciseName = "plank";
+        image = "plank.gif";
+      });
+    }
+    if (9 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Right Plank";
+        ExerciseName = "rightplank";
+        image = "rightplank.gif";
+      });
+    }
+    if (10 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Left Plank";
+        ExerciseName = "leftplank";
+        image = "leftplank.gif";
+      });
+    }
+    if (11 == arcadeNumber) {
+      setState(() {
+        PrimaryExerciseName = "Jumping Jacks";
+        ExerciseName = "jumpingjacks";
+        image = "jumpingjacks.gif";
+      });
+    }
 
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => MyHomePage()),
-  );
-}
-
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => MyHomePage()),
+    );
+  }
 
   ExerciseImage() {
     if (1 == arcadeNumber) {
@@ -269,29 +267,41 @@ void ArcadePlay() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(
+                right: 16.0,
+                left: 12.0,
+                bottom: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      IconButton(onPressed: (){
-                        seconds2 =30;
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => ArcadeModePage()),
-                        );
-                      }, icon: Icon(Icons.arrow_back,color: AppColor.textwhite,)),
+                      IconButton(
+                        onPressed: () {
+                          seconds2 = 30;
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ArcadeModePage(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: AppColor.primary,
+                        ),
+                      ),
                       Text(
                         exerciseImage,
                         style: TextStyle(
-                          color: AppColor.textwhite,
+                          color: AppColor.bottonPrimary.withOpacity(0.7),
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -301,59 +311,77 @@ void ArcadePlay() {
                   SizedBox(height: 5),
                   Text(
                     "Mucsle Gain · Cardio · Physique",
-                    style: TextStyle(color: AppColor.purpletext),
+                    style: TextStyle(
+                      color: AppColor.bottonPrimary.withOpacity(0.6),
+                    ),
                   ),
                 ],
               ),
             ),
             Center(
-                child: Column(
-              children: [
-                Text(seconds2.toString(),
+              child: Column(
+                children: [
+                  Text(
+                    seconds2.toString(),
                     style: TextStyle(
-                        color: AppColor.purpletext,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 55)),
-                Text("Break Time",
+                      color: AppColor.bottonPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 55,
+                    ),
+                  ),
+                  Text(
+                    "Break Time",
                     style: TextStyle(
-                        color: AppColor.purpletext,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20)),
-              ],
-            )),
-              Center(
-                child: CircularPercentIndicator(
-                    radius: 150,
-                    lineWidth: 10,
-                    percent: calculation(),
-                    progressColor: AppColor.yellowtext,
-                    backgroundColor: AppColor.yellowtext.withOpacity(0.3),
-                    circularStrokeCap: CircularStrokeCap.round,
-                    center: ClipOval(
-                      child: Container(
-                          height: 275,
-                          child: Image.asset(
-                              "assets/image/" + exerciseImage + ".gif")),
-                    )),
+                      color: AppColor.bottonPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            Center(
+              child: CircularPercentIndicator(
+                radius: 150,
+                lineWidth: 10,
+                percent: calculation(),
+                progressColor: AppColor.primary,
+                backgroundColor: AppColor.primary.withOpacity(0.3),
+                circularStrokeCap: CircularStrokeCap.round,
+                center: ClipOval(
+                  child: Container(
+                    height: 275,
+                    child: Image.asset(
+                      "assets/image/" + exerciseImage + ".gif",
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 "Instruction: ",
                 style: TextStyle(
-                  color: AppColor.primary,
+                  color: AppColor.bottonPrimary.withOpacity(0.6),
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             Expanded(
-
               child: Container(
                 padding: EdgeInsets.only(top: 10),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 48, 48, 48),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      spreadRadius: 3,
+                    ),
+                  ],
+                  color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -365,23 +393,25 @@ void ArcadePlay() {
                     Text(
                       instructionExercise + ":",
                       style: TextStyle(
-                          color: const Color.fromARGB(255, 238, 238, 238),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
+                        color: AppColor.primary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     smallGap,
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Color.fromARGB(255, 128, 128, 128)
-                              .withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(10),
+
+                      ),
                       child: Text(
                         instruction,
                         style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 150, 150, 150)),
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 150, 150, 150),
+                        ),
                       ),
                     ),
                     smallGap,
@@ -389,57 +419,61 @@ void ArcadePlay() {
                     instructionExercise2 == ""
                         ? Container()
                         : Text(
-                            instructionExercise2 + ":",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 238, 238, 238),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
+                          instructionExercise2 + ":",
+                          style: TextStyle(
+                            color: AppColor.primary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
+                        ),
                     smallGap,
                     instruction2 == ""
                         ? Container()
                         : Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color.fromARGB(255, 128, 128, 128)
-                                    .withOpacity(0.3)),
-                            child: Text(
-                              instruction,
-                              style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 150, 150, 150)),
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+
+                          ),
+                          child: Text(
+                            instruction,
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 150, 150, 150),
                             ),
                           ),
+                        ),
                     smallGap,
                     smallGap,
                     instructionExercise3 == ""
                         ? Container()
                         : Text(
-                            instructionExercise3 + ":",
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 238, 238, 238),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
+                          instructionExercise3 + ":",
+                          style: TextStyle(
+                            color: AppColor.primary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
+                        ),
                     smallGap,
                     instruction3 == ""
                         ? Container()
                         : Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color.fromARGB(255, 128, 128, 128)
-                                    .withOpacity(0.3)),
-                            child: Text(
-                              instruction3,
-                              style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 150, 150, 150)),
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            
+                          ),
+                          child: Text(
+                            instruction3,
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 150, 150, 150),
                             ),
                           ),
+                        ),
                   ],
                 ),
               ),

@@ -1,39 +1,48 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
-import 'package:flutter/material.dart';
 import 'package:exercai_mobile/pages/Main_Pages/daysChallenge.dart';
-import 'package:exercai_mobile/pages/home.dart';
 import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
-import 'package:exercai_mobile/utils/constant.dart';
+import 'package:exercai_mobile/utils/music_background.dart';
+import 'package:flutter/material.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:exercai_mobile/main.dart';
-import 'package:exercai_mobile/utils/constant.dart';
-import '../utils/music_background.dart';
-class ArcadeModePage extends StatefulWidget {
-  const ArcadeModePage({super.key});
+import '../../utils/constant.dart';
 
+void main() {
+  runApp(FitnessApp());
+}
+
+class FitnessApp extends StatelessWidget {
   @override
-  State<ArcadeModePage> createState() => _ArcadeModePageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ArcadeModePage(),
+    );
+  }
+}
+
+class ArcadeModePage extends StatefulWidget {
+  @override
+  _ArcadeModePageState createState() => _ArcadeModePageState();
 }
 
 class _ArcadeModePageState extends State<ArcadeModePage> {
   final musicPlayer = MusicPlayerService();
 
-  final List<Map<String, String>> exercises = [
-    {"name": "Push Up", "PrimaryName": "pushup", "image": "pushup.gif"},
-    {"name": "Sit Up", "PrimaryName": "situp", "image": "situp.gif"},
-    {
-      "name": "Leg Raises",
-      "PrimaryName": "legraises",
-      "image": "legraises.gif",
-    },
-    {"name": "Squat", "PrimaryName": "squat", "image": "squat.gif"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    musicPlayer.stop();
+  }
 
   void startExercise(String exerciseName, String imageName, String Name) {
     Mode = "dayChallenge";
 
+
     setState(() {
       ExerciseName = exerciseName;
-      image = imageName;
+      image = ExerciseName+".gif";
       PrimaryExerciseName = Name;
     });
 
@@ -42,168 +51,211 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       MaterialPageRoute(builder: (context) => ThirtyDaysChallenge()),
     );
   }
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    musicPlayer.stop();
 
+  int number = 1;
+  final List<Map<String, dynamic>> exercises = [
+    {
+      "index": 0,
+      "name": "Arcade",
+      "PrimaryName": "Arcade",
+      "image": "assets/image/arcade.gif",
+      "definition":
+          "Welcome! Follow the on-screen guide and match the pose for a fun and effective workout. Let’s begin!",
+    },
+    {
+      "index": 1,
+      "name": "Push Up",
+      "PrimaryName": "pushup",
+      "image": "assets/image/pushup.gif",
+      "definition":
+          "100 Push Up exercises for a 30-day challenge! Follow the guide and match the pose.",
+    },
+    {
+      "index": 2,
+      "name": "Sit Up",
+      "PrimaryName": "situp",
+      "image": "assets/image/situp.gif",
+      "definition":
+          "100 Sit Up exercises for a 30-day challenge! Follow the guide and match the pose.",
+    },
+    {
+      "index": 3,
+      "name": "Leg Raises",
+      "PrimaryName": "legraises",
+      "image": "assets/image/legraises.gif",
+      "definition":
+          "100 Leg Raises exercises for a 30-day challenge! Follow the guide and match the pose.",
+    },
+    {
+      "index": 4,
+      "name": "Squat",
+      "PrimaryName": "squat",
+      "image": "assets/image/squat.gif",
+      "definition":
+          "100 Squat exercises for a 30-day challenge! Follow the guide and match the pose.",
+    },
+  ];
+
+  void _onExerciseTap(int index) {
+    print("Selected Exercise: \${exercises[index]['name']}");
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MainLandingPage()),
-              );
-            },
-            icon: Icon(Icons.arrow_back, color: AppColor.textwhite),
-          ),
-          title: const Text(
-            "Arcade Mode",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColor.textwhite,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: AppColor.primary,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              GestureDetector(
-                onDoubleTap: () {
-                  Mode = "Arcade";
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 30, bottom: 30),
+              child: IconButton(
+                onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => RestimeTutorial()),
+                    MaterialPageRoute(builder: (context) => MainLandingPage()),
                   );
                 },
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColor.primary.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(width: 2, color: AppColor.primary),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Arcade",
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: AppColor.textwhite,
-                            ),
-                          ),
-                          Text(
-                            "Semi Arcade",
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColor.purpletext,
-                            ),
-                          ),
-                        ],
-                      ),
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/image/arcade.gif",
-                          height: 65,
-                          color: Colors.transparent, // Apply transparency
-                          colorBlendMode:
-                              BlendMode
-                                  .multiply, // Adjust blend mode based on background color
-                        ),
-                      ),
-                    ],
+                icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 20),
+              child: Container(
+                padding: EdgeInsets.only(right: 30),
+                child: Text(
+                  "Choose your challenge: 30-day workout or Arcade mode!",
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              Text(
-                "100 Exercise in 30 days",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.yellowtext,
-                ),
+            ),
+            Text(
+              "Swipe to explore more challenges.",
+              style: TextStyle(fontSize: 15),
+            ),
+            Expanded(
+              child: Swiper(
+                itemCount: exercises.length,
+                itemWidth: MediaQuery.of(context).size.width * 0.8,
+                layout: SwiperLayout.TINDER,
+                itemHeight: 390,
+                itemBuilder: (context, index) {
+                  number = index;
+                  return GestureDetector(
+                    onTap: () => _onExerciseTap(index),
+                    child: planCard(
+                      exercises[index]["name"]!,
+                      exercises[index]["image"]!,
+                      exercises[index]["definition"]!,
+                    ),
+                  );
+                },
               ),
-              largeGap,
-              Expanded(
-                child: ListView.builder(
-                  itemCount: exercises.length,
-                  itemBuilder: (context, index) {
-                    final exercise = exercises[index];
-                    return GestureDetector(
-                      onDoubleTap:
-                          () => startExercise(
-                            exercise["PrimaryName"]!,
-                            exercise["image"]!,
-                            exercise["name"]!,
-                          ),
-                      child: Container(
-                        height: 85,
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColor.backgroundgrey,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColor.textwhite.withOpacity(0.3),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColor.primary.withOpacity(0.1),
-                              blurRadius: 5,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              exercise["name"]!,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColor.textwhite,
-                              ),
-                            ),
-                            Image.asset(
-                              "assets/image/" + exercise['image']!,
-                              height: 75,
-                              width: 75,
-                              fit: BoxFit.cover,
-                            ),
-                          ],
-                        ),
+            ),
+            SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (number == 0) {
+                    number = 5;
+                  }
+                  if ("Arcade" == exercises[number - 1]['name']) {
+                    Mode = "Arcade";
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RestimeTutorial(),
                       ),
                     );
-                  },
+                  } else {
+                    startExercise(
+                      exercises[number - 1]["PrimaryName"]!,
+                      exercises[number - 1]["image"]!,
+                      exercises[number - 1]["name"]!,
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      14,
+                    ), // Set border radius here
+                  ),
+                  backgroundColor: AppColor.primary,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                ),
+                child: Text(
+                  "Next",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        backgroundColor: AppColor.backgroundgrey,
+      ),
+    );
+  }
+
+  Widget planCard(String title, String imagePath, String definition) {
+    return Container(
+      width: 250,
+      height: 250,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 6),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+            child: Image.asset(
+              imagePath,
+              height: 250,
+              width: 250,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: Column(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.solidtext.withOpacity(0.7),
+                    ),
+                  ),
+                  smallGap,
+                  Text(
+                    definition,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.backgroundgrey.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
