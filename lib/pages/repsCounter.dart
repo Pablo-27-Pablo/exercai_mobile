@@ -20,10 +20,9 @@ class _AgeSelectorScreenState extends State<AgeSelectorScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -44,7 +43,7 @@ class _AgeSelectorScreenState extends State<AgeSelectorScreen> {
                   Text(
                     'How many reps?',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 35,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
@@ -73,20 +72,40 @@ class _AgeSelectorScreenState extends State<AgeSelectorScreen> {
                   },
                   childDelegate: ListWheelChildBuilderDelegate(
                     builder: (context, index) {
+                      bool isSelected = index == _controller.selectedItem;
                       return Center(
-                        child: Text(
-                          '${1 + index}',
-                          style: TextStyle(
-                            fontSize:
-                                index == _controller.selectedItem ? 28 : 22,
+                        child: Container(
+                          width: 150, // Adjust the width
+                          height: 70, // Adjust the height
+                          decoration: BoxDecoration(
+                            // border: isSelected ? Border.all(
+                            //   color:
+                            //       AppColor
+                            //           .solidtext, // You can change the border color
+                            //   width: 2.0, // Thickness of the border
+                            // ):Border(),
                             color:
-                                index == _controller.selectedItem
-                                    ? AppColor.shadow
-                                    : Colors.black,
-                            fontWeight:
-                                index == _controller.selectedItem
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                                isSelected
+                                    ? AppColor.primary.withOpacity(0.2)
+                                    : Colors.transparent, // Highlight
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${1 + index}',
+                              style: TextStyle(
+                                fontSize:
+                                    index == _controller.selectedItem ? 35 : 22,
+                                color:
+                                    index == _controller.selectedItem
+                                        ? AppColor.primary
+                                        : Colors.black,
+                                fontWeight:
+                                    index == _controller.selectedItem
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                              ),
+                            ),
                           ),
                         ),
                       );
@@ -98,7 +117,7 @@ class _AgeSelectorScreenState extends State<AgeSelectorScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: AppColor.primary,
                 minimumSize: Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

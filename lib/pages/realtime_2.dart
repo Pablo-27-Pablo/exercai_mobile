@@ -479,13 +479,13 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         if (ExerciseName != "") {
           if (currentTime4 - lastUpdateTime3 >= 3000) {
-            if(Mode == "Arcade"){
+            if (Mode == "Arcade") {
               musicPlayer.pause();
               Future.delayed(Duration(seconds: 3), () {
-              musicPlayer.resume();
-            }); 
+                musicPlayer.resume();
+              });
             }
-            
+
             errorWholebody = "Show your whole Body or Move Backward!!";
             speak(errorWholebody);
             warningIndicatorScreen = false;
@@ -623,13 +623,28 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: AppColor.yellowtext,
                       ),
                     ),
-                    Text(
-                      raise.toString(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 70,
-                        color: Colors.yellow,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          raise.toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 70,
+                            color: Colors.yellow,
+                          ),
+                        ),
+                        Mode == "postureCorrection"
+                            ? Text(
+                              "/" + repsWants.toString(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                                color: Colors.yellow,
+                              ),
+                            )
+                            : Container(),
+                      ],
                     ),
                     ExerciseName == "plank" ||
                             ExerciseName == "rightplank" ||
@@ -835,52 +850,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ],
                             ),
-                            Mode == "postureCorrection"
-                                ? GestureDetector(
-                                  onDoubleTap: () {
-                                    raise = 0;
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Trypage(),
-                                      ),
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 30,
-                                      right: 50,
-                                      left: 50,
-                                    ),
-                                    child: Container(
-                                      height: 50,
-                                      width: 150,
-                                      decoration: BoxDecoration(
-                                        color: AppColor.primary.withOpacity(
-                                          0.9,
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color:
-                                              AppColor
-                                                  .solidtext, // You can change the border color
-                                          width: 2.0, // Thickness of the border
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Finish",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.textwhite,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                : Container(),
                           ],
                         ),
                       ),
@@ -918,7 +887,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     }
                   },
-                  icon: Icon(Icons.arrow_back, color: AppColor.primary),
+                  icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
                 )
                 : IconButton(
                   onPressed: () {
@@ -927,7 +896,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => Trypage()),
                     );
                   },
-                  icon: Icon(Icons.arrow_back, color: AppColor.primary),
+                  icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
                 ),
         title: const Text(
           "Pose Estimation",
@@ -936,7 +905,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: AppColor.backgroundgrey,
         actions: [
           IconButton(
-            icon: Icon(Icons.flip_camera_android, color: AppColor.primary),
+            icon: Icon(Icons.camera_alt_outlined, color: AppColor.primary),
             onPressed: toggleCamera,
           ),
         ],

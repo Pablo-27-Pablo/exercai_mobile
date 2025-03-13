@@ -10,6 +10,19 @@ import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/utils/constant.dart';
 import '../../utils/constant.dart';
 
+import 'package:exercai_mobile/homepage/mainlandingpage.dart';
+import 'package:exercai_mobile/pages/repsCounter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:exercai_mobile/pages/home.dart';
+import 'package:exercai_mobile/pages/realtime_2.dart';
+import 'package:exercai_mobile/utils/constant.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/utils/constant.dart';
+import '../../utils/constant.dart';
+
+
 class Trypage extends StatefulWidget {
   const Trypage({super.key});
 
@@ -26,12 +39,12 @@ class _TrypageState extends State<Trypage> {
     {
       "name": "jumpingjacks",
       "image": "jumpingjacks.gif",
-      "PrimaryName": "JumpingJacks"
+      "PrimaryName": "Jumping Jacks",
     },
     {
       "name": "legraises",
       "image": "legraises.gif",
-      "PrimaryName": "Leg-Raises"
+      "PrimaryName": "Leg Raises",
     },
     {"name": "situp", "image": "situp.gif", "PrimaryName": "Sit-Up"},
     {"name": "lunges", "image": "lunges.gif", "PrimaryName": "Lunges"},
@@ -39,34 +52,35 @@ class _TrypageState extends State<Trypage> {
     {
       "name": "rightplank",
       "image": "sideplank.gif",
-      "PrimaryName": "Right-Plank"
+      "PrimaryName": "Right Plank",
     },
     {
       "name": "leftplank",
       "image": "sideplank.gif",
-      "PrimaryName": "Left-Plank"
+      "PrimaryName": "Left Plank",
     },
     {
       "name": "mountainclimbers",
       "image": "mountainclimbers.gif",
-      "PrimaryName": "Mountain-Climbers"
+      "PrimaryName": "Mountain Climbers",
+    },
+        {
+      "name": "highknees",
+      "image": "highknee.gif",
+      "PrimaryName": "High-Knees",
     },
   ];
 
-  void _speak(String text) async {
-    await _flutterTts.setLanguage("en-US");
-    await _flutterTts.setPitch(0.8);
-    await _flutterTts.speak(text);
-  }
-
   void _startExercise(
-      String exerciseName, String imageName, String PrimaryName) {
+    String exerciseName,
+    String imageName,
+    String primaryName,
+  ) {
     setState(() {
       ExerciseName = exerciseName;
-      PrimaryExerciseName = PrimaryName;
+      PrimaryExerciseName = primaryName;
       image = imageName;
     });
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => AgeSelectorScreen()),
@@ -75,119 +89,122 @@ class _TrypageState extends State<Trypage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        backgroundColor: AppColor.backgroundgrey,
-        appBar: AppBar(
-          leading: IconButton(
-              onPressed: () {
-                seconds = 60;
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainLandingPage()),
-                );
-              },
-              icon: Icon(Icons.arrow_back)),
-          title: const Text("Pose Estimation Exercises",
-              style: TextStyle(
-                  color: Color.fromARGB(255, 240, 240, 240),
-                  fontWeight: FontWeight.bold)),
-          backgroundColor: AppColor.primary,
-          iconTheme: const IconThemeData(color: AppColor.textwhite),
-        ),
-        body: Column(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      // appBar: AppBar(
+      //   leading: IconButton(
+      //     onPressed: () {
+      //       seconds = 60;
+      //       Navigator.pushReplacement(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => MainLandingPage()),
+      //       );
+      //     },
+      //     icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
+      //   ),
+
+      // ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    image: DecorationImage(
-                        image: AssetImage('assets/image/poseestimation.jpg'),
-                        fit: BoxFit.cover)),
-                margin: EdgeInsets.all(15),
-                height: 170,
-                width: 400,
-                child: Center(
-                  child: Text(
-                    '"Success starts with self-discipline."',
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 237, 218, 248),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 21),
-                  ),
-                )),
-            Divider(
-              thickness: 1,
-              color: const Color.fromARGB(255, 145, 145, 145).withOpacity(0.3),
-            ),
-            smallGap,
             Padding(
-              padding: const EdgeInsets.only(left: 15),
-              child: Row(
-                children: [
-                  Text(
-                    "Exercise: ",
-                    style: TextStyle(
-                        color: AppColor.textwhite,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
+              padding: const EdgeInsets.only(top: 30, bottom: 30),
+              child: IconButton(
+                onPressed: () {
+                  seconds = 60;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainLandingPage()),
+                  );
+                },
+                icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
               ),
             ),
-            smallGap,
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom:20),
+              child: Container(
+                padding: EdgeInsets.only(right: 30),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Pick an exercise that suits your goal.",textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        
+                      ),
+                    ),
+                    largeGap,
+                    Row(
+                      children: [
+                        Text(
+                          "Click exercise to proceed",
+                          style: TextStyle(
+                            color: AppColor.bottonPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            SizedBox(height: 10),
             Expanded(
-              child: ListView.builder(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1.2,
+                ),
                 itemCount: exercises.length,
                 itemBuilder: (context, index) {
                   final exercise = exercises[index];
                   return GestureDetector(
-                    onDoubleTap: () => _startExercise(exercise["name"]!,
-                        exercise["image"]!, exercise["PrimaryName"]!),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColor.bottonPrimary,
+                    onTap:
+                        () => _startExercise(
+                          exercise["name"]!,
+                          exercise["image"]!,
+                          exercise["PrimaryName"]!,
+                        ),
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColor.bottonSecondary.withOpacity(0.3),
-                            blurRadius: 5,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                exercise["PrimaryName"]!,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColor.textwhite,
-                                ),
-                              ),
-                              Text(
-                                " •",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColor.yellowtext,
-                                ),
-                              ),
-                            ],
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              'assets/image/${exercise["image"]}',
+                              height: 70,
+                              width: 70,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          ClipOval(
-                              child: Image.asset(
-                            'assets/image/' + exercise["image"].toString(),
-                            height: 55,
-                            width: 55,
-                          )),
+                          SizedBox(height: 10),
+                          Text(
+                            exercise["PrimaryName"]!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.buttonPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
@@ -201,3 +218,31 @@ class _TrypageState extends State<Trypage> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
