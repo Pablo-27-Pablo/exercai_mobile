@@ -353,8 +353,8 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
             SizedBox(height: 15),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                widget.exercise['gifUrl'] ?? '',
+              child: Image.asset(
+                widget.exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
                 height: 180,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) =>

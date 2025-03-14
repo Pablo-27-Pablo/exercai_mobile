@@ -100,8 +100,8 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                   Center(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
-                      child: Image.network(
-                        exercise['gifUrl'] ?? '',
+                      child: Image.asset(
+                        exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
                         height: 200,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>

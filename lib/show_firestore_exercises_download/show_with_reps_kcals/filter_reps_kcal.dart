@@ -166,21 +166,10 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
   }
 
   Future<String> _fetchExerciseGifUrl(String exerciseId) async {
-    try {
-      DocumentSnapshot exerciseDoc = await FirebaseFirestore.instance
-          .collection('BodyweightExercises')
-          .doc(exerciseId)
-          .get();
-
-      if (exerciseDoc.exists) {
-        final data = exerciseDoc.data() as Map<String, dynamic>?;
-        return data?['gifUrl'] ?? ''; // Return the latest gifUrl
-      }
-    } catch (e) {
-      print("Error fetching gifUrl: $e");
-    }
-    return ''; // Return empty string if there's an error
+    // Return the local asset path based on the exercise id/name.
+    return _getLocalGifPath(exerciseId);
   }
+
 
 
   Future<void> fetchFinalBurnCalValues() async {
@@ -438,6 +427,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                   'baseCalories': match['baseCalories'],
                   'burnCalperRep': match['burnCalperRep'],
                   'burnCalperSec': match['burnCalperSec'],
+                  'gifPath': _getLocalGifPath(match['name']),
                   'difficulty': selectedDifficulty,
                   'bmiCategory': selectedBMI,
                   'completed': false,
@@ -460,6 +450,27 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
       print('Error generating new exercises: $e');
     }
   }
+
+  String _getLocalGifPath(String exerciseName) {
+    // Iterate over the entire exerciseData from list_map_exercises.dart
+    for (var difficultyMap in exerciseData.values) {
+      for (var bmiMap in difficultyMap.values) {
+        for (var exercisesList in bmiMap.values) {
+          for (var exercise in exercisesList) {
+            if (exercise['name'].toString().toLowerCase() == exerciseName.toLowerCase()) {
+              String path = exercise['gifPath'].toString();
+              if (!path.endsWith('.gif')) {
+                path += '.gif';
+              }
+              return path;
+            }
+          }
+        }
+      }
+    }
+    return 'assets/exercaiGif/fallback.gif';
+  }
+
 
   // Update testDailyExerciseRotation
   Future<void> testDailyExerciseRotation() async {
@@ -662,12 +673,12 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: AspectRatio(
                                     aspectRatio: 1, // Adjust as needed
-                                    child: Image.network(
-                                      exercise['gifUrl'],
+                                    child: Image.asset(
+                                      exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.download_for_offline, size: 60),
-                                    ),
+                                    )
                                   ),
                                 ),
 
@@ -706,7 +717,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                   String exerciseId = exercise['id'].toString();
                                   String latestGifUrl = await _fetchExerciseGifUrl(exerciseId);
                                   if (latestGifUrl.isNotEmpty) {
-                                    exercise['gifUrl'] = latestGifUrl;
+                                    exercise['gifPath'] = latestGifUrl;
                                   }
                                   String bodyPart = (exercise['bodyPart'] ?? '').toLowerCase();
 
