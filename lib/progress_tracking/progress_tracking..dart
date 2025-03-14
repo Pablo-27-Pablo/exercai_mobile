@@ -480,7 +480,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                                                 .start, // ✅ Align text properly
                                         children: [
                                           Text(
-                                            'Total Burned Calories: ${(finalTotalCalories + peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                                            'Total Burned Calories: ${finalTotalCalories.toStringAsFixed(2)} Kcal',
                                             style: TextStyle(
                                               color: AppColor.textwhite,
                                               fontSize: 16,
