@@ -19,6 +19,7 @@ import 'package:exercai_mobile/pages/Main_Pages/Exercises_Page.dart';
 import 'package:exercai_mobile/utils/constant.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/utils/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/constant.dart';
 import 'dart:async';
@@ -41,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   dynamic _scanResults;
   int selectedCameraIndex = 1;
   bool fixingcamera = true;
+  List<String> selectedInjuries = [];
 
   final Map<DeviceOrientation, int> _orientations = {
     DeviceOrientation.portraitUp: 0,
@@ -53,11 +55,22 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     initializeCamera();
+    _loadSelectedInjuries();
+    //CheckInjurys();
 
     if (Mode == "dayChallenge") {
       raise = peopleBox.get(ExerciseName) % 100;
     }
   }
+
+  Future<void> _loadSelectedInjuries() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
+    });
+  }
+
+
 
   void SecondOutput() {
     if (ExerciseName == "plank" ||
@@ -724,6 +737,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                         ),
                                       ),
+                                      
                                       SizedBox(height: 10),
                                       errorWholebody == ""
                                           ? Container()
@@ -887,7 +901,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     }
                   },
-                  icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
+                  icon: Icon(Icons.arrow_back_ios, color: const Color.fromARGB(255, 255, 255, 255)),
                 )
                 : IconButton(
                   onPressed: () {
@@ -896,13 +910,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => Trypage()),
                     );
                   },
-                  icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
+                  icon: Icon(Icons.arrow_back_ios, color: const Color.fromARGB(255, 255, 255, 255)),
                 ),
         title: const Text(
           "Pose Estimation",
-          style: TextStyle(color: AppColor.primary),
+          style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         ),
-        backgroundColor: AppColor.backgroundgrey,
+        backgroundColor: AppColor.primary,
         actions: [
           IconButton(
             icon: Icon(Icons.camera_alt_outlined, color: AppColor.primary),

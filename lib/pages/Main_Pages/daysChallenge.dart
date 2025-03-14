@@ -82,13 +82,13 @@ class _ThirtyDaysChallengeState extends State<ThirtyDaysChallenge> {
                 width: 250,
               ),
             )
-          else if (ExerciseName == "legraise")
+          else if (ExerciseName == "legraises")
             Center(
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   image: DecorationImage(
-                    image: AssetImage('assets/image/squat.gif'),
+                    image: AssetImage('assets/image/legraises.gif'),
                     fit: BoxFit.cover,
                   ),
                 ),

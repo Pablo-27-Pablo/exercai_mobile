@@ -29,6 +29,7 @@ class _InjurySelectionState extends State<InjurySelection> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
+      
     });
   }
 
