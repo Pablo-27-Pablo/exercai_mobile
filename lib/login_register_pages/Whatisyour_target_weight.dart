@@ -8,7 +8,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class WhatisyourTargetWeight extends StatefulWidget {
   const WhatisyourTargetWeight({super.key});
 
@@ -16,34 +15,57 @@ class WhatisyourTargetWeight extends StatefulWidget {
   State<WhatisyourTargetWeight> createState() => _WhatisyourTargetWeightState();
 }
 
-final TextEditingController targetWeight = TextEditingController();
-
 class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
+  // Local controller for target weight
+  late TextEditingController _targetWeightController;
+
+  // Fetched from Firestore
   double? currentWeight;
+
+  // Real-time motivational message
   String displayedMessage = '';
+
+  // Range for target weight in kg
+  final double _minWeight = 20.0;
+  final double _maxWeight = 300.0;
+  final double _step = 0.1;
+  late int _itemCount;
 
   @override
   void initState() {
     super.initState();
+    _targetWeightController = TextEditingController();
+
+    // Number of possible values
+    _itemCount = ((_maxWeight - _minWeight) / _step).round() + 1;
+
     _fetchCurrentWeight();
-    _loadTargetWeight(); // Load stored target weight
-    targetWeight.addListener(_calculatePercentage);
+    _loadTargetWeight();
+    _targetWeightController.addListener(_calculatePercentage);
   }
 
-  // 🔹 Load saved target weight from SharedPreferences
+  @override
+  void dispose() {
+    _targetWeightController.removeListener(_calculatePercentage);
+    _targetWeightController.dispose();
+    super.dispose();
+  }
+
+  // Load saved target weight from SharedPreferences
   Future<void> _loadTargetWeight() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      targetWeight.text = prefs.getString('targetWeight') ?? '';
+      _targetWeightController.text = prefs.getString('targetWeight') ?? '';
     });
   }
 
-  // 🔹 Save target weight to SharedPreferences
+  // Save target weight to SharedPreferences
   Future<void> _saveTargetWeight() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('targetWeight', targetWeight.text.trim());
+    await prefs.setString('targetWeight', _targetWeightController.text.trim());
   }
 
+  // Fetch the user’s current weight from Firestore
   void _fetchCurrentWeight() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -63,7 +85,7 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
-  //ibalik yung message na Current Weight Not Available pag nag error
+  // Calculate the percentage difference between currentWeight and targetWeight
   void _calculatePercentage() {
     if (currentWeight == null || currentWeight == 0) {
       setState(() {
@@ -73,11 +95,10 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
 
     String newMessage = '';
-
-    if (targetWeight.text.isEmpty) {
-      newMessage = ''; // Clear message when empty
+    if (_targetWeightController.text.isEmpty) {
+      newMessage = '';
     } else {
-      double? target = double.tryParse(targetWeight.text);
+      double? target = double.tryParse(_targetWeightController.text);
       if (target == null) {
         newMessage = 'Invalid weight value';
       } else {
@@ -85,14 +106,17 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
         double percent = (difference.abs() / currentWeight!) * 100;
         String gainOrLose = difference > 0 ? 'gain' : 'lose';
 
-        if (percent <= 10) {
-          newMessage = '👌A piece of cake:\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
-        } else if (percent <= 20) {
-          newMessage = '💦Achievable Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
-        } else if (percent == 0) {
+        if (percent == 0) {
           newMessage = '😃Keep Going\nMaintain your current weight';
+        } else if (percent <= 10) {
+          newMessage =
+          '👌A piece of cake:\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
+        } else if (percent <= 20) {
+          newMessage =
+          '💦Achievable Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
         } else {
-          newMessage = '💪🏻 Challenging Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
+          newMessage =
+          '💪🏻 Challenging Goal\nYou will $gainOrLose ${percent.toStringAsFixed(1)}% of your weight';
         }
       }
     }
@@ -104,12 +128,11 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
-
+  // Return the appropriate color for the first line of the displayed message
   Color _getMessageColor(String messagePart) {
     switch (messagePart) {
       case '👌A piece of cake:':
-        return Colors.green;
-      case '😃Keep going:':
+      case '😃Keep Going':
         return Colors.green;
       case '💦Achievable Goal':
         return Colors.orange;
@@ -120,228 +143,289 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
+  // Save target weight to Firestore
   void saveTargetWeightToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null && targetWeight.text.isNotEmpty) {
+    if (user != null && _targetWeightController.text.isNotEmpty) {
       await FirebaseFirestore.instance
           .collection("Users")
           .doc(user.email)
           .set({
-        'targetWeight': targetWeight.text.trim(),
+        'targetWeight': _targetWeightController.text.trim(),
       }, SetOptions(merge: true));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a target weight before proceeding.")),
+        const SnackBar(
+            content: Text("Please select a target weight before proceeding.")),
       );
     }
   }
 
+  // Build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(context),
-      resizeToAvoidBottomInset: true,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            TextSection(),
-            _buildTextFieldSection(),
-            const SizedBox(height: 70),
-            buttonNext(context)
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextFieldSection() {
-    return Container(
-      height: 270,
-      decoration: BoxDecoration(
-        color: AppColor.primary,
-      ),
-      child: Column(
+      // White background to match the screenshot
+      backgroundColor: Colors.white,
+      appBar: _buildHeader(context),
+      body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              child: const Column(
-                children: [
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 25, left: 25),
-            child: Container(
-              child: Column(
-                children: [
-                  const SizedBox(height: 25),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(boxShadow: [
-                            BoxShadow(
-                                color: AppColor.shadow.withOpacity(0.5),
-                                blurRadius: 40,
-                                spreadRadius: 0.0)
-                          ]),
-                          child: TextField(
-                            controller: targetWeight,
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) => _saveTargetWeight(), // Save when typing
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.monitor_weight_outlined),
-                              hintText: 'Weight (kg)',
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.transparent),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.transparent),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 32, 32, 32),
-                            borderRadius: BorderRadius.circular(12)),
-                        child: Center(
-                            child: Text(
-                              "kg",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  color: AppColor.yellowtext),
-                            )),
-                      )
-                    ],
-                  ),
-                  if (displayedMessage.isNotEmpty)
-                    Column(
-                      children: [
-                        const SizedBox(height: 30),
-                        Text(
-                          displayedMessage.split('\n')[0], // First line (goal category)
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: _getMessageColor(displayedMessage.split('\n')[0]),
-                          ),
-                        ),
-                        if (displayedMessage.contains('\n'))
-                          Text(
-                            displayedMessage.split('\n')[1], // Second line (gain/lose %)
-                            style: const TextStyle(
-                              fontSize: 17,
-                              color: Colors.black,
-                            ),
-                          ),
-                      ],
-                    ),
+          // Large spacing at the top for the question
+          SizedBox(height: 24),
 
-                  const SizedBox(height: 60),
-                ],
-              ),
+          // Title: "What's your target weight?" in bold black
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "What's your target weight?",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                // The green pill that says "kg" (no lbs)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColor.supersolidPrimary,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    "kg",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
+
+          // Some spacing
+          SizedBox(height: 16),
+
+          // The big number in the center
+          _buildWeightDisplay(),
+
+          // The horizontal scale
+          _buildWheelSelector(),
+
+          // The motivational message
+          _buildMotivationalCard(),
+
+          Spacer(),
+
+          // Next button at the bottom
+          _buildNextButton(context),
+          SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  GestureDetector buttonNext(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        saveTargetWeightToFirebase();
-        _saveTargetWeight(); // Save selection before navigation
-        navigateWithSlideTransition(context, Bodyshape(), slideRight: true);
-      },
-      child: Container(
-        child: Column(
-          children: [
-            Container(
-              height: 55,
-              width: 150,
-              decoration: BoxDecoration(
-                  color: AppColor.buttonPrimary.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(
-                      width: 2, color: AppColor.buttonSecondary),
-                  boxShadow: [
-                    BoxShadow(
-                        color: AppColor.buttonSecondary.withOpacity(0.7),
-                        blurRadius: 90,
-                        spreadRadius: 0.1)
-                  ]),
-              child: Center(
-                  child: Text(
-                    "Next",
-                    style: TextStyle(
-                        color: AppColor.textwhite,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  )),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-Container TextSection() {
-  return Container(
-    height: 130,
-    child: Padding(
-      padding: const EdgeInsets.only(left: 25, right: 25, top: 25),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("What is your Target weight?",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 30)),
-            const SizedBox(height: 10),
-            const Expanded(
-              child: Text(
-                "",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                    fontSize: 15),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-AppBar AppbarSection(BuildContext context) {
-  return AppBar(
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
+  // Custom AppBar with a back arrow
+  PreferredSizeWidget _buildHeader(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: false,
       leading: IconButton(
         onPressed: () {
           navigateWithSlideTransition(context, WorkoutLevel(), slideRight: false);
         },
-        icon: Icon(Icons.arrow_back, color: AppColor.yellowtext),
-      )
-  );
+        icon: Icon(Icons.arrow_back, color: Colors.black),
+      ),
+    );
+  }
+
+  // The large numeric display in the center
+  Widget _buildWeightDisplay() {
+    double weightVal = double.tryParse(_targetWeightController.text) ?? 70.0;
+    return Column(
+      children: [
+        Text(
+          weightVal.toStringAsFixed(1),
+          style: TextStyle(
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        SizedBox(height: 4),
+        // Thin green line under the big number
+        Container(
+          height: 2,
+          width: 100,
+          color: AppColor.supersolidPrimary,
+        ),
+        SizedBox(height: 8),
+      ],
+    );
+  }
+
+  // The horizontal wheel for selecting target weight (20–300 kg in 0.1 increments)
+  Widget _buildWheelSelector() {
+    // Convert current target weight from text controller
+    double currentTarget = double.tryParse(_targetWeightController.text) ?? 70.0;
+    if (currentTarget < _minWeight || currentTarget > _maxWeight) {
+      currentTarget = 70.0;
+    }
+
+    int currentIndex = ((currentTarget - _minWeight) / _step).round();
+    currentIndex = currentIndex.clamp(0, _itemCount - 1);
+
+    // Keep the text controller in sync
+    _targetWeightController.text = currentTarget.toStringAsFixed(1);
+
+    return Container(
+      height: 100,
+      child: RotatedBox(
+        quarterTurns: -1, // rotate to make it horizontal
+        child: ListWheelScrollView.useDelegate(
+          controller: FixedExtentScrollController(initialItem: currentIndex),
+          itemExtent: 25,
+          perspective: 0.002,
+          physics: FixedExtentScrollPhysics(),
+          onSelectedItemChanged: (index) {
+            double newWeight = _minWeight + index * _step;
+            setState(() {
+              _targetWeightController.text = newWeight.toStringAsFixed(1);
+            });
+            _calculatePercentage();
+            _saveTargetWeight();
+          },
+          childDelegate: ListWheelChildBuilderDelegate(
+            builder: (context, index) {
+              if (index < 0 || index >= _itemCount) return null;
+              double val = _minWeight + index * _step;
+              bool isWholeNumber = ((val * 10) % 10) == 0;
+              bool isSelected = index == currentIndex;
+
+              return RotatedBox(
+                quarterTurns: 1, // rotate upright
+                child: _buildVerticalTick(val, isWholeNumber, isSelected),
+              );
+            },
+            childCount: _itemCount,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build a vertical tick line:
+  // - Longer line + label for whole number
+  // - Shorter line for decimals
+  Widget _buildVerticalTick(double value, bool isWholeNumber, bool isSelected) {
+    double lineHeight = isWholeNumber ? 30 : 15;
+    bool showLabel = isWholeNumber;
+
+    return Container(
+      width: 40,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // The vertical line
+          Container(
+            width: 2,
+            height: lineHeight,
+            color: isSelected ? AppColor.supersolidPrimary : Colors.black54,
+          ),
+          if (showLabel) ...[
+            SizedBox(height: 6),
+            Text(
+              value.toStringAsFixed(0),
+              style: TextStyle(
+                fontSize: 12,
+                color: isSelected ? AppColor.supersolidPrimary : Colors.black54,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // Container for the motivational message
+  Widget _buildMotivationalCard() {
+    if (displayedMessage.isEmpty) {
+      return SizedBox.shrink();
+    }
+
+    // The message has two lines separated by \n
+    final lines = displayedMessage.split('\n');
+    final firstLine = lines[0];
+    final secondLine = lines.length > 1 ? lines[1] : "";
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            firstLine,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: _getMessageColor(firstLine),
+            ),
+          ),
+          if (secondLine.isNotEmpty) ...[
+            SizedBox(height: 4),
+            Text(
+              secondLine,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
+                fontWeight: FontWeight.bold
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // "Next" button (black background, white text)
+  Widget _buildNextButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        saveTargetWeightToFirebase();
+        _saveTargetWeight();
+        navigateWithSlideTransition(context, Bodyshape(), slideRight: true);
+      },
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(horizontal: 24),
+        height: 50,
+        decoration: BoxDecoration(
+          color: AppColor.moresolidPrimary,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Center(
+          child: Text(
+            "Next",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

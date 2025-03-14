@@ -10,6 +10,7 @@ import 'createaccount.dart';
 import 'welcome.dart';
 import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WhatGoalPage extends StatefulWidget {
   const WhatGoalPage({super.key});
@@ -44,10 +45,7 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
   void saveGoalToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && selectedGoal != null) {
-      await FirebaseFirestore.instance
-          .collection("Users")
-          .doc(user.email)
-          .set({
+      await FirebaseFirestore.instance.collection("Users").doc(user.email).set({
         'goal': selectedGoal,
       }, SetOptions(merge: true));
 
@@ -59,50 +57,213 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(context),
-      body: Column(
+      backgroundColor: Colors.white,
+      appBar: _buildAppBar(context),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeaderText(),
+            _buildGoalSelectionSection(),
+            const Spacer(),
+            _buildNextButton(context),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.black87),
+        onPressed: () {
+          navigateWithSlideTransition(context, WelcomeUser(), slideRight: false);
+        },
+      ),
+      centerTitle: true,
+      title: Text(
+        'Select Your Goal',
+        style: GoogleFonts.poppins(
+          color: Colors.black87,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderText() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+      child: Column(
         children: [
-          TextSection(),
-          GoalSelectionSection(),
-          SizedBox(height: 75),
-          NextButton(context),
+          Text(
+            "What is your Goal?",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              fontSize: 28,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            "Choose whether you want to lose weight, gain muscle, or maintain your current weight!",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 
-  GestureDetector NextButton(BuildContext context) {
+  Widget _buildGoalSelectionSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 15,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildGoalOption(
+            title: "Lose Weight",
+            goalValue: "lose weight",
+          ),
+          const SizedBox(height: 20),
+          _buildGoalOption(
+            title: "Muscle Mass Gain",
+            goalValue: "muscle mass gain",
+          ),
+          const SizedBox(height: 20),
+          _buildGoalOption(
+            title: "Maintain",
+            goalValue: "maintain",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGoalOption({required String title, required String goalValue}) {
+    bool isSelected = selectedGoal == goalValue;
     return GestureDetector(
       onTap: () {
-        saveGoalToFirebase();
-        _saveSelectedGoal(selectedGoal!); // Save selection before navigation
-        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
+        setState(() {
+          selectedGoal = goalValue;
+        });
+        _saveSelectedGoal(goalValue); // Save selection
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColor.supersolidPrimary.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColor.supersolidPrimary : Colors.grey.shade300,
+            width: 2,
+          ),
+          boxShadow: isSelected
+              ? [
+            BoxShadow(
+              color: AppColor.primary.withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            )
+          ]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              height: 24,
+              width: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? AppColor.supersolidPrimary : Colors.transparent,
+                border: Border.all(
+                  color: AppColor.lightPrimary,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 16,
+              )
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNextButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (selectedGoal != null) {
+          saveGoalToFirebase();
+          _saveSelectedGoal(selectedGoal!); // Save selection before navigation
+          navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Please select a goal before proceeding.")),
+          );
+        }
       },
       child: Container(
         height: 55,
-        width: 150,
+        width: 180,
         decoration: BoxDecoration(
-          color: AppColor.buttonPrimary.withOpacity(0.7),
+          gradient: LinearGradient(
+            colors: [AppColor.supersolidPrimary, AppColor.moresolidPrimary],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
           borderRadius: BorderRadius.circular(50),
-          border: Border.all(width: 2, color: AppColor.buttonSecondary),
           boxShadow: [
             BoxShadow(
-              color: AppColor.buttonSecondary.withOpacity(0.7),
-              blurRadius: 90,
-              spreadRadius: 0.1,
+              color: AppColor.moresolidPrimary.withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Center(
           child: Text(
             "Next",
-            style: TextStyle(
-              color: AppColor.textwhite,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -111,151 +272,4 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
       ),
     );
   }
-
-  Widget GoalSelectionSection() {
-    return Container(
-      height: 290,
-      color: AppColor.primary,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
-        child: Column(
-          children: [
-            GoalOption(
-              title: "Lose Weight",
-              isSelected: selectedGoal == "lose weight",
-              // Change this in the onTap handler
-              onTap: () {
-                setState(() {
-                  selectedGoal = "lose weight";
-                });
-                _saveSelectedGoal("lose weight"); // Save selection
-              },
-            ),
-            SizedBox(height: 30),
-            GoalOption(
-              title: "Muscle Mass Gain",
-              isSelected: selectedGoal == "muscle mass gain",
-              // Change this in the onTap handler
-              onTap: () {
-                setState(() {
-                  selectedGoal = "muscle mass gain";
-                });
-                _saveSelectedGoal("muscle mass gain"); // Save selection
-              },
-            ),
-            SizedBox(height: 30),
-            GoalOption(
-              title: "Maintain",
-              isSelected: selectedGoal == "maintain",
-              // Change this in the onTap handler
-              onTap: () {
-                setState(() {
-                  selectedGoal = "maintain";
-                });
-                _saveSelectedGoal("maintain"); // Save selection
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget GoalOption({
-    required String title,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.buttonPrimary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-              child: Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColor.buttonPrimary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    width: 2,
-                    color: AppColor.buttonPrimary,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-Container TextSection() {
-  return Container(
-    height: 210,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "What is your Goal?",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 30,
-              ),
-            ),
-            SizedBox(height: 40),
-            Expanded(
-              child: Text(
-                "Choose whether you want to lose weight, gain muscle, or maintain your current weight!",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                  fontSize: 15,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-AppBar AppbarSection(BuildContext context) {
-  return AppBar(
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){
-        navigateWithSlideTransition(context, WelcomeUser(), slideRight: false);
-      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
-  );
 }
