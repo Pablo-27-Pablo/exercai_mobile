@@ -1,5 +1,6 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
+import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
 import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
@@ -405,7 +406,7 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
       onTap: () async {
         saveTargetWeightToFirebase();
         _saveTargetWeight();
-        navigateWithSlideTransition(context, Bodyshape(), slideRight: true);
+        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
       },
       child: Container(
         width: double.infinity,

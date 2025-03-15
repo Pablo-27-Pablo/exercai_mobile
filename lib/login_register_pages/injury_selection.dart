@@ -29,7 +29,6 @@ class _InjurySelectionState extends State<InjurySelection> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
-      
     });
   }
 
@@ -39,13 +38,41 @@ class _InjurySelectionState extends State<InjurySelection> {
     await prefs.setStringList('selectedInjuries', selectedInjuries);
   }
 
-  // Convert "none of them" -> "None Of Them", "chest" -> "Chest", etc.
+  // Convert "none of them" -> "None Of Them", etc.
   String toTitleCase(String text) {
     if (text.isEmpty) return text;
     return text
         .split(' ')
         .map((word) => word[0].toUpperCase() + word.substring(1))
         .join(' ');
+  }
+
+  // Map each injury to a corresponding icon
+  Widget _getIconForInjury(String injury) {
+    switch (injury) {
+      case "none of them":
+        return Icon(Icons.not_interested, color: AppColor.buttonPrimary, size: 28);
+      case "chest":
+        return Image.asset('assets/chest.png',height: 28,);
+      case "back":
+        return Image.asset('assets/back.png',height: 28,);
+      case "shoulders":
+        return Image.asset('assets/shoulder.png',height: 28,);
+      case "neck":
+        return Image.asset('assets/neck.png',height: 28,);
+      case "lower arms":
+        return Image.asset('assets/lower_arm.png',height: 28,);
+      case "upper arms":
+        return Image.asset('assets/upper_arm.png',height: 28,);
+      case "lower legs":
+        return Image.asset('assets/lower_leg.png',height: 28,);
+      case "upper legs":
+        return Image.asset('assets/upper_leg.png',height: 28,);
+      case "waist":
+        return Image.asset('assets/waist.png',height: 28,);
+      default:
+        return Icon(Icons.not_interested, color: AppColor.buttonPrimary, size: 28);
+    }
   }
 
   void saveInjuryAreaToFirebase() async {
@@ -76,7 +103,6 @@ class _InjurySelectionState extends State<InjurySelection> {
       } else {
         // Remove "None of Them" if selecting something else
         selectedInjuries.remove("none of them");
-
         if (selectedInjuries.contains(injury)) {
           selectedInjuries.remove(injury);
         } else {
@@ -91,34 +117,78 @@ class _InjurySelectionState extends State<InjurySelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
-      appBar: AppbarSection(context),
-      body: Column(
-        children: [
-          TextSection(),
-          // Use Expanded + SingleChildScrollView to avoid overflow
-          Expanded(
-            child: SingleChildScrollView(
-              child: Container(
-                color: AppColor.primary, // Primary color background
+      backgroundColor: Colors.white, // White background
+      appBar: _buildAppBar(context),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeaderSection(),
+            Expanded(
+              child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                  child: InjuryAreaSection(),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: _buildInjuryOptionsSection(),
                 ),
               ),
             ),
+            _buildNextButton(),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
+        onPressed: () {
+          navigateWithSlideTransition(context, Nutriactivitylevel(),
+              slideRight: false);
+        },
+      ),
+      centerTitle: true,
+      title: Text(
+        "Select Injury Areas",
+        style: TextStyle(
+            color: AppColor.buttonPrimary, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+      child: Column(
+        children: [
+          Text(
+            "Any Injured Areas\nNeeding Attention?",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColor.buttonPrimary,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          // "Next" button at the bottom
-          SizedBox(height: 20),
-          NextButton(),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
+          Text(
+            "We will filter and reduce improper exercises for you.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 16,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget InjuryAreaSection() {
-    // All-lowercase strings to store in Firestore
+  Widget _buildInjuryOptionsSection() {
     List<String> injuryOptions = [
       "none of them",
       "chest",
@@ -134,23 +204,20 @@ class _InjurySelectionState extends State<InjurySelection> {
 
     return Column(
       children: injuryOptions.map((injury) {
-        return Column(
-          children: [
-            InjuryOption(
-              // Display in Title Case, store in lowercase
-              displayTitle: toTitleCase(injury),
-              injuryValue: injury,
-              isSelected: selectedInjuries.contains(injury),
-              onTap: () => toggleSelection(injury),
-            ),
-            SizedBox(height: 15),
-          ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: _buildInjuryOption(
+            displayTitle: toTitleCase(injury),
+            injuryValue: injury,
+            isSelected: selectedInjuries.contains(injury),
+            onTap: () => toggleSelection(injury),
+          ),
         );
       }).toList(),
     );
   }
 
-  Widget InjuryOption({
+  Widget _buildInjuryOption({
     required String displayTitle,
     required String injuryValue,
     required bool isSelected,
@@ -158,44 +225,64 @@ class _InjurySelectionState extends State<InjurySelection> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 50,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        height: 60,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          color: isSelected
+              ? AppColor.supersolidPrimary.withOpacity(0.1)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isSelected ? AppColor.supersolidPrimary : Colors.grey.shade300,
+            width: 2,
+          ),
+          boxShadow: isSelected
+              ? [
+            BoxShadow(
+              color: AppColor.supersolidPrimary.withOpacity(0.0),
+              offset: Offset(0, 4),
+              blurRadius: 8,
+            ),
+          ]
+              : [],
         ),
         child: Row(
           children: [
+            // Added icon for body part
+            _getIconForInjury(injuryValue),
+            SizedBox(width: 15),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    displayTitle,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.buttonPrimary,
-                    ),
-                  ),
+              child: Text(
+                displayTitle,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColor.buttonPrimary,
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-              child: Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColor.buttonPrimary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    width: 2,
-                    color: AppColor.buttonPrimary,
-                  ),
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColor.primary,
+                  width: 2,
                 ),
+                color:
+                isSelected ? AppColor.supersolidPrimary : Colors.transparent,
               ),
+              child: isSelected
+                  ? Icon(
+                Icons.check,
+                size: 16,
+                color: Colors.white,
+              )
+                  : null,
             ),
           ],
         ),
@@ -203,7 +290,7 @@ class _InjurySelectionState extends State<InjurySelection> {
     );
   }
 
-  GestureDetector NextButton() {
+  Widget _buildNextButton() {
     return GestureDetector(
       onTap: () {
         _saveSelectedInjuries(); // Save selections before navigation
@@ -211,17 +298,21 @@ class _InjurySelectionState extends State<InjurySelection> {
         navigateWithSlideTransition(context, WorkoutLevel(), slideRight: true);
       },
       child: Container(
+        margin: EdgeInsets.symmetric(vertical: 15),
         height: 55,
-        width: 150,
+        width: MediaQuery.of(context).size.width * 0.6,
         decoration: BoxDecoration(
-          color: AppColor.buttonPrimary.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(width: 2, color: AppColor.buttonSecondary),
+          gradient: LinearGradient(
+            colors: [AppColor.supersolidPrimary, AppColor.primary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: AppColor.buttonSecondary.withOpacity(0.7),
-              blurRadius: 90,
-              spreadRadius: 0.1,
+              color: AppColor.buttonSecondary.withOpacity(0.5),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -229,7 +320,7 @@ class _InjurySelectionState extends State<InjurySelection> {
           child: Text(
             "Next",
             style: TextStyle(
-              color: AppColor.textwhite,
+              color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -238,51 +329,4 @@ class _InjurySelectionState extends State<InjurySelection> {
       ),
     );
   }
-}
-
-// Text Section at the top
-Container TextSection() {
-  return Container(
-    height: 115,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Any Injured Areas\nNeeding Attention?",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 30,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: Text(
-                "We will filter and reduce improper exercises for you.",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 15,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-AppBar AppbarSection(BuildContext context) {
-  return AppBar(
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
-      leading:IconButton(onPressed: (){
-        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: false);
-      }, icon: Icon(Icons.arrow_back,color: Colors.yellow,))
-  );
 }

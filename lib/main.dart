@@ -14,8 +14,10 @@ import 'package:exercai_mobile/login_register_pages/createaccount.dart';
 import 'package:exercai_mobile/login_register_pages/date_of_birth.dart';
 import 'package:exercai_mobile/login_register_pages/gender_choose.dart';
 import 'package:exercai_mobile/login_register_pages/height_choose.dart';
+import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
 import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
+import 'package:exercai_mobile/login_register_pages/summary_page.dart';
 import 'package:exercai_mobile/login_register_pages/weight_choose.dart';
 import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
@@ -180,7 +182,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           //home: AuthPage(),
-          home: Createaccount(),
+          home: SummaryBodyMetricsPage(),
           //home: ButtonDownloadExercises(),
           //home :DownloadGifsScreen(),
 

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
+import 'package:exercai_mobile/login_register_pages/summary_page.dart';
 import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
@@ -242,14 +243,8 @@ class _BodyshapeState extends State<Bodyshape> {
   Widget _buildNextButton() {
     return GestureDetector(
       onTap: () {
-        if (selectedShape != null) {
           saveBodyShapeToFirebase();
-          _showWarningDialog(context);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Please select a body shape before proceeding.")),
-          );
-        }
+          navigateWithSlideTransition(context, SummaryBodyMetricsPage(), slideRight: true);
       },
       child: Container(
         height: 55,
@@ -279,7 +274,7 @@ class _BodyshapeState extends State<Bodyshape> {
     );
   }
 
-  void _showWarningDialog(BuildContext context) {
+  /*void _showWarningDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.6),
@@ -356,6 +351,6 @@ class _BodyshapeState extends State<Bodyshape> {
         );
       },
     );
-  }
+  }*/
 }
 

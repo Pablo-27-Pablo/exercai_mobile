@@ -157,6 +157,22 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
     );
   }
 
+  // Map each activity level to its image asset
+  String _getImageAssetForActivity(String activity) {
+    switch (activity) {
+      case "Inactive":
+        return "assets/info/inactive.png";
+      case "Low Active":
+        return "assets/info/low_active.png";
+      case "Active":
+        return "assets/info/active.png";
+      case "Very Active":
+        return "assets/info/very_active.png";
+      default:
+        return "assets/info/default.png";
+    }
+  }
+
   Widget _buildTargetOption({required String title, required String value}) {
     bool isSelected = selectedActivtyLevel == value;
     return GestureDetector(
@@ -189,6 +205,14 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
         ),
         child: Row(
           children: [
+            // Display the image asset beside each choice
+            Image.asset(
+              _getImageAssetForActivity(title),
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 15),
             Expanded(
               child: Text(
                 title,

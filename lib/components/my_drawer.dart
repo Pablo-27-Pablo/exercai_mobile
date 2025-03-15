@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:exercai_mobile/components/my_drawer.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
 import 'package:exercai_mobile/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -21,21 +24,35 @@ class MyDrawer extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Logout"),
-          content: Text("Are you sure you want to log out?"),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            "Confirm Logout",
+            style: GoogleFonts.poppins(color: Colors.black87, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            "Are you sure you want to log out?",
+            style: GoogleFonts.poppins(color: Colors.black54),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text("Cancel"),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.poppins(color: Colors.blue),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                logout(context); // Call the logout function
+                logout(context);
               },
-              child: Text("Logout", style: TextStyle(color: Colors.red)),
+              child: Text(
+                "Logout",
+                style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -43,163 +60,140 @@ class MyDrawer extends StatelessWidget {
     );
   }
 
+  // A helper function to capitalize the first letter of each word.
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: AppColor.primary,
+      backgroundColor: Colors.white, // White background for a minimalist look.
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            children: [
-              //drawer header
-              DrawerHeader(
-                child: Icon(Icons.circle_outlined,color: AppColor.primary,)
-              ),
+          // Drawer Header with user info.
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                // Display a circular avatar placeholder.
+/*                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey.shade300,
+                  child: const Icon(Icons.person, color: Colors.white, size: 30),
+                ),*/
+                const SizedBox(width: 16),
+                // Fetch and show user first name.
+                FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  future: FirebaseFirestore.instance
+                      .collection("Users")
+                      .doc(FirebaseAuth.instance.currentUser?.email)
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("User",
+                          style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87));
+                    } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                      return Text("User",
+                          style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87));
+                    }
 
-              const SizedBox(
-                height: 25,
-              ),
-              //home tile
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.home,
-                    color: Colors.white, // Change the color of the icon
-                  ),
-                  title: Text(
-                    "H O M E",
-                    style: TextStyle(color: Colors.white), // Change text color if needed
-                  ),
+                    Map<String, dynamic>? userData = snapshot.data!.data();
+                    String firstName = _capitalize(userData?['firstname'] ?? 'User');
+                    String lastName = _capitalize(userData?['lastname'] ?? '');
+
+                    // Combine First Name and Last Name
+                    String fullName = '$firstName $lastName'.trim();
+
+                    return Text(
+                      fullName,
+                      style: GoogleFonts.poppins(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    );
+                  },
+                )
+              ],
+            ),
+          ),
+
+          // Drawer ListTiles – wrapped in an Expanded ListView.
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerTile(
+                  icon: Icons.home,
+                  title: "Home",
                   onTap: () {
-                    //this is already home screen so just pop the drawer
                     Navigator.pop(context);
                   },
                 ),
-              ),
-
-              //profile tile
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.person,
-                    color: Colors.white, // Change the color of the icon
-                  ),
-                  title: Text(
-                    "P R O F I L E",
-                    style: TextStyle(color: Colors.white), // Change text color if needed
-                  ),
+                _buildDrawerTile(
+                  icon: Icons.person,
+                  title: "Profile",
                   onTap: () {
                     Navigator.pop(context);
-                    //navigate to profile page
                     Navigator.pushNamed(context, '/profile_page');
                   },
                 ),
-              ),
-
-              //user tile
-
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.insert_chart,
-                    color: Colors.white, // Change the color of the icon
-                  ),
-                  title: Text(
-                    "P R O G R E S S   T R A C K I N G",
-                    style: TextStyle(color: Colors.white), // Change text color if needed
-                  ),
+                _buildDrawerTile(
+                  icon: Icons.show_chart,
+                  title: "Progress Tracking",
                   onTap: () {
-                    //this is already home screen so just pop the drawer
                     Navigator.pop(context);
-
-                    //navigate to users page
                     Navigator.pushNamed(context, '/progress_tracking');
                   },
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.settings_accessibility,
-                    color: Colors.white, // Change the color of the icon
-                  ),
-                  title: Text(
-                "B M I  S E T T I N G S",
-                    style: TextStyle(color: Colors.white), // Change text color if needed
-                  ),
+                _buildDrawerTile(
+                  icon: Icons.settings_accessibility,
+                  title: "BMI Settings",
                   onTap: () {
-                    //this is already home screen so just pop the drawer
                     Navigator.pop(context);
-
-                    //navigate to users page
                     Navigator.pushNamed(context, '/bmi_settings');
                   },
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.food_bank,
-                    color: Colors.white, // Change the color of the icon
-                  ),
-                  title: Text(
-                    "N U T R I T I O N  A N D\nC A L O R I E S",
-                    style: TextStyle(color: Colors.white), // Change text color if needed
-                  ),
+                _buildDrawerTile(
+                  icon: Icons.food_bank,
+                  title: "Nutrition And Calories",
                   onTap: () {
-                    //this is already home screen so just pop the drawer
                     Navigator.pop(context);
-
-                    //navigate to users page
                     Navigator.pushNamed(context, '/nutrition');
                   },
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.alarm ,
-                    color: Colors.white, // Change the color of the icon
-                  ),
-                  title: Text(
-                    "S E T  R E M I N D E R S",
-                    style: TextStyle(color: Colors.white), // Change text color if needed
-                  ),
+                _buildDrawerTile(
+                  icon: Icons.alarm,
+                  title: "Set Reminders",
                   onTap: () {
-                    //this is already home screen so just pop the drawer
                     Navigator.pop(context);
-
-                    //navigate to users page
                     Navigator.pushNamed(context, '/reminder');
                   },
                 ),
-              ),
-
-            ],
+              ],
+            ),
           ),
-
-          //logout
+          // Logout Tile at the bottom.
           Padding(
-            padding: const EdgeInsets.only(left: 25.0, bottom: 25.0),
-            child: ListTile(
-              leading: Icon(
-                Icons.logout,
-                color: Colors.white, // Change the color of the icon
-              ),
-              title: Text(
-                "L O G O U T",
-                style: TextStyle(color: Colors.white), // Change text color if needed
-              ),
+            padding: const EdgeInsets.only(left: 25, bottom: 25),
+            child: _buildDrawerTile(
+              icon: Icons.logout,
+              title: "Logout",
               onTap: () {
                 _showLogoutConfirmationDialog(context);
               },
@@ -207,6 +201,37 @@ class MyDrawer extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // Drawer tile builder.
+  Widget _buildDrawerTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey.shade200,
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Icon(
+          icon,
+          color: AppColor.moresolidPrimary,
+          size: 20,
+        ),
+      ),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.black87,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

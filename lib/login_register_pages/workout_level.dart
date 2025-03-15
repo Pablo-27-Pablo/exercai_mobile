@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
+import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -269,7 +270,7 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
         if (selectedArea != null) {
           saveWorkoutLevelToFirebase();
           _saveSelectedWorkoutLevel(selectedArea!);
-          navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: true);
+          navigateWithSlideTransition(context, Bodyshape(), slideRight: true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Please select a workout level before proceeding.")),

@@ -189,7 +189,7 @@ class _DateOfBirthState extends State<DateOfBirth> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SizedBox(
-            height: 75, // Increased height for better spacing
+            height: 65, // Increased height for better spacing
             child: Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

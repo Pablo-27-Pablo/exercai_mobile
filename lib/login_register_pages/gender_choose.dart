@@ -195,7 +195,7 @@ class _GenderChooseState extends State<GenderChoose> {
                   .update({
                 'gender': dropdowngender,
               });
-              navigateWithSlideTransition(context, HeightChoose(), slideRight: true);
+              navigateWithSlideTransition(context, WhatGoalPage(), slideRight: true);
             } catch (e) {
               print("Error saving data: $e");
             }
