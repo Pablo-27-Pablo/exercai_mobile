@@ -10,6 +10,7 @@ import '../login_register_pages/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -47,21 +48,35 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Logout"),
-          content: Text("Are you sure you want to log out?"),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            "Confirm Logout",
+            style: GoogleFonts.poppins(color: Colors.black87, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            "Are you sure you want to log out?",
+            style: GoogleFonts.poppins(color: Colors.black54),
+          ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text("Cancel"),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.poppins(color: Colors.blue),
+              ),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                logout(context); // Call logout function
+                Navigator.of(context).pop(); // Close the dialog
+                logout(context);
               },
-              child: Text("Logout", style: TextStyle(color: Colors.red)),
+              child: Text(
+                "Logout",
+                style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -203,11 +218,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _infoMetric(
-                                user?['weight'] ?? 'N/A', 'Weight (kg)'),
+                                user?['weight'].toString() ?? 'N/A', 'Weight (kg)'),
                             _infoMetric(
                                 computeAge(user?['dateOfBirth']), 'Age'),
                             _infoMetric(
-                                user?['height'] ?? 'N/A', 'Height (cm)'),
+                                user?['height'].toString() ?? 'N/A', 'Height (cm)'),
                           ],
                         ),
                       ),

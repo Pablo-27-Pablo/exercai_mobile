@@ -6,6 +6,7 @@ import 'package:exercai_mobile/different_exercises/choose_bodyparts.dart';
 import 'package:exercai_mobile/exercise_posture/exerciseposturepage1.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
+import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
@@ -156,7 +157,7 @@ class _MainLandingPageState extends State<MainLandingPage> {
             const SizedBox(height: 20),
             // Feature Icons Row
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildFeatureIcon(Icons.alarm, "Reminder", () {
                   Navigator.push(context,
@@ -169,6 +170,10 @@ class _MainLandingPageState extends State<MainLandingPage> {
                 _buildFeatureIcon(Icons.food_bank_rounded, "Nutrition", () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => NutritionCalculatorFirebase()));
+                }),
+                _buildFeatureIcon(Icons.settings_accessibility, "BMI", () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => BMIEditProfilePage()));
                 }),
               ],
             ),

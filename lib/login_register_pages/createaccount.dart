@@ -336,7 +336,7 @@ class _CreateaccountState extends State<Createaccount> {
                       text: TextSpan(
                         style: const TextStyle(color: Colors.black87, fontSize: 14),
                         children: [
-                          const TextSpan(text: "By continuing you accept our "),
+                          const TextSpan(text: "By continuing, you accept our\n"),
                           TextSpan(
                             text: "Privacy Policy",
                             style: TextStyle(
@@ -587,7 +587,7 @@ class _CreateaccountState extends State<Createaccount> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
+              style: TextButton.styleFrom(foregroundColor: AppColor.supersolidPrimary),
               child: const Text(
                 "Close",
                 style: TextStyle(fontWeight: FontWeight.bold),

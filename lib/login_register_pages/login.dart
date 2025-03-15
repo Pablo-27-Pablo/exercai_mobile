@@ -96,7 +96,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obsecurepass = true;
-  bool _rememberMe = false; // For the "Remember me" toggle
+  //bool _rememberMe = false; // For the "Remember me" toggle
 
   @override
   void dispose() {
@@ -165,9 +165,10 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     // Remember me
-                    Expanded(
+                    /*Expanded(
                       child: Row(
                         children: [
                           Checkbox(
@@ -182,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                           const Text("Remember me"),
                         ],
                       ),
-                    ),
+                    ),*/
 
                     // Forgot password?
                     GestureDetector(

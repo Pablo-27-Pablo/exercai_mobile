@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:exercai_mobile/main.dart';
 import 'profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,6 +27,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
     lastNameController.dispose();
     emailController.dispose();
     dobController.dispose();
+    ageController.dispose();
     super.dispose();
   }
 
@@ -36,9 +38,9 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         .get();
   }
 
-// Function to compute age as an integer
+  // Function to compute age as an integer
   String computeAge(Timestamp? dob) {
-    if (dob == null) return "0"; // Default to 0 if date is missing
+    if (dob == null) return "0";
     DateTime birthDate = dob.toDate();
     DateTime today = DateTime.now();
     int age = today.year - birthDate.year;
@@ -46,25 +48,54 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         (today.month == birthDate.month && today.day < birthDate.day)) {
       age--;
     }
-    return age.toString(); // Convert age to string for UI
+    return age.toString();
   }
 
-  // Function to select date and update age dynamically
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  // New sliding date picker using a bottom sheet and CupertinoDatePicker
+  Future<void> _showSlidingDatePicker(BuildContext context) async {
+    DateTime tempPickedDate = DateTime.now();
+    await showModalBottomSheet(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+      builder: (BuildContext builder) {
+        return Container(
+          height: 250,
+          padding: EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: DateTime.now(),
+                  minimumDate: DateTime(1900),
+                  maximumDate: DateTime.now(),
+                  onDateTimeChanged: (DateTime newDate) {
+                    tempPickedDate = newDate;
+                  },
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  "Done",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
-    if (picked != null) {
-      int calculatedAge = int.parse(computeAge(Timestamp.fromDate(picked))); // Compute age
-
-      setState(() {
-        dobController.text = DateFormat('MM-dd-yyyy').format(picked);
-        ageController.text = calculatedAge.toString(); // Update age in UI
-      });
-    }
+    int calculatedAge =
+    int.parse(computeAge(Timestamp.fromDate(tempPickedDate)));
+    setState(() {
+      dobController.text = DateFormat('MM-dd-yyyy').format(tempPickedDate);
+      ageController.text = calculatedAge.toString();
+    });
   }
 
   String _capitalize(String text) {
@@ -72,17 +103,20 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
+      backgroundColor: Colors.white, // Pure white background
       appBar: AppBar(
-
-        title: Text('My Profile',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: AppColor.primary,
-        elevation: 0,
+        backgroundColor: Colors.white,
+        elevation: 1,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.black87),
+        title: Text(
+          'My Profile',
+          style:
+          TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: getUserDetails(),
@@ -90,168 +124,182 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           }
-
           if (snapshot.hasData) {
             Map<String, dynamic>? user = snapshot.data!.data();
-
             if (!_isDataLoaded) {
               firstNameController.text = user?['firstname'] ?? '';
               lastNameController.text = user?['lastname'] ?? '';
               emailController.text = user?['email'] ?? '';
-
               if (user?['dateOfBirth'] != null) {
                 DateTime dob = (user!['dateOfBirth'] as Timestamp).toDate();
                 dobController.text = DateFormat('MM-dd-yyyy').format(dob);
-                ageController.text = computeAge(Timestamp.fromDate(dob)); // Update age in UI
+                ageController.text = computeAge(Timestamp.fromDate(dob));
               }
-
               _isDataLoaded = true;
             }
-
             return SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Minimalist header with centered avatar and text
                   Container(
-                    color: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Column(
                       children: [
-                        /*CircleAvatar(
-                          radius: 50,
-                          backgroundImage: AssetImage('assets/MikoProfile.jpg'),
-                        ),*/
-                        SizedBox(height: 10),
+                        SizedBox(height: 12),
                         Text(
                           "${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}",
                           style: TextStyle(
-                            fontSize: 30,
-                            color: AppColor.textwhite,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
                         ),
-
-                        SizedBox(height: 5),
+                        SizedBox(height: 6),
                         Text(
                           user?['email'] ?? 'No Email Provided',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColor.textwhite.withOpacity(0.7),
-                          ),
-                        ),
-                        SizedBox(height: 15),
-                        Container(
-                          margin: EdgeInsets.only(left: 60, right: 60),
-                          padding: EdgeInsets.only(top: 15, bottom: 15),
-                          decoration: BoxDecoration(
-                              color: AppColor.shadow.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(14)),
-                          child: Row(
-                            children: [
-                              Expanded(child: _infoCard(user?['weight']?.toString() ?? 'N/A', 'Weight (kg)')),
-                              Column(
-                                children: [
-                                  Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                  Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                  Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                ],
-                              ),
-                              Expanded(child: _infoCard(computeAge(user?['dateOfBirth']), 'Years Old')),
-                              Column(
-                                children: [
-                                  Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                  Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                  Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                ],
-                              ),
-                              Expanded(child: _infoCard(user?['height']?.toString() ?? 'N/A', 'Height (cm)')),
-                            ],
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    color: AppColor.backgroundgrey,
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 20),
-                        _buildTextField('First Name', firstNameController),
-                        _buildTextField('Last Name', lastNameController),
-                        _buildTextField('Email', emailController),
-                        _buildDateOfBirthField(context), // Updated for Date of Birth
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () async {
-                            User? user = FirebaseAuth.instance.currentUser;
-
-                            if (user != null) {
-                              DateTime? dob;
-                              try {
-                                dob = DateFormat('MM-dd-yyyy').parse(dobController.text);
-                              } catch (e) {
-                                print("Invalid date format: $e");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Invalid date format. Please use MM-dd-yyyy.")),
-                                );
-                                return;
-                              }
-
-                              int calculatedAge = int.parse(computeAge(Timestamp.fromDate(dob))); // Compute age
-
-                              await FirebaseFirestore.instance
-                                  .collection("Users")
-                                  .doc(user.email)
-                                  .update({
-                                'firstname': firstNameController.text,
-                                'lastname': lastNameController.text,
-                                'email': emailController.text,
-                                'dateOfBirth': Timestamp.fromDate(dob),
-                                'age': calculatedAge, // Store age as an integer in Firebase
-                              }).then((_) {
-                                print("User profile data saved.");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Profile updated successfully!")),
-                                );
-                                setState(() {
-                                  ageController.text = calculatedAge.toString(); // Update age in UI
-                                });
-                              }).catchError((error) {
-                                print("Failed to save data: $error");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Failed to update profile. Please try again.")),
-                                );
-                              });
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.yellowtext,
-                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                  SizedBox(height: 20),
+                  // Metrics card for Weight, Age, and Height
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _infoCard(
+                                user?['weight']?.toString() ?? 'N/A',
+                                'Weight (kg)'),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[300],
                             ),
-                          ),
-                          child: Text(
-                            'Update Profile',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                            _infoCard(
+                                computeAge(user?['dateOfBirth']),
+                                'Years Old'),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[300],
                             ),
-                          ),
+                            _infoCard(
+                                user?['height']?.toString() ?? 'N/A',
+                                'Height (cm)'),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
+                  SizedBox(height: 20),
+                  // Minimalist profile editing form
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                                'First Name', firstNameController),
+                            _buildTextField(
+                                'Last Name', lastNameController),
+                            _buildTextField('Email', emailController),
+                            _buildDateOfBirthField(context),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () async {
+                                User? user =
+                                    FirebaseAuth.instance.currentUser;
+                                if (user != null) {
+                                  DateTime? dob;
+                                  try {
+                                    dob = DateFormat('MM-dd-yyyy')
+                                        .parse(dobController.text);
+                                  } catch (e) {
+                                    print("Invalid date format: $e");
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Invalid date format. Please use MM-dd-yyyy.")),
+                                    );
+                                    return;
+                                  }
+                                  int calculatedAge = int.parse(
+                                      computeAge(Timestamp.fromDate(dob)));
+                                  await FirebaseFirestore.instance
+                                      .collection("Users")
+                                      .doc(user.email)
+                                      .update({
+                                    'firstname': firstNameController.text,
+                                    'lastname': lastNameController.text,
+                                    'email': emailController.text,
+                                    'dateOfBirth': Timestamp.fromDate(dob),
+                                    'age': calculatedAge,
+                                  }).then((_) {
+                                    print("User profile data saved.");
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Profile updated successfully!")),
+                                    );
+                                    setState(() {
+                                      ageController.text =
+                                          calculatedAge.toString();
+                                    });
+                                  }).catchError((error) {
+                                    print("Failed to save data: $error");
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Failed to update profile. Please try again.")),
+                                    );
+                                  });
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.moresolidPrimary,
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 14, horizontal: 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              child: Text(
+                                'Update Profile',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
                 ],
               ),
             );
           }
-
           return Center(child: Text("No user data found."));
         },
       ),
@@ -264,11 +312,14 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         Text(
           value,
           style: TextStyle(
-              fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87),
         ),
+        SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.7)),
+          style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
       ],
     );
@@ -282,25 +333,27 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         children: [
           Text(label,
               style: TextStyle(
-                  color: AppColor.purpletext, fontWeight: FontWeight.w600)),
+                  color: Colors.black87, fontWeight: FontWeight.w600)),
           SizedBox(height: 5),
           TextField(
             controller: controller,
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black87),
             decoration: InputDecoration(
               hintText: label,
               filled: true,
-              fillColor: AppColor.textwhite,
+              fillColor: Colors.white,
+              contentPadding:
+              EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(12),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
@@ -317,28 +370,30 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         children: [
           Text('Date of Birth (MM-dd-yyyy)',
               style: TextStyle(
-                  color: AppColor.purpletext, fontWeight: FontWeight.w600)),
+                  color: Colors.black87, fontWeight: FontWeight.w600)),
           SizedBox(height: 5),
           GestureDetector(
-            onTap: () => _selectDate(context), // Open date picker on tap
+            onTap: () => _showSlidingDatePicker(context),
             child: AbsorbPointer(
               child: TextField(
                 controller: dobController,
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
-                  hintText: 'Date of Birth (MM-dd-yyyy)',
+                  hintText: 'MM-dd-yyyy',
                   filled: true,
-                  fillColor: AppColor.textwhite,
+                  fillColor: Colors.white,
+                  contentPadding:
+                  EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.black),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
