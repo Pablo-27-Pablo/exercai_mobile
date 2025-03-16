@@ -22,6 +22,45 @@ class _DiffExeCardState extends State<DiffExeCard> {
     return "$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
   }
 
+  // Helper widget for section headers.
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: AppColor.primary,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for metric cards with a gradient background.
+  Widget _buildMetricCard({required Widget child}) {
+    return Card(
+      elevation: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: LinearGradient(
+            colors: [
+              AppColor.buttonPrimary,
+              AppColor.primary.withOpacity(0.85)
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     User? currentUser = FirebaseAuth.instance.currentUser;
@@ -40,21 +79,13 @@ class _DiffExeCardState extends State<DiffExeCard> {
         title: const Text("Different Exercises Time"),
         backgroundColor: AppColor.primary,
       ),
-      backgroundColor: AppColor.backgroundgrey,
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Different Exercises Time (Hours:Min:Sec)",
-              style: TextStyle(
-                color: AppColor.yellowtext,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            _buildSectionHeader("Different Exercises Time (HH:MM:SS)"),
             // StreamBuilder to listen for realtime updates
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -70,33 +101,28 @@ class _DiffExeCardState extends State<DiffExeCard> {
                         style: const TextStyle(color: Colors.red),
                       ));
                 }
-
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 int totalTime = 0;
                 for (var doc in snapshot.data!.docs) {
                   final data = doc.data() as Map<String, dynamic>;
                   final value = data['totalExerciseTime'];
-                  totalTime += value is num ? value.toInt() : int.tryParse(value.toString()) ?? 0;
+                  totalTime += value is num
+                      ? value.toInt()
+                      : int.tryParse(value.toString()) ?? 0;
                 }
-
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColor.buttonPrimary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                return _buildMetricCard(
                   child: Row(
                     children: [
-                      Icon(Icons.timer, color: AppColor.primary, size: 30),
+                      Icon(Icons.timer, color: Colors.white, size: 30),
                       const SizedBox(width: 16),
                       Text(
                         'Total Time: ${_formatTotalTime(totalTime)}',
                         style: TextStyle(
-                          color: AppColor.textwhite,
+                          color: Colors.white,
                           fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -104,18 +130,8 @@ class _DiffExeCardState extends State<DiffExeCard> {
                 );
               },
             ),
-
-            const SizedBox(height: 24),
-            // Section 2: List of activities (each exercise entry)
-            Text(
-              'Activities Performed',
-              style: TextStyle(
-                color: AppColor.yellowtext,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            _buildSectionHeader("Activities Performed"),
+            // Section: List of exercise activities.
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
@@ -124,21 +140,16 @@ class _DiffExeCardState extends State<DiffExeCard> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
+                  return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 final exerciseDocs = snapshot.data!.docs;
-
                 return Column(
                   children: exerciseDocs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>?;
                     if (data == null) return const SizedBox();
-
                     final String exerciseName =
                         data['exerciseName'] ?? 'Unknown Exercise';
                     final int totalTime = data['totalExerciseTime'] ?? 0;
@@ -149,10 +160,8 @@ class _DiffExeCardState extends State<DiffExeCard> {
                         : 'N/A';
                     final double burnCalories =
                     (data['burnCalories'] ?? 0).toDouble();
-
                     return ActivityCard(
                       title: exerciseName,
-                      //exeID: 'Date: $formattedDate',
                       duration: _formatTotalTime(totalTime),
                       timeanddate: 'Date: $formattedDate',
                       burnCalories: burnCalories,
@@ -167,5 +176,3 @@ class _DiffExeCardState extends State<DiffExeCard> {
     );
   }
 }
-
-

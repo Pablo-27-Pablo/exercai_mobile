@@ -532,10 +532,10 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColor.backgroundgrey,
+        backgroundColor: AppColor.backgroundWhite,
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back,color: Colors.white,),
+            icon: Icon(Icons.arrow_back,color: AppColor.supersolidPrimary,),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -547,20 +547,94 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
             /*selectedDifficulty == null || selectedBMI == null
                 ? "Loading..."
                 : "Exercises for $selectedDifficulty ($selectedBMI)",*/
-            "Recommended Exercises",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.white),
-          ),backgroundColor: AppColor.backgroundgrey,
+            "Recommended Exercises",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: AppColor.supersolidPrimary),
+          ),backgroundColor: AppColor.backgroundWhite,
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: AppColor.moresolidPrimary,
+          foregroundColor: AppColor.backgroundWhite,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30), // Adjust the radius as needed
+            borderRadius: BorderRadius.circular(30),
           ),
-          onPressed: (){testDailyExerciseRotation();
-            /*
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FilterRepsKcal()), // Replace with the same page
-          );*/
-            },
+          onPressed: () async {
+            bool? confirmed = await showDialog<bool>(
+              context: context,
+              builder: (context) => Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 10,
+                backgroundColor: Colors.white,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header with icon and title
+                      Row(
+                        children: [
+                          const Icon(Icons.info_outline, color: Colors.black87, size: 30),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "Reload New Exercises For the Day",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: AppColor.supersolidPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Content message
+                      const Text(
+                        "Do you want to reload new exercises for the day?",
+                        style: TextStyle(fontSize: 18, color: Colors.black87),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 30),
+                      // Action buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[300],
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: Text("Cancel", style: TextStyle(fontSize: 16)),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColor.moresolidPrimary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: Text("Confirm", style: TextStyle(fontSize: 16)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+            if (confirmed == true) {
+              testDailyExerciseRotation();
+            }
+          },
           tooltip: 'Test Exercise Rotation',
-          child: Icon(Icons.autorenew_rounded),
+          child: const Icon(Icons.download_outlined),
         ),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
@@ -622,7 +696,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                 }).toList();
 
                 return exercises.isEmpty
-                    ? Center(child: Text("Tap Reload Button if there's no Exercise Showing",style: TextStyle(color: Colors.white),))
+                    ? Center(child: Text("Tap Reload Button if there's no Exercise Showing",style: TextStyle(color: Colors.black87),))
                     : ListView(
                   children: groupExercisesByBodyPart(exercises).entries.map((entry) {
                     String bodyPart = entry.key;
@@ -638,7 +712,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
@@ -665,7 +739,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                 : "N/A";
 
                             return Card(
-                              color: AppColor.primary,
+                              color: AppColor.backgroundWhite,
                               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               elevation: 3,
                               child: ListTile(
@@ -684,7 +758,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
                                 title: Text(
                                   exercise['name'].toString().toUpperCase(),
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColor.supersolidPrimary),
                                 ),
                                 subtitle: Text.rich(
                                   TextSpan(
@@ -694,15 +768,15 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                          color: Colors.black87,
                                         ),
                                       ),
                                       TextSpan(
                                         text: "Reps/Time: ${getRepsTimeDisplay(exercise)}\n"
-                                            "Burn Calories: $burnCaloriesDisplay\n"
-                                            "ID: ${exercise['id']}",
+                                            "Burn Calories: $burnCaloriesDisplay",
+                                            //"ID: ${exercise['id']}",
                                         style: TextStyle(
-                                          color: AppColor.backgroundgrey,
+                                          color: Colors.grey.shade500,
                                         ),
                                       ),
                                     ],
@@ -731,19 +805,82 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                       if (allowedList != null && !allowedList.contains(exerciseNameLower)) {
                                         bool proceedAge = await showDialog<bool>(
                                           context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: Text("Age Suitability Warning",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.red),),
-                                            content: Text("This exercise might not be suitable for your age group. Do you want to continue?"),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.of(context).pop(false),
-                                                child: Text("Cancel"),
+                                          builder: (context) => Dialog(
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                            elevation: 10,
+                                            backgroundColor: Colors.white,
+                                            child: Container(
+                                              // Increase dialog width for a bigger, more spacious design
+                                              width: MediaQuery.of(context).size.width * 0.85,
+                                              padding: EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(20),
                                               ),
-                                              TextButton(
-                                                onPressed: () => Navigator.of(context).pop(true),
-                                                child: Text("Continue"),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  // Header with Icon and Title
+                                                  Row(
+                                                    children: [
+                                                      Icon(Icons.info_outline, color: Colors.red, size: 30),
+                                                      SizedBox(width: 10),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Age Suitability Warning",
+                                                          style: TextStyle(
+                                                            fontSize: 22,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 20),
+                                                  // Content message
+                                                  Text(
+                                                    "This exercise might not be suitable for your age group. Do you want to continue?",
+                                                    style: TextStyle(fontSize: 18, color: Colors.black87),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  SizedBox(height: 30),
+                                                  // Action Buttons with Expanded to ensure proper layout
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                    children: [
+                                                      Expanded(
+                                                        child: ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor: Colors.grey[300],
+                                                            foregroundColor: Colors.black,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(10),
+                                                            ),
+                                                          ),
+                                                          onPressed: () => Navigator.of(context).pop(false),
+                                                          child: Text("Cancel", style: TextStyle(fontSize: 16)),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 10),
+                                                      Expanded(
+                                                        child: ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor: Colors.red,
+                                                            foregroundColor: Colors.white,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(10),
+                                                            ),
+                                                          ),
+                                                          onPressed: () => Navigator.of(context).pop(true),
+                                                          child: Text("Continue", style: TextStyle(fontSize: 16)),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
                                         ) ?? false;
                                         if (!proceedAge) return;
@@ -751,23 +888,83 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                     }
                                   }
 
+
                                   // Injury warning check (existing logic).
                                   if (_userInjuries.contains(bodyPart)) {
                                     bool proceedInjury = await showDialog<bool>(
                                       context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text("Injury Warning",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.red),),
-                                        content: Text("You have an injury in your $bodyPart. Proceeding may aggravate it. Continue?"),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text("Cancel"),
+                                      builder: (context) => Dialog(
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                        elevation: 10,
+                                        backgroundColor: Colors.white,
+                                        child: Container(
+                                          // Increase the width of the dialog box
+                                          width: MediaQuery.of(context).size.width * 0.85,
+                                          padding: EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(20),
                                           ),
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text("Proceed"),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              // Header with Icon and Title
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.warning, color: Colors.red, size: 30),
+                                                  SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Injury Warning",
+                                                      style: TextStyle(
+                                                        fontSize: 22,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 20),
+                                              // Content message
+                                              Text(
+                                                "You have an injury in your $bodyPart. Proceeding may aggravate it. Continue?",
+                                                style: TextStyle(fontSize: 18, color: Colors.black87),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              SizedBox(height: 30),
+                                              // Action Buttons with Expanded to avoid overflow
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                children: [
+                                                  ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Colors.grey[300],
+                                                      foregroundColor: Colors.black,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                      ),
+                                                    ),
+                                                    onPressed: () => Navigator.of(context).pop(false),
+                                                    child: Text("Cancel", style: TextStyle(fontSize: 16)),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Colors.red,
+                                                      foregroundColor: Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                      ),
+                                                    ),
+                                                    onPressed: () => Navigator.of(context).pop(true),
+                                                    child: Text("Proceed", style: TextStyle(fontSize: 16)),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ) ?? false;
                                     if (!proceedInjury) return;

@@ -25,9 +25,7 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
   }
 
   // Calculate total exercise time from a list of documents.
-  Future<int> _calculateTotalExerciseTime(
-      List<QueryDocumentSnapshot> docs,
-      ) async {
+  Future<int> _calculateTotalExerciseTime(List<QueryDocumentSnapshot> docs) async {
     int totalExerciseTime = 0;
     for (var doc in docs) {
       final data = doc.data() as Map<String, dynamic>?;
@@ -79,6 +77,42 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
     return DateFormat('MMM dd, yyyy - hh:mm a').format(timestamp.toDate());
   }
 
+  // Helper widget for section headers.
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: AppColor.primary,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for metric cards.
+  Widget _buildMetricCard({required Widget child}) {
+    return Card(
+      elevation: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: LinearGradient(
+            colors: [AppColor.buttonPrimary, AppColor.primary.withOpacity(0.85)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (currentUser == null) {
@@ -95,22 +129,14 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
         title: const Text("Exercise Summary"),
         backgroundColor: AppColor.primary,
       ),
-      backgroundColor: AppColor.backgroundgrey,
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // --- Today's Exercise Time Section ---
-            Text(
-              "Today's Exercise Time (Hours:Min:Sec)",
-              style: TextStyle(
-                color: AppColor.yellowtext,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            _buildSectionHeader("Today's Exercise Time (HH:MM:SS)"),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
@@ -129,26 +155,21 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                 return FutureBuilder<int>(
                   future: _calculateTotalExerciseTime(snapshot.data!.docs),
                   builder: (context, totalTimeSnapshot) {
-                    if (totalTimeSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
+                    if (totalTimeSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
                     }
                     int totalExerciseTime = totalTimeSnapshot.data ?? 0;
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColor.buttonPrimary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                    return _buildMetricCard(
                       child: Row(
                         children: [
-                          Icon(Icons.timer, color: AppColor.primary, size: 30),
+                          Icon(Icons.timer, color: Colors.white, size: 30),
                           const SizedBox(width: 16),
                           Text(
                             'Total Time: ${_formatTotalTime(totalExerciseTime)}',
                             style: TextStyle(
-                              color: AppColor.textwhite,
+                              color: Colors.white,
                               fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -158,17 +179,8 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                 );
               },
             ),
-            const SizedBox(height: 24),
             // --- Recent Exercise Time Section ---
-            Text(
-              "Recent Exercise Time (Hours:Min:Sec)",
-              style: TextStyle(
-                color: AppColor.yellowtext,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            _buildSectionHeader("Recent Exercise Time (HH:MM:SS)"),
             StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
@@ -178,36 +190,29 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                   .snapshots(),
               builder: (context, metadataSnapshot) {
                 if (metadataSnapshot.hasError) {
-                  return Center(
-                      child: Text('Error: ${metadataSnapshot.error}'));
+                  return Center(child: Text('Error: ${metadataSnapshot.error}'));
                 }
-                if (metadataSnapshot.connectionState ==
-                    ConnectionState.waiting) {
+                if (metadataSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 return FutureBuilder<int>(
                   future: computeTotalExerciseTimeForAllDays(),
                   builder: (context, totalSnapshot) {
-                    if (totalSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
+                    if (totalSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
                     }
                     int recentTotalTime = totalSnapshot.data ?? 0;
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColor.buttonPrimary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                    return _buildMetricCard(
                       child: Row(
                         children: [
-                          Icon(Icons.timer, color: AppColor.primary, size: 30),
+                          Icon(Icons.timer, color: Colors.white, size: 30),
                           const SizedBox(width: 16),
                           Text(
                             'Total Time: ${_formatTotalTime(recentTotalTime)}',
                             style: TextStyle(
-                              color: AppColor.textwhite,
+                              color: Colors.white,
                               fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -217,17 +222,8 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                 );
               },
             ),
-            const SizedBox(height: 24),
             // --- Activities Today Section ---
-            Text(
-              'Activities Today',
-              style: TextStyle(
-                color: AppColor.yellowtext,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            _buildSectionHeader("Activities Today"),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
@@ -248,16 +244,13 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                   children: exerciseTimes.map((doc) {
                     final data = doc.data() as Map<String, dynamic>?;
                     if (data == null) return const SizedBox();
-                    final String exerciseName =
-                        data['exerciseName'] ?? 'Unknown Exercise';
+                    final String exerciseName = data['exerciseName'] ?? 'Unknown Exercise';
                     final int totalTime = data['totalExerciseTime'] ?? 0;
                     final Timestamp? lastUpdated = data['lastUpdated'] as Timestamp?;
                     final String formattedDate = _formatDate(lastUpdated);
-                    final double burnCalories =
-                    (data['burnCalories'] ?? 0).toDouble();
+                    final double burnCalories = (data['burnCalories'] ?? 0).toDouble();
                     return ActivityCard(
                       title: exerciseName,
-                      //exeID: 'Date: $formattedDate',
                       duration: _formatTotalTime(totalTime),
                       timeanddate: 'Date: $formattedDate',
                       burnCalories: burnCalories,
@@ -266,17 +259,8 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                 );
               },
             ),
-            const SizedBox(height: 24),
             // --- Recent Activities Today Section ---
-            Text(
-              'Recent Activities Today',
-              style: TextStyle(
-                color: AppColor.yellowtext,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            _buildSectionHeader("Recent Activities Today"),
             StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
@@ -331,16 +315,13 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                     return Column(
                       children: recentDocs.map((doc) {
                         final data = doc.data() as Map<String, dynamic>;
-                        final String exerciseName =
-                            data['exerciseName'] ?? 'Unknown Exercise';
+                        final String exerciseName = data['exerciseName'] ?? 'Unknown Exercise';
                         final int totalTime = data['totalExerciseTime'] ?? 0;
                         final Timestamp? lastUpdated = data['lastUpdated'] as Timestamp?;
                         final String formattedDate = _formatDate(lastUpdated);
-                        final double burnCalories =
-                        (data['burnCalories'] ?? 0).toDouble();
+                        final double burnCalories = (data['burnCalories'] ?? 0).toDouble();
                         return ActivityCard(
                           title: exerciseName,
-                          //exeID: 'Date: $formattedDate',
                           duration: _formatTotalTime(totalTime),
                           timeanddate: 'Date: $formattedDate',
                           burnCalories: burnCalories,
@@ -357,5 +338,3 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
     );
   }
 }
-
-// A reusable widget to display an activity card.

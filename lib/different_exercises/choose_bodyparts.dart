@@ -10,8 +10,8 @@ import 'package:exercai_mobile/different_exercises/bodypart_exercises/upper_legs
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/waist_allExercises.dart';
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:exercai_mobile/main.dart';
-
 import 'package:flutter/material.dart';
+import 'package:exercai_mobile/utils/constant.dart';
 
 class ChooseBodyparts extends StatefulWidget {
   const ChooseBodyparts({super.key});
@@ -21,182 +21,140 @@ class ChooseBodyparts extends StatefulWidget {
 }
 
 class _ChooseBodypartsState extends State<ChooseBodyparts> {
+  final List<BodyPartItem> _bodyParts = [
+    // Replace the asset paths with your actual image assets
+    BodyPartItem(title: "Neck", screen: NeckAllexercises(), assetPath: "assets/neck.png"),
+    BodyPartItem(title: "Chest", screen: ChestAllexercises(), assetPath: "assets/chest.png"),
+    BodyPartItem(title: "Waist", screen: WaistAllexercises(), assetPath: "assets/waist.png"),
+    BodyPartItem(title: "Back", screen: BackAllexercises(), assetPath: "assets/back.png"),
+    BodyPartItem(title: "Shoulders", screen: ShouldersAllexercises(), assetPath: "assets/shoulder.png"),
+    BodyPartItem(title: "Upper Arms", screen: UpperArmsAllexercises(), assetPath: "assets/upper_arm.png"),
+    BodyPartItem(title: "Lower Arms", screen: LowerArmsAllexercises(), assetPath: "assets/lower_arm.png"),
+    BodyPartItem(title: "Upper Legs", screen: UpperLegsAllexercises(), assetPath: "assets/upper_leg.png"),
+    BodyPartItem(title: "Lower Legs", screen: LowerLegsAllexercises(), assetPath: "assets/lower_leg.png"),
+    BodyPartItem(title: "Cardio", screen: CardioAllexercises(), assetPath: "assets/cardio.png"),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
+      backgroundColor: Colors.white, // White background for a fresh look
       appBar: AppBar(
-        backgroundColor: AppColor.backgroundgrey,
+        backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'Different Body Parts',
-          style: TextStyle(color: AppColor.purpletext, fontSize: 20,fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: AppColor.supersolidPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.yellow,),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColor.moresolidPrimary,
+          ),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>MainLandingPage()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => MainLandingPage()));
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-              const Text(
-                'Exercises',
-                style: TextStyle(
-                  color: AppColor.yellowtext,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 40),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>NeckAllexercises())),
-                child: _buildLevelButton(
-                  'Neck',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>ChestAllexercises())),
-                child: _buildLevelButton(
-                  'Chest',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>WaistAllexercises())),
-                child: _buildLevelButton(
-                  'Waist',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>BackAllexercises())),
-                child: _buildLevelButton(
-                  'Back',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>ShouldersAllexercises())),
-                child: _buildLevelButton(
-                  'Shoulders',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>UpperArmsAllexercises())),
-                child: _buildLevelButton(
-                  'Upper Arms',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>LowerArmsAllexercises())),
-                child: _buildLevelButton(
-                  'Lower Arms',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>UpperLegsAllexercises())),
-                child: _buildLevelButton(
-                  'Upper Legs',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>LowerLegsAllexercises())),
-                child: _buildLevelButton(
-                  'Lower Legs',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>CardioAllexercises())),
-                child: _buildLevelButton(
-                  'Cardio',
-                  AppColor.purpletext,
-                  AppColor.yellowtext,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLevelButton(String text, Color bgColor, Color textColor) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Text(
-              text,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              'Exercises',
               style: TextStyle(
-                color: textColor,
+                color: AppColor.backgroundgrey,
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Row(
-              children: [
-                Text(
-                  'Go',
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 30,
-                  color: textColor,
-                ),
-              ],
+            const SizedBox(height: 20),
+            // Use GridView.count for grid cards
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                children: _bodyParts.map((item) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => item.screen));
+                    },
+                    child: _buildGridCard(item.title, item.assetPath),
+
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-
-
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  Widget _buildGridCard(String text, String? asset) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            colors: [AppColor.superlightPrimary, AppColor.primary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.4),
+              offset: const Offset(0, 4),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Use a default asset if null
+              Image.asset(
+                asset ?? "assets/images/default.png",
+                width: 40,
+                height: 40,
+              ),
+            ],
+          ),
+
+        ),
+
+      ),
+    );
+  }
+
+}
+
+// Helper model for body part items.
+class BodyPartItem {
+  final String title;
+  final Widget screen;
+  final String? assetPath;
+  BodyPartItem({required this.title, required this.screen, this.assetPath});
 }
 

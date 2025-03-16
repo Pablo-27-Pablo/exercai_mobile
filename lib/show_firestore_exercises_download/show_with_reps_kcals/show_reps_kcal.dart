@@ -46,30 +46,50 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
     return "$safeSecs second${safeSecs != 1 ? 's' : ''}";
   }
 
+  TextStyle _headerStyle() =>
+      const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black);
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColor.backgroundgrey,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          leading: IconButton(onPressed: (){
-            setState(() {
-              _initializeExerciseStream();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => FilterRepsKcal()), // Replace with the same page
-              );
-
-            });
-          }, icon: Icon(Icons.arrow_back)),
-          title: Text(widget.exercise['name'] ?? 'Unnamed Exercise'),
+          backgroundColor: Colors.white,
+          elevation: 2,
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.black),
+          leading: IconButton(
+            onPressed: () {
+              setState(() {
+                _initializeExerciseStream();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => FilterRepsKcal()),
+                );
+              });
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: Text(
+            widget.exercise['name'] ?? 'Unnamed Exercise',
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: _exerciseStream,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return Center(
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -97,103 +117,174 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Image with elegant design and shadow
                   Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
-                      child: Image.asset(
-                        exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
-                        height: 200,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.error_outline, size: 100),
+                    child: Container(
+                      width: double.infinity,
+                      height: 190,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.error_outline, size: 100),
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  // Header Section
                   Text(
                     'Exercise Details',
-                    style: TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),
-                  ),
-                  ListTile(
-                    title: Text('Target Muscle: ${exercise['target'] ?? 'N/A'}',style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.bold),),
-                    //subtitle: Text('Equipment: ${exercise['equipment'] ?? 'N/A'}'),
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          if (isRepBased)
-                            Column(
-                              children: [
-
-                                Text(
-                                  '${baseSetsReps ?? 0} Sets',
-                                  style: const TextStyle(fontSize: 18,color: AppColor.primary),
-                                ),
-                                Text(
-                                  '${baseReps ?? 0} Reps',
-                                  style: const TextStyle(
-                                      fontSize: 24, fontWeight: FontWeight.bold,color: AppColor.primary),
-                                ),
-                                if (baseRepsConcat != null)
-                                  Text(
+                  // Target Muscle Information
+                  Text(
+                    'Target Muscle: ${exercise['target'] ?? 'N/A'}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Card for Sets/Reps or Timer Details
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade300),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        if (isRepBased)
+                          Column(
+                            children: [
+                              Text(
+                                '${baseSetsReps ?? 0} Sets',
+                                style: const TextStyle(fontSize: 18, color: AppColor.primary),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${baseReps ?? 0} Reps',
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColor.primary),
+                              ),
+                              if (baseRepsConcat != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
                                     'Reps per Set: ${baseRepsConcat.join(', ')}',
-                                    style: const TextStyle(fontSize: 14,color: AppColor.primary),
+                                    style: const TextStyle(fontSize: 14, color: AppColor.primary),
                                   ),
-                              ],
-                            ),
-                          if (isTimeBased || isSingleDuration)
-                            Column(
-                              children: [
-                                const Icon(Icons.timer, size: 30),
-                                if (isTimeBased)
-                                  Text(
-                                    '${baseSetsSecs ?? 0} Sets',
-                                    style: const TextStyle(fontSize: 18,color: AppColor.primary),
-                                  ),
-                                Text(
-                                  _formatDuration(baseSecs),
-                                  style: const TextStyle(
-                                      fontSize: 24, fontWeight: FontWeight.bold,color: AppColor.primary),
                                 ),
-                                if (baseSecConcat != null)
-                                  Text(
+                            ],
+                          ),
+                        if (isTimeBased || isSingleDuration)
+                          Column(
+                            children: [
+                              const Icon(Icons.timer, size: 30, color: AppColor.primary),
+                              const SizedBox(height: 4),
+                              if (isTimeBased)
+                                Text(
+                                  '${baseSetsSecs ?? 0} Sets',
+                                  style: const TextStyle(fontSize: 18, color: AppColor.primary),
+                                ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _formatDuration(baseSecs),
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColor.primary),
+                              ),
+                              if (baseSecConcat != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
                                     'Seconds per Set: ${baseSecConcat.join(', ')}',
-                                    style: const TextStyle(fontSize: 14,color: AppColor.primary),
+                                    style: const TextStyle(fontSize: 14, color: AppColor.primary),
                                   ),
-                              ],
+                                ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Estimated Burn Calories Section
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Estimated Burn Calories',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        Chip(
+                          backgroundColor: AppColor.primary.withOpacity(0.1),
+                          label: Text(
+                                () {
+                              final exerciseData = snapshot.data!.data() as Map<String, dynamic>;
+                              final dynamicCalories = exerciseData['baseCalories'] ?? widget.exercise['baseCalories'];
+                              return '${(dynamicCalories is num) ? dynamicCalories.toStringAsFixed(2) : 'N/A'} kcal';
+                            }(),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.primary,
                             ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Instructions Section
+                  Text(
+                    "Instructions:",
+                    style: _headerStyle(),
+                  ),
+                  const SizedBox(height: 10),
+                  ...List.generate(
+                    exercise['instructions']?.length ?? 0,
+                        (index) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.arrow_right, color: AppColor.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "${exercise['instructions'][index]}",
+                              style: const TextStyle(color: Colors.black87, fontSize: 16),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const Center(child: Text('Estimated Burn Calories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),)),
-                  Center(
-                    child: Chip(
-                      backgroundColor: Colors.white,
-                      label: Text(
-                            () {
-                          final exerciseData = snapshot.data!.data() as Map<String, dynamic>;
-                          final dynamicCalories = exerciseData['baseCalories'] ?? widget.exercise['baseCalories'];
-                          return '${(dynamicCalories is num) ? dynamicCalories.toStringAsFixed(2) : 'N/A'} kcal';
-                        }(),
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: AppColor.primary),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  Text("Instructions:", style: _headerStyle()),
-                  const SizedBox(height: 10),
-                  ...List.generate(
-                    exercise['instructions']?.length ?? 0,
-                        (index) => Text("• ${exercise['instructions'][index]}",style: TextStyle(color: Colors.white),),
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
+                  // Proceed to Exercise Button
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -204,9 +295,18 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.moresolidPrimary,
+                      foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 5,
                     ),
-                    child: const Text('Proceed to Exercise'),
+                    child: const Text(
+                      'Proceed to Exercise',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -216,7 +316,4 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
       ),
     );
   }
-
-  TextStyle _headerStyle() =>
-      const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white);
 }
