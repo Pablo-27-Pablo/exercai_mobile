@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/utils/constant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -7,10 +8,12 @@ import 'dart:convert';
 
 class NutritionCalculatorFirebase extends StatefulWidget {
   @override
-  _NutritionCalculatorFirebaseState createState() => _NutritionCalculatorFirebaseState();
+  _NutritionCalculatorFirebaseState createState() =>
+      _NutritionCalculatorFirebaseState();
 }
 
-class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebase> {
+class _NutritionCalculatorFirebaseState
+    extends State<NutritionCalculatorFirebase> {
   String? age;
   String? height;
   String? weight;
@@ -35,10 +38,11 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection("Users")
-            .doc(user.email)
-            .get();
+        DocumentSnapshot userDoc =
+            await FirebaseFirestore.instance
+                .collection("Users")
+                .doc(user.email)
+                .get();
 
         if (userDoc.exists) {
           setState(() {
@@ -63,7 +67,11 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
 
   /// Fetch nutrition data from API using Firebase values
   Future<void> fetchNutritionData() async {
-    if (age == null || height == null || weight == null || gender == null || activityLevel == null) {
+    if (age == null ||
+        height == null ||
+        weight == null ||
+        gender == null ||
+        activityLevel == null) {
       setState(() {
         errorMessage = 'User data is incomplete in Firebase';
       });
@@ -72,21 +80,22 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
 
     final url = Uri.parse(
       'https://nutrition-calculator.p.rapidapi.com/api/nutrition-info'
-          '?measurement_units=met'
-          '&sex=${gender!.toLowerCase()}'
-          '&age_value=$age'
-          '&age_type=yrs'
-          '&cm=$height'
-          '&kilos=$weight'
-          '&activity_level=$activityLevel'
-          '&pregnancy_lactating=none',
+      '?measurement_units=met'
+      '&sex=${gender!.toLowerCase()}'
+      '&age_value=$age'
+      '&age_type=yrs'
+      '&cm=$height'
+      '&kilos=$weight'
+      '&activity_level=$activityLevel'
+      '&pregnancy_lactating=none',
     );
 
     try {
       final response = await http.get(
         url,
         headers: {
-          'X-Rapidapi-Key': '81efa21332mshc3d43597ee9e475p14e998jsn7776838f3ddd', // Replace with your key
+          'X-Rapidapi-Key':
+              '81efa21332mshc3d43597ee9e475p14e998jsn7776838f3ddd', // Replace with your key
           'X-Rapidapi-Host': 'nutrition-calculator.p.rapidapi.com',
         },
       );
@@ -99,7 +108,8 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
         });
       } else {
         setState(() {
-          errorMessage = 'Error: ${response.statusCode} - ${response.reasonPhrase}';
+          errorMessage =
+              'Error: ${response.statusCode} - ${response.reasonPhrase}';
         });
       }
     } catch (e) {
@@ -123,7 +133,10 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColor.supersolidPrimary, AppColor.superlightPrimary],
+                colors: [
+                  AppColor.supersolidPrimary,
+                  AppColor.superlightPrimary,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -142,27 +155,30 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
             padding: const EdgeInsets.all(16.0),
             child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: {
-                0: FlexColumnWidth(2),
-                1: FlexColumnWidth(3),
-              },
-              children: data.map((row) {
-                int index = data.indexOf(row);
-                return TableRow(
-                  decoration: BoxDecoration(
-                    color: index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
-                  ),
-                  children: row.map((cell) {
-                    return Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        cell,
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
+              columnWidths: {0: FlexColumnWidth(2), 1: FlexColumnWidth(3)},
+              children:
+                  data.map((row) {
+                    int index = data.indexOf(row);
+                    return TableRow(
+                      decoration: BoxDecoration(
+                        color:
+                            index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
                       ),
+                      children:
+                          row.map((cell) {
+                            return Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                cell,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                     );
                   }).toList(),
-                );
-              }).toList(),
             ),
           ),
         ],
@@ -173,9 +189,10 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   /// Dynamically convert JSON list into a table.
   Widget _buildTableFromJson(String title, dynamic jsonData) {
     if (jsonData == null || jsonData is! List) return SizedBox();
-    List<List<String>> tableData = jsonData.map<List<String>>((row) {
-      return row.map<String>((cell) => cell.toString()).toList();
-    }).toList();
+    List<List<String>> tableData =
+        jsonData.map<List<String>>((row) {
+          return row.map<String>((cell) => cell.toString()).toList();
+        }).toList();
     return _buildTable(title, tableData);
   }
 
@@ -192,23 +209,32 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   Widget _buildResultsTable() {
     return _buildTable("Your Calculated Results", [
       ["Body Mass Index (BMI)", _getData("BMI_EER", "BMI")],
-      ["Estimated Daily Caloric Needs", _getData("BMI_EER", "Estimated Daily Caloric Needs")],
+      [
+        "Estimated Daily Caloric Needs",
+        _getData("BMI_EER", "Estimated Daily Caloric Needs"),
+      ],
     ]);
   }
 
   Widget _buildMacronutrientsTable() {
     return _buildTableFromJson(
-        "Daily Recommended Macronutrient Intake", nutritionData?['macronutrients_table']?['macronutrients-table']);
+      "Daily Recommended Macronutrient Intake",
+      nutritionData?['macronutrients_table']?['macronutrients-table'],
+    );
   }
 
   Widget _buildVitaminsTable() {
     return _buildTableFromJson(
-        "Daily Recommended Vitamin Intake", nutritionData?['vitamins_table']?['vitamins-table']);
+      "Daily Recommended Vitamin Intake",
+      nutritionData?['vitamins_table']?['vitamins-table'],
+    );
   }
 
   Widget _buildMineralsTable() {
     return _buildTableFromJson(
-        "Daily Recommended Mineral Intake", nutritionData?['minerals_table']?['essential-minerals-table']);
+      "Daily Recommended Mineral Intake",
+      nutritionData?['minerals_table']?['essential-minerals-table'],
+    );
   }
 
   /// Safely retrieve a value from the nutrition JSON.
@@ -220,65 +246,108 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nutrition Calculator',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+        ),
+        // title: Text(
+        //   'Nutrition Calculator',
+        //   style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        // ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColor.primary,
         elevation: 2,
       ),
       backgroundColor: Colors.white,
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Text(
-              "Nutrition and Calories Suggestion For You",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: AppColor.moresolidPrimary,
-                shadows: [Shadow(offset: Offset(1, 2), blurRadius: 3, color: Colors.grey.shade400)],
+      body:
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppColor.primary,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
+                      ),
+                    ),
+              
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20),
+                        Text(
+                          "Nutrition and Calories \nSuggestion For You",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: AppColor.backgroundWhite,
+                            
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        largeGap,
+                      ],
+                    ),
+                  ),
+              
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Container(
+                        padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 20),
+                            if (errorMessage.isNotEmpty)
+                              Card(
+                                color: Colors.red.shade100,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Text(
+                                    errorMessage,
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (age != null &&
+                                height != null &&
+                                weight != null &&
+                                gender != null &&
+                                activityLevel != null) ...[
+                              _buildEnteredValues(),
+                              SizedBox(height: 20),
+                              if (nutritionData != null) ...[
+                                _buildResultsTable(),
+                                _buildMacronutrientsTable(),
+                                _buildVitaminsTable(),
+                                _buildMineralsTable(),
+                              ],
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            if (errorMessage.isNotEmpty)
-              Card(
-                color: Colors.red.shade100,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(errorMessage, style: TextStyle(color: Colors.red, fontSize: 16)),
-                ),
-              ),
-            if (age != null &&
-                height != null &&
-                weight != null &&
-                gender != null &&
-                activityLevel != null) ...[
-              _buildEnteredValues(),
-              SizedBox(height: 20),
-              if (nutritionData != null) ...[
-                _buildResultsTable(),
-                _buildMacronutrientsTable(),
-                _buildVitaminsTable(),
-                _buildMineralsTable(),
-              ],
-            ],
-          ],
-        ),
-      ),
       floatingActionButton: ClipRRect(
         borderRadius: BorderRadius.circular(30), // Custom radius
         child: FloatingActionButton(
           onPressed: fetchUserData,
           backgroundColor: AppColor.moresolidPrimary,
-          child: isLoading
-              ? CircularProgressIndicator(color: AppColor.backgroundWhite)
-              : Icon(Icons.refresh, color: AppColor.backgroundWhite),
+          child:
+              isLoading
+                  ? CircularProgressIndicator(color: AppColor.backgroundWhite)
+                  : Icon(Icons.refresh, color: AppColor.backgroundWhite),
           tooltip: "Reload Data",
         ),
       ),

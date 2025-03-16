@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -50,10 +50,15 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Text(
             "Confirm Logout",
-            style: GoogleFonts.poppins(color: Colors.black87, fontWeight: FontWeight.bold),
+            style: GoogleFonts.poppins(
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Text(
             "Are you sure you want to log out?",
@@ -76,7 +81,10 @@ class _ProfilePageState extends State<ProfilePage> {
               },
               child: Text(
                 "Logout",
-                style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -111,19 +119,24 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          'My Profile',
-          style: TextStyle(
-              color: Colors.black87, fontWeight: FontWeight.bold),
+          'My Profiles',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(onPressed: (){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MainLandingPage()));
-        }, icon: Icon(Icons.arrow_back)),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainLandingPage()),
+            );
+          },
+          icon: Icon(Icons.arrow_back_ios,color: Colors.white,),
+        ),
         elevation: 0,
-        backgroundColor: AppColor.backgroundWhite,
+        backgroundColor: AppColor.primary,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColor.backgroundWhite, AppColor.superlightPrimary],
+              colors: [AppColor.superlightPrimary, AppColor.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -164,7 +177,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+                      padding: const EdgeInsets.only(
+                        left: 20,
+                        right: 20,
+                        bottom: 30,
+                      ),
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: Row(
@@ -176,9 +193,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 // User's initials
                                 "${_capitalize(user?['firstname']?[0] ?? 'U')}${_capitalize(user?['lastname']?[0] ?? 'U')}",
                                 style: TextStyle(
-                                    fontSize: 30,
+                                  fontSize: 30,
 
-                                    fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             SizedBox(width: 20),
@@ -189,14 +207,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text(
                                   "${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}",
                                   style: TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
+                                    fontSize: 22,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 SizedBox(height: 6),
                                 Text(
                                   user?['email'] ?? 'No Email Provided',
-                                  style: TextStyle(fontSize: 16, color: Colors.white70),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white70,
+                                  ),
                                 ),
                               ],
                             ),
@@ -212,21 +234,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Card(
                       color: AppColor.backgroundWhite,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       elevation: 3,
                       shadowColor: AppColor.backgroundgrey,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 15),
+                          vertical: 20,
+                          horizontal: 15,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _infoMetric(
-                                user?['weight'].toString() ?? 'N/A', 'Weight (kg)'),
+                              user?['weight'].toString() ?? 'N/A',
+                              'Weight (kg)',
+                            ),
                             _infoMetric(
-                                computeAge(user?['dateOfBirth']), 'Age'),
+                              computeAge(user?['dateOfBirth']),
+                              'Age',
+                            ),
                             _infoMetric(
-                                user?['height'].toString() ?? 'N/A', 'Height (cm)'),
+                              user?['height'].toString() ?? 'N/A',
+                              'Height (cm)',
+                            ),
                           ],
                         ),
                       ),
@@ -240,27 +271,36 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         _customOptionTile(Icons.person, 'Profile', () {
                           Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfilePageProfile(),
+                            ),
+                          );
+                        }),
+                        _customOptionTile(
+                          Icons.show_chart,
+                          'Progress Tracking',
+                          () {
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProfilePageProfile()));
-                        }),
-                        _customOptionTile(Icons.show_chart,
-                            'Progress Tracking', () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProgressTrackingScreen()));
-                            }),
-                        _customOptionTile(Icons.settings_accessibility,
-                            'BMI and Other Settings', () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          BMIEditProfilePage()));
-                            }),
+                                builder: (context) => ProgressTrackingScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        _customOptionTile(
+                          Icons.settings_accessibility,
+                          'BMI and Other Settings',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BMIEditProfilePage(),
+                              ),
+                            );
+                          },
+                        ),
                         _customOptionTile(Icons.logout, 'Logout', () {
                           _showLogoutConfirmationDialog(context);
                         }),
@@ -286,15 +326,13 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           value,
           style: TextStyle(
-              fontSize: 20,
-              color: AppColor.backgroundgrey,
-              fontWeight: FontWeight.bold),
+            fontSize: 20,
+            color: AppColor.backgroundgrey,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
       ],
     );
   }
@@ -315,7 +353,7 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.grey.withOpacity(0.15),
               blurRadius: 8,
               offset: Offset(0, 4),
-            )
+            ),
           ],
           border: Border.all(color: Colors.grey.withOpacity(0.1)),
         ),
@@ -334,13 +372,17 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text(
                 title,
                 style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500),
+                  fontSize: 16,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
-                color: AppColor.backgroundgrey.withOpacity(0.6), size: 16),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppColor.backgroundgrey.withOpacity(0.6),
+              size: 16,
+            ),
           ],
         ),
       ),

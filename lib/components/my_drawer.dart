@@ -1,6 +1,6 @@
 import 'package:exercai_mobile/components/my_drawer.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
-import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/main.dart'; 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
