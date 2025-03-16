@@ -1,4 +1,5 @@
 import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/pages/Constant_Pages/startIn.dart';
 import 'package:exercai_mobile/pages/Main_Pages/Exercises_Page.dart';
 import 'package:exercai_mobile/pages/realtime_2.dart';
 import 'package:exercai_mobile/utils/constant.dart';
@@ -129,7 +130,7 @@ class _AgeSelectorScreenState extends State<AgeSelectorScreen> {
                 repsWants = selectedAge;
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(builder: (context) => StartIn()),
                 );
               },
               child: Text(

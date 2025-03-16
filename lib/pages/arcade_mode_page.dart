@@ -30,6 +30,7 @@ class ArcadeModePage extends StatefulWidget {
 }
 
 class _ArcadeModePageState extends State<ArcadeModePage> {
+  String bodypartString = "";
   int _currentIndex = 0;
   final musicPlayer = MusicPlayerService();
   List<String> selectedInjuries = [];
@@ -40,6 +41,23 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
     super.initState();
     musicPlayer.stop();
     _loadSelectedInjuries();
+    _loadUserWeight();
+  }
+
+  void _loadUserWeight() async {
+    double weight2 = await getUserWeight();
+    setState(() {
+      weight = weight2;
+    });
+    print(weight);
+  }
+
+  Future<double> getUserWeight() async {
+    final prefs = await SharedPreferences.getInstance();
+    String savedWeightStr = prefs.getString('weight') ?? "";
+    return savedWeightStr.isNotEmpty
+        ? double.tryParse(savedWeightStr) ?? 70.0
+        : 70.0;
   }
 
   Future<void> _loadSelectedInjuries() async {
@@ -47,9 +65,9 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
     setState(() {
       selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
     });
+    bodypartString = selectedInjuries.join(", ");
     print(selectedInjuries);
   }
-
 
   CheckInjurys() {
     for (var exerciseInjury in exercises) {
@@ -59,7 +77,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
         List<String> bodyparts = exerciseInjury["bodyparts"]?.split(", ") ?? [];
         // print(bodyparts);
         // print(selectedInjuries.toString());
-        String bodypartString = selectedInjuries.join(", ");
+        bodypartString = selectedInjuries.join(", ");
         //print(bodypartString);
         outerLoop:
         for (var injury in bodyparts) {
@@ -299,6 +317,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Row(
             children: [
               Text("Exercise: "),
@@ -315,12 +334,12 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
               for (int i = 0; i < exercise["steps"].length; i++) ...[
                 Text(
                   "Step ${i + 1}: ${exercise["steps"][i]}",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Text(exercise["instructions"][i]),
-                SizedBox(height: 8), // Spacing between steps
+                SizedBox(height: 18), // Spacing between steps
               ],
-              Divider(), // Separator
+              // Separator
             ],
           ),
           actions: [
@@ -328,17 +347,23 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
               onPressed: () => Navigator.pop(context), // Close dialog
               child: Text("Cancel"),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ThirtyDaysChallenge(),
-                  ),
-                );
-              },
-              child: Text("Continue"),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ThirtyDaysChallenge(),
+                    ),
+                  );
+                },
+                child: Text("Continue", style: TextStyle(color: Colors.white)),
+              ),
             ),
           ],
         );
@@ -352,28 +377,33 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Text("Warning: Injury Detected!"),
-          content: Text(
-            "This exercise may affect your injury. Proceed with caution or choose another exercise.",
+          title: Text("Injury Detected!"),
+          content: Container(
+            child: Text(
+              "This exercise may affect your injury (e.g., ${bodypartString}). Proceed with caution or choose another exercise.",
+              style: TextStyle(fontSize: 15),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), // Close dialog
-              child: Text("Cancel",style: TextStyle(color: Colors.red),),
+              child: Text("Cancel", style: TextStyle(color: AppColor.primary)),
             ),
             Container(
               decoration: BoxDecoration(
                 color: AppColor.primary,
-                borderRadius: BorderRadius.circular(16)
+                borderRadius: BorderRadius.circular(16),
               ),
-              
+
               child: TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Close dialog
                   if (Mode == "Arcade") {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => RestimeTutorial()),
+                      MaterialPageRoute(
+                        builder: (context) => RestimeTutorial(),
+                      ),
                     );
                   } else {
                     _instructionShowDialog(
@@ -383,7 +413,10 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                     );
                   }
                 },
-                child: Text("Proceed Anyway",style: TextStyle(color: Colors.white),),
+                child: Text(
+                  "Proceed anyway",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -400,8 +433,8 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
         padding: EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            
             Padding(
               padding: const EdgeInsets.only(top: 30, bottom: 30),
               child: IconButton(
@@ -419,7 +452,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
               child: Container(
                 padding: EdgeInsets.only(right: 30),
                 child: Text(
-                  "Choose your challenge: 30-day workout or Arcade mode!",
+                  "Choose your challenge: \n30-day workout or Arcade mode!",
                   textAlign: TextAlign.start,
                   style: TextStyle(
                     color: Colors.black,
@@ -433,29 +466,27 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
               "Swipe to explore more challenges.",
               style: TextStyle(fontSize: 15),
             ),
-            Expanded(
-              child: Swiper(
-                itemCount: exercises7.length,
-                itemWidth: MediaQuery.of(context).size.width * 0.8,
-                layout: SwiperLayout.TINDER,
-                itemHeight: 390,
-                onIndexChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  number = index;
-                  return GestureDetector(
-                    onTap: () => _onExerciseTap(index),
-                    child: planCard(
-                      exercises7[index]["name"]!,
-                      exercises7[index]["image"]!,
-                      exercises7[index]["definition"]!,
-                    ),
-                  );
-                },
-              ),
+            Swiper(
+              itemCount: exercises7.length,
+              itemWidth: MediaQuery.of(context).size.width * 0.8,
+              layout: SwiperLayout.TINDER,
+              itemHeight: 390,
+              onIndexChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                number = index;
+                return GestureDetector(
+                  onTap: () => _onExerciseTap(index),
+                  child: planCard(
+                    exercises7[index]["name"]!,
+                    exercises7[index]["image"]!,
+                    exercises7[index]["definition"]!,
+                  ),
+                );
+              },
             ),
             Center(
               child: SmoothPageIndicator(
@@ -489,6 +520,13 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                           builder: (context) => RestimeTutorial(),
                         ),
                       );
+                    } else if (bodypartString == "none of them") {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestimeTutorial(),
+                        ),
+                      );
                     } else {
                       _showInjuryDialog();
                     }
@@ -510,7 +548,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),
                 child: Text(
-                  "Next",
+                  "Begin",
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
@@ -524,7 +562,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
   Widget planCard(String title, String imagePath, String definition) {
     return Container(
       width: 250,
-      height: 250,
+      
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -561,6 +599,8 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                   smallGap,
                   Text(
                     definition,
+                    overflow: TextOverflow.ellipsis, // Show "..."
+                    maxLines: 3,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

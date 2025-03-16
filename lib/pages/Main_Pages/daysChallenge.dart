@@ -1,3 +1,4 @@
+import 'package:exercai_mobile/pages/Constant_Pages/startIn.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:exercai_mobile/pages/arcade_mode_page.dart';
@@ -178,7 +179,7 @@ class _ThirtyDaysChallengeState extends State<ThirtyDaysChallenge> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MyHomePage(),
+                                    builder: (context) => StartIn(),
                                   ),
                                 );
                               }

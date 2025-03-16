@@ -35,9 +35,7 @@ class WeightChart extends StatelessWidget {
     if (sortedEntries.isEmpty) {
       return const SizedBox(
         height: 200,
-        child: Center(
-          child: Text('No weight entries to display.'),
-        ),
+        child: Center(child: Text('No weight entries to display.')),
       );
     }
 
@@ -46,15 +44,17 @@ class WeightChart extends StatelessWidget {
     final maxDate = sortedEntries.last['date'];
 
     // Convert data to FlSpot
-    final List<FlSpot> mainSpots = sortedEntries.map((entry) {
-      final date = entry['date'] as DateTime;
-      final weight = entry['weight'] as double;
-      return FlSpot(date.millisecondsSinceEpoch.toDouble(), weight);
-    }).toList();
+    final List<FlSpot> mainSpots =
+        sortedEntries.map((entry) {
+          final date = entry['date'] as DateTime;
+          final weight = entry['weight'] as double;
+          return FlSpot(date.millisecondsSinceEpoch.toDouble(), weight);
+        }).toList();
 
     // Build a dashed line for the goal weight
     final double minX = minDate.millisecondsSinceEpoch.toDouble();
-    final double maxX = maxDate.millisecondsSinceEpoch.toDouble() + (86400000 * 3);
+    final double maxX =
+        maxDate.millisecondsSinceEpoch.toDouble() + (86400000 * 3);
     // Add a few extra days so the “Goal” text is more visible on the right
 
     // For labeling the last data point
@@ -88,7 +88,9 @@ class WeightChart extends StatelessWidget {
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
               axisNameWidget: Text(
-                DateFormat('MMMM').format(DateTime.now()), // Displays the current month
+                DateFormat(
+                  'MMMM',
+                ).format(DateTime.now()), // Displays the current month
                 style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 14,
@@ -101,7 +103,9 @@ class WeightChart extends StatelessWidget {
                 reservedSize: 30,
                 interval: 86400000 * 7, // label every 7 days
                 getTitlesWidget: (value, meta) {
-                  final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                  final date = DateTime.fromMillisecondsSinceEpoch(
+                    value.toInt(),
+                  );
                   return Padding(
                     padding: const EdgeInsets.only(top: 6.0),
                     child: Text(
@@ -135,13 +139,17 @@ class WeightChart extends StatelessWidget {
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
               tooltipBgColor: Colors.black87,
-              getTooltipItems: (spots) => spots.map((spot) {
-                final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
-                return LineTooltipItem(
-                  '${DateFormat('MMM dd').format(date)}\n${spot.y.toStringAsFixed(1)} kg',
-                  const TextStyle(color: Colors.white),
-                );
-              }).toList(),
+              getTooltipItems:
+                  (spots) =>
+                      spots.map((spot) {
+                        final date = DateTime.fromMillisecondsSinceEpoch(
+                          spot.x.toInt(),
+                        );
+                        return LineTooltipItem(
+                          '${DateFormat('MMM dd').format(date)}\n${spot.y.toStringAsFixed(1)} kg',
+                          const TextStyle(color: Colors.white),
+                        );
+                      }).toList(),
             ),
           ),
 
@@ -149,10 +157,7 @@ class WeightChart extends StatelessWidget {
           lineBarsData: [
             // 1) The dashed "Goal" line
             LineChartBarData(
-              spots: [
-                FlSpot(minX, targetWeight),
-                FlSpot(maxX, targetWeight),
-              ],
+              spots: [FlSpot(minX, targetWeight), FlSpot(maxX, targetWeight)],
               isCurved: false,
               color: Colors.grey,
               dashArray: [6, 6],
@@ -194,20 +199,22 @@ class WeightChart extends StatelessWidget {
           ],
 
           // Extra lines or text for labeling
-          extraLinesData: ExtraLinesData(horizontalLines: [
-            HorizontalLine(
-              y: targetWeight,
-              color: Colors.transparent, // We already have a dashed line
-              // We just want a text label near the end
-              label: HorizontalLineLabel(
-                show: true,
-                alignment: Alignment.topRight,
-                padding: const EdgeInsets.only(right: 50, bottom: 2),
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-                labelResolver: (line) => 'Goal',
+          extraLinesData: ExtraLinesData(
+            horizontalLines: [
+              HorizontalLine(
+                y: targetWeight,
+                color: Colors.transparent, // We already have a dashed line
+                // We just want a text label near the end
+                label: HorizontalLineLabel(
+                  show: true,
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.only(right: 50, bottom: 2),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  labelResolver: (line) => 'Goal',
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
           // A final label on the last data point
           showingTooltipIndicators: [
             ShowingTooltipIndicators([
@@ -215,7 +222,7 @@ class WeightChart extends StatelessWidget {
                 LineChartBarData(spots: []), // dummy
                 0,
                 lastSpot,
-              )
+              ),
             ]),
           ],
         ),
@@ -225,8 +232,13 @@ class WeightChart extends StatelessWidget {
 }
 
 class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
+  Future<void> _saveUserData(_currentWeight) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('weight', _currentWeight.toString());
+  }
+
   List<String> selectedInjuries = [];
-    Future<void> _saveSelectedInjuries(downloaddb) async {
+  Future<void> _saveSelectedInjuries(downloaddb) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('selectedInjuries', downloaddb);
   }
@@ -238,6 +250,7 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
       print(selectedInjuries);
     });
   }
+
   late Map<String, dynamic> userData = {};
   double? bmi;
   String bmiCategory = '';
@@ -259,10 +272,14 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
     return 0.0;
   }
 
-  List<Map<String, dynamic>> _processWeightEntries(List<Map<String, dynamic>> entries) {
+  List<Map<String, dynamic>> _processWeightEntries(
+    List<Map<String, dynamic>> entries,
+  ) {
     final Map<String, Map<String, dynamic>> dateMap = {};
     for (var entry in entries) {
-      final date = (entry['date'] as DateTime).toUtc().add(const Duration(hours: 8));
+      final date = (entry['date'] as DateTime).toUtc().add(
+        const Duration(hours: 8),
+      );
       final dateKey = DateTime(date.year, date.month, date.day);
 
       // Keep only the latest entry for each day
@@ -279,13 +296,16 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
 
   Future<void> _loadUserData() async {
     if (user == null) return;
-    DocumentSnapshot doc = await _firestore.collection("Users").doc(user!.email).get();
+    DocumentSnapshot doc =
+        await _firestore.collection("Users").doc(user!.email).get();
     if (doc.exists) {
       var data = doc.data() as Map<String, dynamic>;
       setState(() {
         userData = data;
         weightEntries = _processWeightEntries(
-          List<Map<String, dynamic>>.from(data['weightHistory'] ?? []).map((entry) {
+          List<Map<String, dynamic>>.from(data['weightHistory'] ?? []).map((
+            entry,
+          ) {
             return {
               'weight': parseWeight(entry['weight']),
               'date': (entry['date'] as Timestamp).toDate(),
@@ -296,14 +316,13 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
         // If today's weight is missing, add it
         DateTime today = DateTime.now().toUtc().add(const Duration(hours: 8));
         today = DateTime(today.year, today.month, today.day);
-        bool hasTodayEntry = weightEntries.any((entry) => entry['date'] == today);
+        bool hasTodayEntry = weightEntries.any(
+          (entry) => entry['date'] == today,
+        );
 
         double currentWeight = parseWeight(data['weight'] ?? '0');
         if (!hasTodayEntry && currentWeight > 0) {
-          weightEntries.add({
-            'weight': currentWeight,
-            'date': today,
-          });
+          weightEntries.add({'weight': currentWeight, 'date': today});
         }
         weightEntries.sort((a, b) => a['date'].compareTo(b['date']));
 
@@ -338,11 +357,13 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
       today = DateTime(today.year, today.month, today.day);
 
       List<dynamic> weightHistory = List.from(userData['weightHistory'] ?? []);
+      _saveUserData(newWeight);
 
       // Remove existing entries for today
       weightHistory.removeWhere((entry) {
-        DateTime entryDate =
-        (entry['date'] as Timestamp).toDate().toUtc().add(const Duration(hours: 8));
+        DateTime entryDate = (entry['date'] as Timestamp).toDate().toUtc().add(
+          const Duration(hours: 8),
+        );
         entryDate = DateTime(entryDate.year, entryDate.month, entryDate.day);
         return entryDate == today;
       });
@@ -358,7 +379,9 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
         'weightHistory': weightHistory,
       });
     } else {
-      await _firestore.collection("Users").doc(user!.email).update({field: value});
+      await _firestore.collection("Users").doc(user!.email).update({
+        field: value,
+      });
     }
     await _loadUserData();
   }
@@ -369,105 +392,117 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
 
     await showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Log Your Weight'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: weightController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    suffixText: '(kg)',
-                    hintText: 'Enter weight in kg',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
+      builder:
+          (context) => StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('Log Your Weight'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Date:', style: TextStyle(fontSize: 16)),
-                    const SizedBox(width: 10),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppColor.supersolidPrimary,
+                    TextField(
+                      controller: weightController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        suffixText: '(kg)',
+                        hintText: 'Enter weight in kg',
                       ),
-                      onPressed: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime.now(),
-                        );
-                        if (pickedDate != null) {
-                          setState(() => selectedDate = pickedDate);
-                        }
-                      },
-                      child: Text(
-                        DateFormat('MMM dd, yyyy').format(selectedDate),
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Text('Date:', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 10),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: AppColor.supersolidPrimary,
+                          ),
+                          onPressed: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now(),
+                            );
+                            if (pickedDate != null) {
+                              setState(() => selectedDate = pickedDate);
+                            }
+                          },
+                          child: Text(
+                            DateFormat('MMM dd, yyyy').format(selectedDate),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (weightController.text.isNotEmpty) {
-                    final newWeight = parseWeight(weightController.text);
-                    final normalizedDate = DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                    );
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      if (weightController.text.isNotEmpty) {
+                        final newWeight = parseWeight(weightController.text);
+                        final normalizedDate = DateTime(
+                          selectedDate.year,
+                          selectedDate.month,
+                          selectedDate.day,
+                        );
 
-                    List<dynamic> weightHistory = List.from(userData['weightHistory'] ?? []);
+                        List<dynamic> weightHistory = List.from(
+                          userData['weightHistory'] ?? [],
+                        );
 
-                    // Remove existing entries for the selected date
-                    weightHistory.removeWhere((entry) {
-                      DateTime entryDate = (entry['date'] as Timestamp).toDate();
-                      entryDate = DateTime(entryDate.year, entryDate.month, entryDate.day);
-                      return entryDate == normalizedDate;
-                    });
+                        // Remove existing entries for the selected date
+                        weightHistory.removeWhere((entry) {
+                          DateTime entryDate =
+                              (entry['date'] as Timestamp).toDate();
+                          entryDate = DateTime(
+                            entryDate.year,
+                            entryDate.month,
+                            entryDate.day,
+                          );
+                          return entryDate == normalizedDate;
+                        });
 
-                    // Add new entry
-                    weightHistory.add({
-                      'weight': newWeight,
-                      'date': Timestamp.fromDate(normalizedDate),
-                    });
+                        // Add new entry
+                        weightHistory.add({
+                          'weight': newWeight,
+                          'date': Timestamp.fromDate(normalizedDate),
+                        });
 
-                    // If logging today's weight, also update the 'weight' field
-                    DateTime nowLocal = DateTime.now();
-                    if (normalizedDate.year == nowLocal.year &&
-                        normalizedDate.month == nowLocal.month &&
-                        normalizedDate.day == nowLocal.day) {
-                      await _firestore.collection("Users").doc(user!.email).update({
-                        'weight': newWeight,
-                        'weightHistory': weightHistory,
-                      });
-                    } else {
-                      await _firestore.collection("Users").doc(user!.email).update({
-                        'weightHistory': weightHistory,
-                      });
-                    }
+                        // If logging today's weight, also update the 'weight' field
+                        DateTime nowLocal = DateTime.now();
+                        if (normalizedDate.year == nowLocal.year &&
+                            normalizedDate.month == nowLocal.month &&
+                            normalizedDate.day == nowLocal.day) {
+                          await _firestore
+                              .collection("Users")
+                              .doc(user!.email)
+                              .update({
+                                'weight': newWeight,
+                                'weightHistory': weightHistory,
+                              });
+                        } else {
+                          await _firestore
+                              .collection("Users")
+                              .doc(user!.email)
+                              .update({'weightHistory': weightHistory});
+                        }
 
-                    await _loadUserData();
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
+                        await _loadUserData();
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              );
+            },
+          ),
     );
   }
 
@@ -508,56 +543,19 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
   }
 
   void _showNumberEditDialog(String field) {
-    TextEditingController controller =
-    TextEditingController(text: userData[field]?.toString() ?? '');
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit ${field.capitalize()}'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            suffixText: field == 'height' ? 'cm' : 'kg',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              _updateField(field, controller.text);
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+    TextEditingController controller = TextEditingController(
+      text: userData[field]?.toString() ?? '',
     );
-  }
-
-  void _showSelectionDialog(String field, List<String> options) {
-    String? tempValue = userData[field];
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text('Select ${field.capitalize()}'),
-            content: SingleChildScrollView(
-              child: Column(
-                children: options.map((option) {
-                  return RadioListTile<String>(
-                    title: Text(option.capitalize()),
-                    value: option,
-                    groupValue: tempValue,
-                    onChanged: (value) {
-                      setState(() => tempValue = value);
-                    },
-                  );
-                }).toList(),
+      builder:
+          (context) => AlertDialog(
+            title: Text('Edit ${field.capitalize()}'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                suffixText: field == 'height' ? 'cm' : 'kg',
               ),
             ),
             actions: [
@@ -567,22 +565,64 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
               ),
               TextButton(
                 onPressed: () {
-                  if (tempValue != null) _updateField(field, tempValue);
+                  _updateField(field, controller.text);
                   Navigator.pop(context);
                 },
                 child: const Text('Save'),
               ),
             ],
-          );
-        },
-      ),
+          ),
+    );
+  }
+
+  void _showSelectionDialog(String field, List<String> options) {
+    String? tempValue = userData[field];
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Text('Select ${field.capitalize()}'),
+                content: SingleChildScrollView(
+                  child: Column(
+                    children:
+                        options.map((option) {
+                          return RadioListTile<String>(
+                            title: Text(option.capitalize()),
+                            value: option,
+                            groupValue: tempValue,
+                            onChanged: (value) {
+                              setState(() => tempValue = value);
+                            },
+                          );
+                        }).toList(),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      if (tempValue != null) _updateField(field, tempValue);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              );
+            },
+          ),
     );
   }
 
   void _showInjurySelectionDialog() {
-    List<String> currentInjuries = (userData['injuryArea']?.toString().split(', ') ?? [])
-        .where((e) => e.isNotEmpty)
-        .toList();
+    List<String> currentInjuries =
+        (userData['injuryArea']?.toString().split(', ') ?? [])
+            .where((e) => e.isNotEmpty)
+            .toList();
     Set<String> tempSelected = Set.from(currentInjuries);
     List<String> options = [
       "none of them",
@@ -599,56 +639,58 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Select Injuries'),
-            content: SingleChildScrollView(
-              child: Column(
-                children: options.map((injury) {
-                  return CheckboxListTile(
-                    title: Text(injury.capitalize()),
-                    value: tempSelected.contains(injury),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (injury == 'none of them') {
-                          if (value!) tempSelected = {'none of them'};
-                        } else {
-                          tempSelected.remove('none of them');
-                          if (value!) {
-                            tempSelected.add(injury);
-                          } else {
-                            tempSelected.remove(injury);
-                          }
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  String injuryValue = tempSelected.join(', ');
+      builder:
+          (context) => StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('Select Injuries'),
+                content: SingleChildScrollView(
+                  child: Column(
+                    children:
+                        options.map((injury) {
+                          return CheckboxListTile(
+                            title: Text(injury.capitalize()),
+                            value: tempSelected.contains(injury),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (injury == 'none of them') {
+                                  if (value!) tempSelected = {'none of them'};
+                                } else {
+                                  tempSelected.remove('none of them');
+                                  if (value!) {
+                                    tempSelected.add(injury);
+                                  } else {
+                                    tempSelected.remove(injury);
+                                  }
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      String injuryValue = tempSelected.join(', ');
                       if (tempSelected.contains('none of them'))
                         injuryValue = 'none of them';
                       _updateField('injuryArea', injuryValue);
                       _saveSelectedInjuries(tempSelected.toList());
                       print(injuryValue);
                       _loadSelectedInjuries();
-                  Navigator.pop(context);
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              );
+            },
+          ),
     );
   }
 
@@ -665,7 +707,10 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
           iconTheme: const IconThemeData(color: Colors.black87),
           title: const Text(
             'BMI and Other Settings',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -711,7 +756,9 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
             // Card for editing height, goal, activity, injuries, etc.
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -728,31 +775,36 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
                     _buildEditableField(
                       'Height',
                       '${userData['height'] ?? ''} cm',
-                          () => _showNumberEditDialog('height'),
+                      () => _showNumberEditDialog('height'),
                     ),
                     _buildEditableField(
                       'Goal',
                       userData['goal']?.toString().capitalize() ?? '',
-                          () => _showSelectionDialog(
-                        'goal',
-                        ['lose weight', 'muscle mass gain', 'maintain'],
-                      ),
+                      () => _showSelectionDialog('goal', [
+                        'lose weight',
+                        'muscle mass gain',
+                        'maintain',
+                      ]),
                     ),
                     _buildEditableField(
                       'Activity Level',
-                      userData['nutriActivitylevel']?.toString().capitalize() ?? '',
-                          () => _showSelectionDialog(
-                        'nutriActivitylevel',
-                        ['Inactive', 'Low Active', 'Active', 'Very Active'],
-                      ),
+                      userData['nutriActivitylevel']?.toString().capitalize() ??
+                          '',
+                      () => _showSelectionDialog('nutriActivitylevel', [
+                        'Inactive',
+                        'Low Active',
+                        'Active',
+                        'Very Active',
+                      ]),
                     ),
                     _buildEditableField(
                       'Workout Level',
                       userData['workoutLevel']?.toString().capitalize() ?? '',
-                          () => _showSelectionDialog(
-                        'workoutLevel',
-                        ['beginner', 'intermediate', 'advanced'],
-                      ),
+                      () => _showSelectionDialog('workoutLevel', [
+                        'beginner',
+                        'intermediate',
+                        'advanced',
+                      ]),
                     ),
                     _buildEditableField(
                       'Injuries',
@@ -768,7 +820,9 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
             // Card for weight, BMI, and chart
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -785,12 +839,12 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
                     _buildEditableField(
                       'Target Weight',
                       '${userData['targetWeight'] ?? ''} kg',
-                          () => _showNumberEditDialog('targetWeight'),
+                      () => _showNumberEditDialog('targetWeight'),
                     ),
                     _buildEditableField(
                       'Weight',
                       '${userData['weight'] ?? ''} kg',
-                          () => _showNumberEditDialog('weight'),
+                      () => _showNumberEditDialog('weight'),
                     ),
                     if (currentBmi != null)
                       Column(
@@ -845,7 +899,9 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
                     ),
                     const SizedBox(height: 16),
                     WeightChart(
-                      targetWeight: parseWeight(userData['targetWeight'] ?? '72.1'),
+                      targetWeight: parseWeight(
+                        userData['targetWeight'] ?? '72.1',
+                      ),
                       weightEntries: weightEntries,
                     ),
                     const SizedBox(height: 20),
@@ -855,7 +911,10 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColor.moresolidPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 20,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
