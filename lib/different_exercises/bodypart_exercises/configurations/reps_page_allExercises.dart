@@ -1,3 +1,4 @@
+import 'package:exercai_mobile/different_exercises/bodypart_exercises/configurations/show_reps_allExercises.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/configurations/timer_allExercise.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -73,15 +74,15 @@ class _RepsPageAllexercisesState extends State<RepsPageAllexercises> {
     if (isRepBased) {
       totalCalories = setValues.fold(
           0.0,
-              (sum, reps) => sum +
+              (sum, reps) =>
+          sum +
               (reps * (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0)));
       final totalReps = setValues.fold(0, (sum, reps) => sum + reps);
       updateData['baseReps'] = totalReps ~/ setCount;
       updateData['baseRepsConcat'] = setValues;
       updateData['baseSetsReps'] = setCount;
     } else {
-      int totalSeconds =
-      setValues.fold(0, (sum, secs) => sum + secs);
+      int totalSeconds = setValues.fold(0, (sum, secs) => sum + secs);
       totalCalories = (totalSeconds *
           (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0))
           .toDouble();
@@ -119,19 +120,29 @@ class _RepsPageAllexercisesState extends State<RepsPageAllexercises> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(widget.exercise['name']),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
+          backgroundColor: Colors.white,
+          elevation: 2,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.black),
+          title: Text(
+            widget.exercise['name']?.toString().toUpperCase() ?? '',
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+            leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ShowRepsAllexercises(exercise: widget.exercise,))),
           ),
         ),
-        // Separating the set rows from the rest time and save button
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // List of set rows
+              // List of set rows with modern card style
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -139,154 +150,177 @@ class _RepsPageAllexercisesState extends State<RepsPageAllexercises> {
                 itemBuilder: (context, index) => _buildSetRow(index),
               ),
               const SizedBox(height: 20),
-              // Rest Time input placed outside the set list
+              // Rest Time input in a card
               _buildRestTimeInput(),
               const SizedBox(height: 20),
-              // Save button
+              // Save button in modern style
               _buildSaveButton(),
-              const SizedBox(height: 20),
-              _buildStartButton(),
               const SizedBox(height: 20),
             ],
           ),
+        ),
+        // Fixed "Start Exercise" button at the bottom
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: _buildStartButton(),
         ),
       ),
     );
   }
 
   Widget _buildSetRow(int index) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: index == 0 ? Colors.blue : Colors.grey,
-                child: Text(
-                  (index + 1).toString(),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 60,
-                child: TextFormField(
-                  initialValue: setValues[index].toString(),
-                  keyboardType: TextInputType.number,
-                  onChanged: isEditable
-                      ? (value) {
-                    int newValue = int.tryParse(value) ?? setValues[index];
-                    setState(() => setValues[index] = newValue);
-                  }
-                      : null,
-                  enabled: isEditable,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    contentPadding: EdgeInsets.zero,
-                    isDense: true,
-                  ),
-                  style: const TextStyle(fontSize: 18, color: Colors.black),
-                ),
-              ),
-              const SizedBox(width: 5),
-              Text(
-                isRepBased ? "Reps" : "Seconds",
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            ],
-          ),
-          if (index == setCount - 1)
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Set number and input field
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.add_circle, color: Colors.green),
-                  onPressed: isEditable ? _addSet : null,
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: index == 0 ? AppColor.primary : Colors.grey.shade400,
+                  child: Text(
+                    (index + 1).toString(),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.remove_circle, color: Colors.red),
-                  onPressed: isEditable ? _removeSet : null,
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 80,
+                  child: TextFormField(
+                    initialValue: setValues[index].toString(),
+                    keyboardType: TextInputType.number,
+                    onChanged: isEditable
+                        ? (value) {
+                      int newValue = int.tryParse(value) ?? setValues[index];
+                      setState(() => setValues[index] = newValue);
+                    }
+                        : null,
+                    enabled: isEditable,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(vertical: 4),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: const TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isRepBased ? "Reps" : "Seconds",
+                  style: const TextStyle(fontSize: 18, color: Colors.grey),
                 ),
               ],
             ),
-        ],
+            // Add/Remove buttons for the last set row only
+            if (index == setCount - 1)
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.add_circle, color: Colors.green),
+                    onPressed: isEditable ? _addSet : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle, color: Colors.red),
+                    onPressed: isEditable ? _removeSet : null,
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildRestTimeInput() {
-    return Row(
-      children: [
-        const Text('Rest Time (seconds): ', style: TextStyle(fontSize: 16)),
-        SizedBox(
-          width: 100,
-          child: TextFormField(
-            initialValue: restTime.toString(),
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              int newValue = int.tryParse(value) ?? restTime;
-              setState(() => restTime = newValue);
-            },
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              isDense: true,
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Row(
+          children: [
+            const Icon(Icons.timer, color: Colors.grey),
+            const SizedBox(width: 10),
+            const Text('Rest Time (seconds): ', style: TextStyle(fontSize: 16)),
+            Expanded(
+              child: TextFormField(
+                initialValue: restTime.toString(),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  int newValue = int.tryParse(value) ?? restTime;
+                  setState(() => restTime = newValue);
+                },
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  border: OutlineInputBorder(),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildSaveButton() {
-    return Center(
+    return SizedBox(
+      width: double.infinity,
       child: ElevatedButton(
         onPressed: () async {
           if (isEditable) await _saveToFirestore();
         },
-        child: Text(isEditable ? 'Save Changes' : 'View Progress'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.lightPrimary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+        child: Text(
+          isEditable ? 'Save Changes' : 'View Progress',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
 
   Widget _buildStartButton() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => TimerAllexercise(
-                  exercise: widget.exercise,
-                  setValues: setValues,
-                  isRepBased: isRepBased,
-                  restTime: restTime,
-                )));
-      },
-      child: Container(
-        height: 55,
-        width: 200,
-        decoration: BoxDecoration(
-          color: AppColor.buttonPrimary.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(width: 2, color: AppColor.buttonSecondary),
-          boxShadow: [
-            BoxShadow(
-              color: AppColor.buttonSecondary.withOpacity(0.7),
-              blurRadius: 90,
-              spreadRadius: 0.1,
+              builder: (context) => TimerAllexercise(
+                exercise: widget.exercise,
+                setValues: setValues,
+                isRepBased: isRepBased,
+                restTime: restTime,
+              ),
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            'Start Exercise',
-            style: TextStyle(
-              color: AppColor.textwhite,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.moresolidPrimary.withOpacity(0.8),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
           ),
+          elevation: 5,
+        ),
+        child: const Text(
+          'Start Exercise',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
     );

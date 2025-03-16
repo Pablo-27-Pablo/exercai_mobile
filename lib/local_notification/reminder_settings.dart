@@ -86,8 +86,14 @@ class _ReminderSettingsState extends State<ReminderSettings> {
         reminders[date]!.add(pickedTime);
       });
       _saveReminders(key, reminders);
+    } else {
+      // If no time is chosen, remove the date from the reminders
+      setState(() {
+        reminders.remove(date);
+      });
     }
   }
+
 
   Future<void> _scheduleNotifications(Map<DateTime, List<TimeOfDay>> reminders, String title, String body) async {
     if (reminders.isEmpty) {
@@ -105,16 +111,19 @@ class _ReminderSettingsState extends State<ReminderSettings> {
         // Check if the selected date and time is in the past
         if (scheduledDateTime.isBefore(DateTime.now())) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: You cannot save a reminder for a past time!'),backgroundColor: Colors.red,),
+            SnackBar(
+              content: Text('Warning: You cannot save a reminder for a past time!'),
+              backgroundColor: Colors.red,
+            ),
           );
           return; // Stop scheduling if any time is in the past
         }
 
-        // ✅ Generate a unique ID based on date and time
+        // Generate a unique ID based on date and time
         int uniqueId = date.millisecondsSinceEpoch ~/ 1000 + time.hour * 60 + time.minute;
 
         await NotiService().scheduleNotification(
-          id: uniqueId, // ✅ Pass the unique ID
+          id: uniqueId,
           title: title,
           body: body,
           scheduledDate: scheduledDateTime,
@@ -123,11 +132,12 @@ class _ReminderSettingsState extends State<ReminderSettings> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$title reminders set successfully.'),backgroundColor: Colors.green,),
+      SnackBar(
+        content: Text('$title reminders set successfully.'),
+        backgroundColor: Colors.green,
+      ),
     );
   }
-
-
 
   Widget _buildDateList(Map<DateTime, List<TimeOfDay>> reminders, String key) {
     return Column(
@@ -135,15 +145,19 @@ class _ReminderSettingsState extends State<ReminderSettings> {
         DateTime date = entry.key;
         List<TimeOfDay> times = entry.value;
         return Card(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 5),
+          elevation: 3,
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                title: Text(DateFormat.yMMMd().format(date), style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(
+                  DateFormat.yMMMd().format(date),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.add, color: Colors.blue),
+                  icon: const Icon(Icons.add, color: Colors.blueAccent),
                   onPressed: () => _selectTime(context, date, reminders, key),
                 ),
               ),
@@ -151,10 +165,12 @@ class _ReminderSettingsState extends State<ReminderSettings> {
                 children: times.map((time) => ListTile(
                   title: Text(time.format(context)),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.redAccent),
                     onPressed: () {
-                      setState(() => reminders[date]!.remove(time));
-                      if (reminders[date]!.isEmpty) reminders.remove(date);
+                      setState(() {
+                        reminders[date]!.remove(time);
+                        if (reminders[date]!.isEmpty) reminders.remove(date);
+                      });
                       _saveReminders(key, reminders);
                     },
                   ),
@@ -167,105 +183,92 @@ class _ReminderSettingsState extends State<ReminderSettings> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
-      appBar: AppBar(title: const Text('Set Reminders',style: TextStyle(color: Colors.white),),backgroundColor: AppColor.primary,),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+  Widget _buildReminderSection(String label, Map<DateTime, List<TimeOfDay>> reminders, String title, String body, String key) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildReminderSection('Workout', _workoutReminders, 'Workout Reminder', 'Time for your scheduled workout! 💪', 'workout'),
-               const SizedBox(height: 30,),
-              _buildReminderSection('Breakfast', _breakfastReminders, 'Breakfast Reminder', 'Time for your breakfast! 🍳', 'breakfast'),
-              const SizedBox(height: 30,),
-              _buildReminderSection('Lunch', _lunchReminders, 'Lunch Reminder', 'Time for your lunch! 🍛', 'lunch'),
-              const SizedBox(height: 30,),
-              _buildReminderSection('Dinner', _dinnerReminders, 'Dinner Reminder', 'Time for your dinner! 🍽️', 'dinner'),
+              Text(
+                '$label Date & Time',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              GestureDetector(
+                onTap: () => _selectDate(context, reminders, key),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColor.backgroundgrey,
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                ),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          _buildDateList(reminders, key),
+          const SizedBox(height: 12),
+          Center(
+            child: SizedBox(
+              width: 240,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () => _scheduleNotifications(reminders, title, body),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.moresolidPrimary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+                child: Text(
+                  'Save $label Reminder',
+                  style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Divider(thickness: 2, color: Colors.grey.shade300),
+        ],
       ),
     );
   }
-
-  Widget _buildReminderSection(String label, Map<DateTime, List<TimeOfDay>> reminders, String title, String body, String key) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('$label Date & Time 🗓⏰',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),),const SizedBox(width: 5,), // Static title (not clickable)
-            GestureDetector(
-              onTap: () => _selectDate(context, reminders, key), // Only the icon is clickable
-              child: const Icon(Icons.add, color: AppColor.yellowtext,size: 40,),
-            ),
-          ],
-        ),
-
-        _buildDateList(reminders, key),
-        SizedBox(height: 10,),
-        SizedBox(
-          width: 200,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () => _scheduleNotifications(reminders, title, body),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColor.purpletext, // Set button color to green
-            ),
-            child: Text('Save $label Reminder',style: TextStyle(color: Colors.white),),
-          ),
-        ),
-        const SizedBox(height: 10,),
-        const Divider(thickness: 2,color: Colors.grey,),
-      ],
-    );
-  }
-}
-
-
-/*
-import 'package:exercai_with_host_try/local_notification/notification_service.dart';
-import 'package:flutter/material.dart';
-
-class ReminderSettings extends StatelessWidget {
-  const ReminderSettings({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      backgroundColor: Colors.white, // White background
+      appBar: AppBar(
+        title: const Text('Set Reminders', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: AppColor.primary,
+        elevation: 2,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            //button to show notification
-            ElevatedButton(onPressed: (){
-              NotiService().showNotification(
-                title: "ExercAI Reminder",
-                body: "Time for your Scheduled Workout",
-              );
-            }, child: Text('Send Notification')),
-
-            //button to schedule notification for later
-            ElevatedButton(
-              onPressed: () {
-                NotiService().scheduleNotification(
-                  title: "ExercAI Reminder",
-                  body: "Time for your Scheduled Workout",
-                  hour: 19, // Example time: 4 PM
-                  minute: 04,
-                );
-              },
-              child: Text('Schedule Notification'),
-            )
-
-
+            _buildReminderSection('Workout', _workoutReminders, 'Workout Reminder', 'Time for your scheduled workout! 💪', 'workout'),
+            const SizedBox(height: 30),
+            _buildReminderSection('Breakfast', _breakfastReminders, 'Breakfast Reminder', 'Time for your breakfast! 🍳', 'breakfast'),
+            const SizedBox(height: 30),
+            _buildReminderSection('Lunch', _lunchReminders, 'Lunch Reminder', 'Time for your lunch! 🍛', 'lunch'),
+            const SizedBox(height: 30),
+            _buildReminderSection('Dinner', _dinnerReminders, 'Dinner Reminder', 'Time for your dinner! 🍽️', 'dinner'),
           ],
         ),
       ),
     );
   }
 }
-*/

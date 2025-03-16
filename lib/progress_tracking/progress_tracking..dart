@@ -83,7 +83,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       for (var doc in exercisesSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         double finalTotalBurnCalRep =
-            (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
+        (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
         double totalCalBurnSec = (data['TotalCalBurnSec'] ?? 0).toDouble();
 
         totalCaloriesBurned += (finalTotalBurnCalRep + totalCalBurnSec);
@@ -103,7 +103,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
             data['TotalCaloriesBurned'] is List) {
           totalCaloriesBurnedArray = List<double>.from(
             (data['TotalCaloriesBurned'] as List).map(
-              (e) => (e is num ? e.toDouble() : 0),
+                  (e) => (e is num ? e.toDouble() : 0),
             ),
           );
         }
@@ -119,7 +119,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       double change = 0;
       if (totalCaloriesBurnedArray.length > 1) {
         double previousValue =
-            totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
+        totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
         double newValue = totalCaloriesBurnedArray.last;
 
         if (newValue >= previousValue ||
@@ -164,12 +164,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       DocumentSnapshot metadataSnapshot = await userMetadataRef.get(
         const GetOptions(source: Source.server),
       );
-      List<dynamic> currentDays =
-          metadataSnapshot.exists
-              ? (metadataSnapshot.data()
-                      as Map<String, dynamic>)['currentDay'] ??
-                  []
-              : [];
+      List<dynamic> currentDays = metadataSnapshot.exists
+          ? (metadataSnapshot.data() as Map<String, dynamic>)['currentDay'] ?? []
+          : [];
 
       print('Current Days: $currentDays'); // Debug current days
 
@@ -209,23 +206,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     }
   }
 
-  // Add this helper function
-  /*Future<int> _calculateTotalExerciseTime(List<QueryDocumentSnapshot> dayDocs) async {
-    int totalExerciseTime = 0;
-
-    for (var dayDoc in dayDocs) {
-      final timesSnapshot = await dayDoc.reference.collection('times').get();
-      for (var timeDoc in timesSnapshot.docs) {
-        totalExerciseTime += (timeDoc['totalExerciseTime'] as int? ?? 0);
-      }
-    }
-
-    return totalExerciseTime;
-  }*/
-
   Future<int> _calculateTotalExerciseTime(
-    List<QueryDocumentSnapshot> exerciseDocs,
-  ) async {
+      List<QueryDocumentSnapshot> exerciseDocs,
+      ) async {
     int totalExerciseTime = 0;
 
     for (var exerciseDoc in exerciseDocs) {
@@ -244,18 +227,80 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
+  // Helper widget to create modern info cards
+  Widget _buildInfoCard({
+    required String title,
+    required Widget content,
+    GestureTapCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        elevation: 4,
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(
+                Icons.local_fire_department,
+                color: AppColor.supersolidPrimary,
+                size: 30,
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87)),
+                    SizedBox(height: 8),
+                    content,
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for profile info columns (Age, Weight, Height)
+  Widget _buildProfileInfo(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(
+                color: AppColor.backgroundgrey,
+                fontWeight: FontWeight.bold,
+                fontSize: 14)),
+        SizedBox(height: 4),
+        Text(value, style: TextStyle(color: AppColor.supersolidPrimary, fontSize: 14)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundgrey,
+      backgroundColor: Colors.white, // White background for a clean look
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: BackButton(
+          color: AppColor.primary, // Use primary color for back button
+        ),
         title: const Text(
           'Progress Tracking',
-          style: TextStyle(color: AppColor.primary, fontSize: 25),
-        ),
-        backgroundColor: Colors.transparent,
-        leading: BackButton(
-          color: AppColor.primary, // Change color if needed
+          style: TextStyle(
+              color: AppColor.primary, fontSize: 25, fontWeight: FontWeight.bold),
         ),
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -266,7 +311,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return Center(
+                child: Text("Error: ${snapshot.error}",
+                    style: TextStyle(color: Colors.red)));
           }
 
           if (snapshot.hasData) {
@@ -277,385 +324,239 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    color: AppColor.primary,
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        /*CircleAvatar(
-                          radius: 30,
-                          backgroundImage: AssetImage(
-                              'assets/MikoProfile.jpg'), // Replace with your asset
-                        ),*/
-                        SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  '${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}',
-                                  style: TextStyle(
-                                    color: AppColor.textwhite,
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                // Ternary condition to display gender icon
-                                user?['gender'] == 'Male'
-                                    ? Icon(
-                                      Icons.male,
-                                      color: AppColor.yellowtext,
-                                    )
-                                    : Icon(Icons.female, color: Colors.pink),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'Age: ',
-                                  style: TextStyle(
-                                    color: AppColor.yellowtext,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  user?['dateOfBirth'] != null
-                                      ? computeAge(user!['dateOfBirth'])
-                                      : 'N/A',
-                                  style: TextStyle(
-                                    color: AppColor.textwhite,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
+                  SizedBox(height: 20),
+                  // User Profile Card
+                  Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    elevation: 4,
+                    margin: EdgeInsets.symmetric(horizontal: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
                                     Text(
-                                      'Weight: ',
+                                      '${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}',
                                       style: TextStyle(
-                                        color: AppColor.yellowtext,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                          color: Colors.black87,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    Text(
-                                      '${user?['weight'] ?? 'N/A'} Kg',
-                                      style: TextStyle(
-                                        color: AppColor.textwhite,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                    SizedBox(width: 8),
+                                    user?['gender'] == 'Male'
+                                        ? Icon(Icons.male,
+                                        color: Colors.blue, size: 20)
+                                        : Icon(Icons.female,
+                                        color: Colors.pink, size: 20),
                                   ],
                                 ),
-                                SizedBox(width: 8),
+                                SizedBox(height: 8),
                                 Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'Height: ',
-                                      style: TextStyle(
-                                        color: AppColor.yellowtext,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${user?['height'] ?? 'N/A'} CM',
-                                      style: TextStyle(
-                                        color: AppColor.textwhite,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                    _buildProfileInfo(
+                                        "Age",
+                                        user?['dateOfBirth'] != null
+                                            ? computeAge(user!['dateOfBirth'])
+                                            : 'N/A'),
+                                    SizedBox(width: 16),
+                                    _buildProfileInfo("Weight",
+                                        '${user?['weight'] ?? 'N/A'} Kg'),
+                                    SizedBox(width: 16),
+                                    _buildProfileInfo("Height",
+                                        '${user?['height'] ?? 'N/A'} CM'),
                                   ],
-                                ),
+                                )
                               ],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                      Text(
-                      'Workout Log',
-                      style: TextStyle(color: AppColor.yellowtext,fontSize:25 ,fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
-                      ],
                     ),
                   ),
-
-
-                  // Lako mune ing keka keni ne Palitan ke kasing Exercise Recommendation, tsaka Maka Gesture Detector nala reng Kaku
-                  //Para a monitor dala gagawan da
+                  SizedBox(height: 20),
+                  // Section Title: Workout Log
                   Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Total Calories Burn',
+                          'Workout Log',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              color: AppColor.backgroundgrey,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>InfoCardExerecommend())),
-                          child: Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColor.buttonPrimary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              // ❌ Remove Expanded here
-                              children: [
-                                Icon(
-                                  Icons.local_fire_department,
-                                  color: AppColor.primary,
-                                  size: 30,
-                                ),
-                                SizedBox(width: 16),
-                                Expanded(
-                                  // ✅ Use Expanded here to make StreamBuilder flexible inside Row
-                                  child: StreamBuilder<DocumentSnapshot>(
-                                    stream:
-                                        FirebaseFirestore.instance
-                                            .collection('Users')
-                                            .doc(currentUser!.email)
-                                            .collection('TotalCaloriesExercises')
-                                            .doc('TotalCaloriesBurnofUser')
-                                            .snapshots(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasError) {
-                                        return Text(
-                                          'Error',
-                                          style: TextStyle(color: Colors.red),
-                                        );
-                                      }
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return CircularProgressIndicator();
-                                      }
-
-                                      final data =
-                                          snapshot.data?.data()
-                                              as Map<String, dynamic>?;
-
-                                      List<double> totalCaloriesBurnedArray = [];
-                                      if (data != null &&
-                                          data.containsKey(
-                                            'TotalCaloriesBurned',
-                                          ) &&
-                                          data['TotalCaloriesBurned'] is List) {
-                                        totalCaloriesBurnedArray = List<
-                                          double
-                                        >.from(
-                                          (data['TotalCaloriesBurned'] as List)
-                                              .map(
-                                                (e) =>
-                                                    (e is num ? e.toDouble() : 0),
-                                              ),
-                                        );
-                                      }
-
-                                      double finalTotalCalories =
-                                          (data?['FinalTotalCaloriesBurned'] ?? 0)
-                                              .toDouble();
-
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment
-                                                .start, // ✅ Align text properly
-                                        children: [
-                                          Text(
-                                            'Total Burned Calories: ${finalTotalCalories.toStringAsFixed(2)} Kcal',
-                                            style: TextStyle(
-                                              color: AppColor.textwhite,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Burned Calories Today: ${totalCaloriesBurnedArray.isNotEmpty ? totalCaloriesBurnedArray.last.toStringAsFixed(2) : "0"} Kcal',
-                                            style: TextStyle(
-                                              color: AppColor.textwhite,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        Text(
-                          'Pose Estimation Burn Calories',
-                          style: TextStyle(
-                            color: AppColor.yellowtext,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColor.buttonPrimary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.local_fire_department,
-                                color: AppColor.primary,
-                                size: 30,
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '100 days exercise calories burn: ${(peopleBox.get("daychallenge", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                                    style: TextStyle(
-                                      color: AppColor.textwhite,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Arcade calories burn: ${(peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal', // Static placeholder value
-                                    style: TextStyle(
-                                      color: AppColor.textwhite,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                   Text(
-                                    'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                                    style: TextStyle(
-                                      color: AppColor.textwhite,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 30),
-                        // Inside the build method of ProgressTrackingScreen, replace the existing "Different Exercises Burn Calories" Container with:
-
-                        Text(
-                          "Different Exercises Burn Calories",
-                          style: TextStyle(
-                            color: AppColor.yellowtext,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>DiffExeCard())),
-                          child: Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColor.buttonPrimary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.local_fire_department,
-                                  color: AppColor.primary,
-                                  size: 30,
-                                ),
-                                SizedBox(width: 16),
-                                StreamBuilder<QuerySnapshot>(
-                                  stream: FirebaseFirestore.instance
-                                      .collection('Users')
-                                      .doc(currentUser!.email)
-                                      .collection('AllExercises')
-                                      .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasError) {
-                                      return Text('Error: ${snapshot.error}',
-                                          style: TextStyle(color: Colors.white));
-                                    }
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                      return CircularProgressIndicator();
-                                    }
-
-                                    double totalRepCalories = 0.0;
-                                    double totalTimeCalories = 0.0;
-
-                                    for (var doc in snapshot.data!.docs) {
-                                      final data = doc.data() as Map<String, dynamic>;
-                                      final bool isRepBased =
-                                          data['baseSetsReps'] != null && data['baseReps'] != null;
-                                      final bool isTimeBased =
-                                          data['baseSetsSecs'] != null || data['baseSecs'] != null;
-
-                                      if (isRepBased) {
-                                        totalRepCalories +=
-                                            (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
-                                      } else if (isTimeBased) {
-                                        totalTimeCalories +=
-                                            (data['TotalCalBurnSec'] ?? 0).toDouble();
-                                      }
-                                    }
-
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Repetition Based Exercise: ${totalRepCalories.toStringAsFixed(2)} Kcal',
-                                          style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Time Based Exercise: ${totalTimeCalories.toStringAsFixed(2)} Kcal',
-                                          style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Total: ${(totalRepCalories + totalTimeCalories).toStringAsFixed(2)} Kcal',
-                                          style: TextStyle(
-                                            color: AppColor.textwhite,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        // Updated StreamBuilder for Total Exercise Time
-
+                        Text('( Click card for more information. )',style: TextStyle(color: Colors.grey.shade500),)
                       ],
                     ),
                   ),
+                  SizedBox(height: 20),
+                  // Total Calories Burn Card
+                  _buildInfoCard(
+                    title: 'Recommended Exercise Calories Burn',
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => InfoCardExerecommend())),
+                    content: StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('Users')
+                          .doc(currentUser!.email)
+                          .collection('TotalCaloriesExercises')
+                          .doc('TotalCaloriesBurnofUser')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text(
+                            'Error',
+                            style: TextStyle(color: Colors.red),
+                          );
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
+
+                        final data = snapshot.data?.data()
+                        as Map<String, dynamic>?;
+
+                        List<double> totalCaloriesBurnedArray = [];
+                        if (data != null &&
+                            data.containsKey('TotalCaloriesBurned') &&
+                            data['TotalCaloriesBurned'] is List) {
+                          totalCaloriesBurnedArray = List<double>.from(
+                            (data['TotalCaloriesBurned'] as List).map(
+                                  (e) => (e is num ? e.toDouble() : 0),
+                            ),
+                          );
+                        }
+
+                        double finalTotalCalories =
+                        (data?['FinalTotalCaloriesBurned'] ?? 0)
+                            .toDouble();
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total Burned Calories: ${finalTotalCalories.toStringAsFixed(2)} Kcal',
+                              style: TextStyle(
+                                  color: Colors.grey.shade600, fontSize: 16),
+                            ),
+                            Text(
+                              'Burned Calories Today: ${totalCaloriesBurnedArray.isNotEmpty ? totalCaloriesBurnedArray.last.toStringAsFixed(2) : "0"} Kcal',
+                              style: TextStyle(
+                                  color: Colors.grey.shade600, fontSize: 16),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Pose Estimation Burn Calories Card
+                  _buildInfoCard(
+                    title: 'Pose Estimation Burn Calories',
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '100 days exercise calories burn: ${(peopleBox.get("daychallenge", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Arcade calories burn: ${(peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Different Exercises Burn Calories Card
+                  _buildInfoCard(
+                    title: 'Different Exercises Burn Calories',
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DiffExeCard())),
+                    content: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('Users')
+                          .doc(currentUser!.email)
+                          .collection('AllExercises')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}',
+                              style: TextStyle(color: Colors.black87));
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
+
+                        double totalRepCalories = 0.0;
+                        double totalTimeCalories = 0.0;
+
+                        for (var doc in snapshot.data!.docs) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final bool isRepBased = data['baseSetsReps'] != null &&
+                              data['baseReps'] != null;
+                          final bool isTimeBased = data['baseSetsSecs'] != null ||
+                              data['baseSecs'] != null;
+
+                          if (isRepBased) {
+                            totalRepCalories +=
+                                (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
+                          } else if (isTimeBased) {
+                            totalTimeCalories +=
+                                (data['TotalCalBurnSec'] ?? 0).toDouble();
+                          }
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Repetition Based Exercise: ${totalRepCalories.toStringAsFixed(2)} Kcal',
+                              style: TextStyle(
+                                  color: Colors.grey.shade600, fontSize: 16),
+                            ),
+                            Text(
+                              'Time Based Exercise: ${totalTimeCalories.toStringAsFixed(2)} Kcal',
+                              style: TextStyle(
+                                  color: Colors.grey.shade600, fontSize: 16),
+                            ),
+                            Text(
+                              'Total: ${(totalRepCalories + totalTimeCalories).toStringAsFixed(2)} Kcal',
+                              style: TextStyle(
+                                  color: Colors.grey.shade600, fontSize: 16),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 20),
                 ],
               ),
             );

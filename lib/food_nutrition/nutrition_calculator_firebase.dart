@@ -109,22 +109,38 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
     }
   }
 
-  // Helper method to build a beautifully styled table with cards.
+  /// Build a table wrapped in a card with a gradient header.
   Widget _buildTable(String title, List<List<String>> data) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: EdgeInsets.symmetric(vertical: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
-            SizedBox(height: 12),
-            Table(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header section with a gradient background
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColor.supersolidPrimary, AppColor.superlightPrimary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: {
                 0: FlexColumnWidth(2),
@@ -134,27 +150,27 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
                 int index = data.indexOf(row);
                 return TableRow(
                   decoration: BoxDecoration(
-                    color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+                    color: index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
                   ),
                   children: row.map((cell) {
                     return Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Text(
                         cell,
-                        style: TextStyle(fontSize: 14, color: Colors.black87),
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
                       ),
                     );
                   }).toList(),
                 );
               }).toList(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  // Helper function to dynamically convert JSON list into a table format.
+  /// Dynamically convert JSON list into a table.
   Widget _buildTableFromJson(String title, dynamic jsonData) {
     if (jsonData == null || jsonData is! List) return SizedBox();
     List<List<String>> tableData = jsonData.map<List<String>>((row) {
@@ -195,7 +211,7 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
         "Daily Recommended Mineral Intake", nutritionData?['minerals_table']?['essential-minerals-table']);
   }
 
-  /// Helper function to retrieve values safely from JSON.
+  /// Safely retrieve a value from the nutrition JSON.
   String _getData(String category, String key) {
     return nutritionData?[category]?[key]?.toString() ?? "N/A";
   }
@@ -204,71 +220,67 @@ class _NutritionCalculatorFirebaseState extends State<NutritionCalculatorFirebas
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nutrition Calculator'),
+        title: Text('Nutrition Calculator',
+            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: AppColor.primary,
+        backgroundColor: Colors.white,
+        elevation: 2,
       ),
-      // Use a gradient background to enhance the visual appeal.
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColor.primary, AppColor.backgroundgrey],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Text(
-                "Nutrition and Calories Suggestion\nFor You",
-                style: TextStyle(
-                    fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-                textAlign: TextAlign.center,
+      backgroundColor: Colors.white,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            Text(
+              "Nutrition and Calories Suggestion For You",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: AppColor.moresolidPrimary,
+                shadows: [Shadow(offset: Offset(1, 2), blurRadius: 3, color: Colors.grey.shade400)],
               ),
-              SizedBox(height: 20),
-              if (errorMessage.isNotEmpty)
-                Card(
-                  color: Colors.red[100],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(errorMessage,
-                        style: TextStyle(color: Colors.red, fontSize: 16)),
-                  ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            if (errorMessage.isNotEmpty)
+              Card(
+                color: Colors.red.shade100,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(errorMessage, style: TextStyle(color: Colors.red, fontSize: 16)),
                 ),
-              if (age != null &&
-                  height != null &&
-                  weight != null &&
-                  gender != null &&
-                  activityLevel != null) ...[
-                _buildEnteredValues(),
-                SizedBox(height: 20),
-                if (nutritionData != null) ...[
-                  _buildResultsTable(),
-                  _buildMacronutrientsTable(),
-                  _buildVitaminsTable(),
-                  _buildMineralsTable(),
-                ],
+              ),
+            if (age != null &&
+                height != null &&
+                weight != null &&
+                gender != null &&
+                activityLevel != null) ...[
+              _buildEnteredValues(),
+              SizedBox(height: 20),
+              if (nutritionData != null) ...[
+                _buildResultsTable(),
+                _buildMacronutrientsTable(),
+                _buildVitaminsTable(),
+                _buildMineralsTable(),
               ],
             ],
-          ),
+          ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: fetchUserData,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+      floatingActionButton: ClipRRect(
+        borderRadius: BorderRadius.circular(30), // Custom radius
+        child: FloatingActionButton(
+          onPressed: fetchUserData,
+          backgroundColor: AppColor.moresolidPrimary,
+          child: isLoading
+              ? CircularProgressIndicator(color: AppColor.backgroundWhite)
+              : Icon(Icons.refresh, color: AppColor.backgroundWhite),
+          tooltip: "Reload Data",
         ),
-        child: isLoading
-            ? CircularProgressIndicator(color: Colors.white)
-            : Icon(Icons.refresh),
-        tooltip: "Reload Data",
       ),
     );
   }

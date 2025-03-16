@@ -188,17 +188,17 @@ class _MainLandingPageState extends State<MainLandingPage> {
             _buildFeatureCard(
                 title: 'Posture Correction',
                 subtitle: 'Correct Your Posture With Targeted Exercises',
-                imagePath: 'assets/gym8.jpg',
+                imagePath: 'assets/mainpage/posture.png',
                 onTap: () {
                   Mode = "postureCorrection";
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => Trypage()));
                 }),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildFeatureCard(
                 title: 'Arcade Mode',
                 subtitle: 'Fun Challenges To Push Your Limits',
-                imagePath: 'assets/gym4.png',
+                imagePath: 'assets/mainpage/arcade-machine.png',
                 onTap: () {
                   int last = peopleBox.get("final", defaultValue: 0);
                   if (last < 1) {
@@ -212,20 +212,20 @@ class _MainLandingPageState extends State<MainLandingPage> {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => ArcadeModePage()));
                 }),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildFeatureCard(
                 title: 'Recommended Exercise',
                 subtitle: 'Recommended Exercises For Your Needs',
-                imagePath: 'assets/gym6.jpg',
+                imagePath: 'assets/mainpage/recommend.png',
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => FilterRepsKcal()));
                 }),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildFeatureCard(
                 title: 'Different Exercises',
                 subtitle: 'Explore A Variety Of Workouts',
-                imagePath: 'assets/gym7.jpg',
+                imagePath: 'assets/mainpage/different.png',
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => ChooseBodyparts()));
@@ -274,23 +274,26 @@ class _MainLandingPageState extends State<MainLandingPage> {
         child: Row(
           children: [
             // Image on the left.
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
-              ),
-              child: Image.asset(
-                imagePath,
-                height: 140,
-                width: 100,
-                fit: BoxFit.cover,
+            Padding(
+              padding: const EdgeInsets.only(left: 5.0,right: 5.0),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+                child: Image.asset(
+                  imagePath,
+                  height: 140,
+                  width: 100,
+                  fit: BoxFit.contain
+                ),
               ),
             ),
             // Text content on the right.
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(16),
-                color: Colors.white,
+                //color: Colors.white,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
