@@ -12,6 +12,8 @@ import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/utils/constant.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChooseBodyparts extends StatefulWidget {
   const ChooseBodyparts({super.key});
@@ -21,8 +23,9 @@ class ChooseBodyparts extends StatefulWidget {
 }
 
 class _ChooseBodypartsState extends State<ChooseBodyparts> {
+  // Initially an empty list; will be filled from Firestore
+  List<String> _userInjuries = [];
   final List<BodyPartItem> _bodyParts = [
-    // Replace the asset paths with your actual image assets
     BodyPartItem(title: "Neck", screen: NeckAllexercises(), assetPath: "assets/neck.png"),
     BodyPartItem(title: "Chest", screen: ChestAllexercises(), assetPath: "assets/chest.png"),
     BodyPartItem(title: "Waist", screen: WaistAllexercises(), assetPath: "assets/waist.png"),
@@ -34,6 +37,40 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
     BodyPartItem(title: "Lower Legs", screen: LowerLegsAllexercises(), assetPath: "assets/lower_leg.png"),
     BodyPartItem(title: "Cardio", screen: CardioAllexercises(), assetPath: "assets/cardio.png"),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  /// Fetches the user's injury areas from Firestore and sets the _userInjuries list.
+  Future<void> fetchUserData() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(currentUser.email)
+          .get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        String injuryArea = userData['injuryArea'] ?? '';
+        // Split the comma-separated string and remove any empty values
+        List<String> injuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
+        // Clear list if "none of them" is selected
+        if (injuries.contains('none of them')) {
+          injuries.clear();
+        }
+        setState(() {
+          _userInjuries = injuries.map((injury) => injury.toLowerCase()).toList();
+        });
+      }
+    } catch (e) {
+      print("Error fetching user injury data: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +92,8 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
             color: AppColor.moresolidPrimary,
           ),
           onPressed: () {
-            Navigator.push(context,
+            Navigator.push(
+                context,
                 MaterialPageRoute(builder: (context) => MainLandingPage()));
           },
         ),
@@ -75,7 +113,7 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
               ),
             ),
             const SizedBox(height: 20),
-            // Use GridView.count for grid cards
+            // Grid of body part cards
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -83,14 +121,98 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
                 mainAxisSpacing: 20,
                 children: _bodyParts.map((item) {
                   return GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      // Convert the tapped body part to lowercase for comparison
+                      String tappedBodyPart = item.title.toLowerCase();
+                      if (_userInjuries.contains(tappedBodyPart)) {
+                        bool? proceedInjury = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            elevation: 10,
+                            backgroundColor: Colors.white,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.85,
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Header with Icon and Title
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.warning, color: Colors.red, size: 30),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          "Injury Warning",
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red[700],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Content message
+                                  Text(
+                                    "You have an injury in your $tappedBodyPart. Exercising this area might aggravate your injury.\nDo you want to proceed?",
+                                    style: const TextStyle(
+                                        fontSize: 18, color: Colors.black87),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 30),
+                                  // Action Buttons
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.grey[300],
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: Text("Cancel", style: TextStyle(fontSize: 16)),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        child: Text("Proceed", style: TextStyle(fontSize: 16)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ) ?? false;
+                        if (!proceedInjury) return;
+                      }
+                      // Navigate to the selected body part screen if no injury or user proceeds
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => item.screen));
                     },
                     child: _buildGridCard(item.title, item.assetPath),
-
                   );
                 }).toList(),
               ),
@@ -133,7 +255,7 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Use a default asset if null
+              // Default asset if null
               Image.asset(
                 asset ?? "assets/images/default.png",
                 width: 40,
@@ -141,13 +263,10 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
               ),
             ],
           ),
-
         ),
-
       ),
     );
   }
-
 }
 
 // Helper model for body part items.
@@ -157,4 +276,3 @@ class BodyPartItem {
   final String? assetPath;
   BodyPartItem({required this.title, required this.screen, this.assetPath});
 }
-
