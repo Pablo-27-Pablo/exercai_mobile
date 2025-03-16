@@ -472,7 +472,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                   itemCount: exercises7.length,
                   itemWidth: MediaQuery.of(context).size.width * 0.8,
                   layout: SwiperLayout.TINDER,
-                  itemHeight: 390,
+                  itemHeight: 380,
                   onIndexChanged: (index) {
                     setState(() {
                       _currentIndex = index;
@@ -492,70 +492,69 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                 ),
                 smallGap,
                 Center(
-              child: SmoothPageIndicator(
-                controller: PageController(initialPage: _currentIndex),
-                count: exercises7.length,
-                effect: WormEffect(
-                  dotWidth: 10,
-                  dotHeight: 10,
-                  activeDotColor: AppColor.primary,
-                  dotColor: Colors.grey.withOpacity(0.5),
-                ),
-              ),
-            ),
-              ],
-            ),
-            
-            
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (number == 0) {
-                    number = 5;
-                  }
-                  if ("Arcade" == exercises7[number - 1]['name']) {
-                    Mode = "Arcade";
-                    print(selectedInjuries);
-                    if (selectedInjuries == []) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RestimeTutorial(),
-                        ),
-                      );
-                    } else if (bodypartString == "none of them") {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RestimeTutorial(),
-                        ),
-                      );
-                    } else {
-                      _showInjuryDialog();
-                    }
-                  } else {
-                    startExercise(
-                      exercises7[number - 1]["PrimaryName"]!,
-                      exercises7[number - 1]["image"]!,
-                      exercises7[number - 1]["name"]!,
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      14,
-                    ), // Set border radius here
+                  child: SmoothPageIndicator(
+                    controller: PageController(initialPage: _currentIndex),
+                    count: exercises7.length,
+                    effect: WormEffect(
+                      dotWidth: 10,
+                      dotHeight: 10,
+                      activeDotColor: AppColor.primary,
+                      dotColor: Colors.grey.withOpacity(0.5),
+                    ),
                   ),
-                  backgroundColor: AppColor.primary,
-                  padding: EdgeInsets.symmetric(vertical: 15),
                 ),
-                child: Text(
-                  "Begin",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                SizedBox(height: 50),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (number == 0) {
+                        number = 5;
+                      }
+                      if ("Arcade" == exercises7[number - 1]['name']) {
+                        Mode = "Arcade";
+                        print(selectedInjuries);
+                        if (selectedInjuries == []) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RestimeTutorial(),
+                            ),
+                          );
+                        } else if (bodypartString == "none of them") {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RestimeTutorial(),
+                            ),
+                          );
+                        } else {
+                          _showInjuryDialog();
+                        }
+                      } else {
+                        startExercise(
+                          exercises7[number - 1]["PrimaryName"]!,
+                          exercises7[number - 1]["image"]!,
+                          exercises7[number - 1]["name"]!,
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          14,
+                        ), // Set border radius here
+                      ),
+                      backgroundColor: AppColor.primary,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                    ),
+                    child: Text(
+                      "Begin",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
@@ -566,7 +565,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
   Widget planCard(String title, String imagePath, String definition) {
     return Container(
       width: 250,
-      
+
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
