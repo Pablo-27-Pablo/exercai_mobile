@@ -466,29 +466,32 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
               "Swipe to explore more challenges.",
               style: TextStyle(fontSize: 15),
             ),
-            Swiper(
-              itemCount: exercises7.length,
-              itemWidth: MediaQuery.of(context).size.width * 0.8,
-              layout: SwiperLayout.TINDER,
-              itemHeight: 390,
-              onIndexChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                number = index;
-                return GestureDetector(
-                  onTap: () => _onExerciseTap(index),
-                  child: planCard(
-                    exercises7[index]["name"]!,
-                    exercises7[index]["image"]!,
-                    exercises7[index]["definition"]!,
-                  ),
-                );
-              },
-            ),
-            Center(
+            Column(
+              children: [
+                Swiper(
+                  itemCount: exercises7.length,
+                  itemWidth: MediaQuery.of(context).size.width * 0.8,
+                  layout: SwiperLayout.TINDER,
+                  itemHeight: 390,
+                  onIndexChanged: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    number = index;
+                    return GestureDetector(
+                      onTap: () => _onExerciseTap(index),
+                      child: planCard(
+                        exercises7[index]["name"]!,
+                        exercises7[index]["image"]!,
+                        exercises7[index]["definition"]!,
+                      ),
+                    );
+                  },
+                ),
+                smallGap,
+                Center(
               child: SmoothPageIndicator(
                 controller: PageController(initialPage: _currentIndex),
                 count: exercises7.length,
@@ -500,9 +503,10 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-
-            SizedBox(height: 20),
+              ],
+            ),
+            
+            
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
