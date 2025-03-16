@@ -351,6 +351,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text("Warning: Injury Detected!"),
           content: Text(
             "This exercise may affect your injury. Proceed with caution or choose another exercise.",
@@ -358,25 +359,32 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), // Close dialog
-              child: Text("Cancel"),
+              child: Text("Cancel",style: TextStyle(color: Colors.red),),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                if (Mode == "Arcade") {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => RestimeTutorial()),
-                  );
-                } else {
-                  _instructionShowDialog(
-                    instructionsList.firstWhere(
-                      (exercise) => exercise["image"] == ExerciseName,
-                    ),
-                  );
-                }
-              },
-              child: Text("Proceed Anyway"),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(16)
+              ),
+              
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  if (Mode == "Arcade") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => RestimeTutorial()),
+                    );
+                  } else {
+                    _instructionShowDialog(
+                      instructionsList.firstWhere(
+                        (exercise) => exercise["image"] == ExerciseName,
+                      ),
+                    );
+                  }
+                },
+                child: Text("Proceed Anyway",style: TextStyle(color: Colors.white),),
+              ),
             ),
           ],
         );
