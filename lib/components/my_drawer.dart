@@ -1,6 +1,7 @@
 import 'package:exercai_mobile/components/my_drawer.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
-import 'package:exercai_mobile/main.dart'; 
+import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/predictive_graph/predictive_graph_analysis.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -183,6 +184,28 @@ class MyDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/reminder');
+                  },
+                ),
+                _buildDrawerTile(
+                  icon: Icons.monitor_weight_outlined,
+                  title: "Weight Analysis",
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Get the current user's email from FirebaseAuth.
+                    final userEmail = FirebaseAuth.instance.currentUser?.email;
+                    if (userEmail != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PredictiveAnalysisPage(userEmail: userEmail),
+                        ),
+                      );
+                    } else {
+                      // Handle the case where the email is null.
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("No user email available.")),
+                      );
+                    }
                   },
                 ),
               ],
