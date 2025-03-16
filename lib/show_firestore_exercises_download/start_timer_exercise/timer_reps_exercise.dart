@@ -61,8 +61,11 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     });
   }
 
+  // Updated _createSteps(): add an initial rest period ("Get Ready") before the first set.
   List<Step> _createSteps() {
     List<Step> steps = [];
+    // Initial rest period before the first set
+    steps.add(Step(type: StepType.rest, duration: widget.restTime));
     for (int i = 0; i < widget.setValues.length; i++) {
       steps.add(Step(type: StepType.set, duration: widget.setValues[i]));
       steps.add(Step(type: StepType.rest, duration: widget.restTime));
@@ -332,7 +335,19 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
   @override
   Widget build(BuildContext context) {
     final currentStep = _steps[_currentStepIndex];
-    final setNumber = (_currentStepIndex ~/ 2) + 1;
+    // Check if we're in the initial rest period (i.e. "Get Ready")
+    bool isInitialRest = _currentStepIndex == 0 && currentStep.type == StepType.rest;
+
+    // Calculate set number only when not in the initial rest period.
+    int setNumber = 0;
+    if (!isInitialRest) {
+      if (currentStep.type == StepType.set) {
+        setNumber = ((_currentStepIndex - 1) ~/ 2) + 1;
+      } else {
+        setNumber = _currentStepIndex ~/ 2;
+      }
+    }
+
     final progress = currentStep.type == StepType.set && widget.isRepBased
         ? 0.0
         : 1 - (_secondsRemaining / currentStep.duration);
@@ -341,16 +356,17 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
       canPop: false,
       child: Scaffold(
         backgroundColor: Colors.white,
-        // Main timer content in a SafeArea & ScrollView
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Display exercise title and step details
+                // Display exercise title and step details.
                 Text(
-                  currentStep.type == StepType.set
+                  isInitialRest
+                      ? 'Get Ready'
+                      : currentStep.type == StepType.set
                       ? 'Set $setNumber of ${widget.setValues.length}'
                       : 'Rest $setNumber',
                   style: const TextStyle(
@@ -370,7 +386,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                // Circular progress indicator with GIF inside
+                // Circular progress indicator with GIF inside.
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -418,7 +434,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Control buttons row
+                // Control buttons row.
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
@@ -463,7 +479,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // If in rest period, display calorie info and (if rep-based) rep selector
+                // If in rest period (and not the initial "Get Ready"), display calorie info and, if rep-based, rep selector.
                 if (currentStep.type == StepType.rest && _currentStepIndex > 0)
                   Column(
                     children: [
@@ -549,7 +565,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
             ),
           ),
         ),
-        // AppBar mimicking the allExercises design with white background and custom title color
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 2,
@@ -574,7 +589,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Header with warning icon and title
                         Row(
                           children: [
                             const SizedBox(width: 10),
@@ -591,14 +605,12 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        // Message
                         const Text(
                           "Are you sure you want to exit?\nDon't worry, your recent progress will be saved.",
                           style: TextStyle(fontSize: 18, color: Colors.black87),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 30),
-                        // Action buttons
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [

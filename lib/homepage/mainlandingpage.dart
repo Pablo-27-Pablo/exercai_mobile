@@ -348,7 +348,7 @@ class _MainLandingPageState extends State<MainLandingPage> {
               shape: BoxShape.circle,
               color: AppColor.primary.withOpacity(0.05),
             ),
-            child: Icon(icon, color: AppColor.primary, size: 40),
+            child: Icon(icon, color: AppColor.backgroundgrey, size: 40),
           ),
           const SizedBox(height: 8),
           Text(
