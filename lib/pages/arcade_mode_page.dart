@@ -430,22 +430,19 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 40),
+        padding: EdgeInsets.only(right: 20, left: 20, top: 40, bottom: 70),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 30, bottom: 30),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainLandingPage()),
-                  );
-                },
-                icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
-              ),
+            IconButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainLandingPage()),
+                );
+              },
+              icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 10, bottom: 20),
