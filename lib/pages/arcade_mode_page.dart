@@ -8,6 +8,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:exercai_mobile/main.dart';
 import '../../utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 void main() {
   runApp(FitnessApp());
@@ -29,6 +30,7 @@ class ArcadeModePage extends StatefulWidget {
 }
 
 class _ArcadeModePageState extends State<ArcadeModePage> {
+  int _currentIndex = 0;
   final musicPlayer = MusicPlayerService();
   List<String> selectedInjuries = [];
   bool hasInjury = false;
@@ -48,6 +50,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
     print(selectedInjuries);
   }
 
+
   CheckInjurys() {
     for (var exerciseInjury in exercises) {
       if (exerciseInjury["name"] == ExerciseName) {
@@ -58,17 +61,21 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
         // print(selectedInjuries.toString());
         String bodypartString = selectedInjuries.join(", ");
         //print(bodypartString);
+        outerLoop:
         for (var injury in bodyparts) {
-          //print(injury);
-          if (injury == bodypartString) {
-            hasInjury = true;
-            print("have");
-            //print(injury.toString());
-            //print(selectedInjuries.toString());
-            break;
-          } else {
-            hasInjury = false;
+          for (var databaseInjury in selectedInjuries) {
+            if (injury == databaseInjury) {
+              print(injury + " == " + databaseInjury);
+              hasInjury = true;
+              print("have");
+              //print(injury.toString());
+              //print(selectedInjuries.toString());
+              break outerLoop;
+            } else {
+              hasInjury = false;
+            }
           }
+
           // print(selectedInjuries);
         }
         break;
@@ -295,7 +302,10 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
           title: Row(
             children: [
               Text("Exercise: "),
-              Text("${exercise["image"]}",style: TextStyle(color: AppColor.primary),),
+              Text(
+                "${exercise["image"]}",
+                style: TextStyle(color: AppColor.primary),
+              ),
             ],
           ),
           content: Column(
@@ -341,6 +351,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text("Warning: Injury Detected!"),
           content: Text(
             "This exercise may affect your injury. Proceed with caution or choose another exercise.",
@@ -348,25 +359,32 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), // Close dialog
-              child: Text("Cancel"),
+              child: Text("Cancel",style: TextStyle(color: Colors.red),),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                if (Mode == "Arcade") {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => RestimeTutorial()),
-                  );
-                } else {
-                  _instructionShowDialog(
-                    instructionsList.firstWhere(
-                      (exercise) => exercise["image"] == ExerciseName,
-                    ),
-                  );
-                }
-              },
-              child: Text("Proceed Anyway"),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(16)
+              ),
+              
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  if (Mode == "Arcade") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => RestimeTutorial()),
+                    );
+                  } else {
+                    _instructionShowDialog(
+                      instructionsList.firstWhere(
+                        (exercise) => exercise["image"] == ExerciseName,
+                      ),
+                    );
+                  }
+                },
+                child: Text("Proceed Anyway",style: TextStyle(color: Colors.white),),
+              ),
             ),
           ],
         );
@@ -383,6 +401,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            
             Padding(
               padding: const EdgeInsets.only(top: 30, bottom: 30),
               child: IconButton(
@@ -420,6 +439,11 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                 itemWidth: MediaQuery.of(context).size.width * 0.8,
                 layout: SwiperLayout.TINDER,
                 itemHeight: 390,
+                onIndexChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
                 itemBuilder: (context, index) {
                   number = index;
                   return GestureDetector(
@@ -433,6 +457,20 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                 },
               ),
             ),
+            Center(
+              child: SmoothPageIndicator(
+                controller: PageController(initialPage: _currentIndex),
+                count: exercises7.length,
+                effect: WormEffect(
+                  dotWidth: 10,
+                  dotHeight: 10,
+                  activeDotColor: AppColor.primary,
+                  dotColor: Colors.grey.withOpacity(0.5),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
             SizedBox(height: 20),
             SizedBox(
               width: double.infinity,

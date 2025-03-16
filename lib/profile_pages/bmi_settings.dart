@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 import 'dart:ui';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BMIEditProfilePage extends StatefulWidget {
   const BMIEditProfilePage({super.key});
@@ -224,6 +225,19 @@ class WeightChart extends StatelessWidget {
 }
 
 class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
+  List<String> selectedInjuries = [];
+    Future<void> _saveSelectedInjuries(downloaddb) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('selectedInjuries', downloaddb);
+  }
+
+  Future<void> _loadSelectedInjuries() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
+      print(selectedInjuries);
+    });
+  }
   late Map<String, dynamic> userData = {};
   double? bmi;
   String bmiCategory = '';
@@ -621,10 +635,12 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
               TextButton(
                 onPressed: () {
                   String injuryValue = tempSelected.join(', ');
-                  if (tempSelected.contains('none of them')) {
-                    injuryValue = 'none of them';
-                  }
-                  _updateField('injuryArea', injuryValue);
+                      if (tempSelected.contains('none of them'))
+                        injuryValue = 'none of them';
+                      _updateField('injuryArea', injuryValue);
+                      _saveSelectedInjuries(tempSelected.toList());
+                      print(injuryValue);
+                      _loadSelectedInjuries();
                   Navigator.pop(context);
                 },
                 child: const Text('Save'),
