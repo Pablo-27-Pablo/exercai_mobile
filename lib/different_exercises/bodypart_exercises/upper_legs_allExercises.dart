@@ -307,11 +307,11 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColor.backgroundgrey,
+        backgroundColor: AppColor.backgroundWhite,
         appBar: AppBar(
-          backgroundColor: AppColor.backgroundgrey,
+          backgroundColor: AppColor.backgroundWhite,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
             onPressed: () => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -322,7 +322,7 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
             style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: Colors.white),
+                color: AppColor.supersolidPrimary),
           ),
         ),
         body: isLoading
@@ -364,7 +364,7 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
             return exercises.isEmpty
                 ? Center(
                 child: Text("No Upper Legs exercises found. Tap reload if needed.",
-                    style: TextStyle(color: Colors.white)))
+                    style: TextStyle(color: Colors.black87)))
                 : ListView(
               children: groupExercisesByBodyPart(exercises)
                   .entries
@@ -372,18 +372,6 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 16),
-                      child: Text(
-                        'UPPER LEGS EXERCISES',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                     Column(
                       children: exercises.map((exercise) {
                         final isCompleted =
@@ -410,7 +398,7 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
                             : "N/A";
 
                         return Card(
-                          color: AppColor.primary,
+                          color: AppColor.backgroundWhite,
                           margin: EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           elevation: 3,
@@ -439,7 +427,7 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                                  color: AppColor.supersolidPrimary),
                             ),
                             subtitle: Text.rich(
                               TextSpan(
@@ -449,14 +437,14 @@ class _UpperLegsAllexercisesState extends State<UpperLegsAllexercises>
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                   TextSpan(
                                     text:
                                     "Reps/Time: ${getRepsTimeDisplay(exercise)}\nBurn Calories: $burnCaloriesDisplay\n",
                                     style: TextStyle(
-                                      color: AppColor.backgroundgrey,
+                                      color: Colors.grey.shade500,
                                     ),
                                   ),
                                 ],

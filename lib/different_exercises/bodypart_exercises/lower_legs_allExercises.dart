@@ -306,11 +306,11 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColor.backgroundgrey,
+        backgroundColor: AppColor.backgroundWhite,
         appBar: AppBar(
-          backgroundColor: AppColor.backgroundgrey,
+          backgroundColor: AppColor.backgroundWhite,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
             onPressed: () => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -321,7 +321,7 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
             style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: Colors.white),
+                color: AppColor.supersolidPrimary),
           ),
         ),
         body: isLoading
@@ -332,7 +332,7 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
               Text(
                 'Loading Your Exercise\nPlease wait a moment...',
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black87,
                     fontWeight: FontWeight.bold,
                     fontSize: 18),
                 textAlign: TextAlign.center,
@@ -363,7 +363,7 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
             return exercises.isEmpty
                 ? Center(
                 child: Text("No Lower Legs exercises found. Tap reload if needed.",
-                    style: TextStyle(color: Colors.white)))
+                    style: TextStyle(color: Colors.black87)))
                 : ListView(
               children: groupExercisesByBodyPart(exercises)
                   .entries
@@ -371,18 +371,6 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 16),
-                      child: Text(
-                        'LOWER LEGS EXERCISES',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                     Column(
                       children: exercises.map((exercise) {
                         final isCompleted =
@@ -409,7 +397,7 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
                             : "N/A";
 
                         return Card(
-                          color: AppColor.primary,
+                          color: AppColor.backgroundWhite,
                           margin: EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           elevation: 3,
@@ -438,7 +426,7 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                                  color: AppColor.supersolidPrimary),
                             ),
                             subtitle: Text.rich(
                               TextSpan(
@@ -448,14 +436,14 @@ class _LowerLegsAllexercisesState extends State<LowerLegsAllexercises>
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                   TextSpan(
                                     text:
                                     "Reps/Time: ${getRepsTimeDisplay(exercise)}\nBurn Calories: $burnCaloriesDisplay\n",
                                     style: TextStyle(
-                                      color: AppColor.backgroundgrey,
+                                      color: Colors.grey.shade500,
                                     ),
                                   ),
                                 ],
