@@ -45,6 +45,7 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     _steps = _createSteps();
     _secondsRemaining = _steps[_currentStepIndex].duration;
     _currentCount = 0;
+    // Initialize with one value per actual set (excluding the initial rest)
     _baseRepsConcat = List.filled(widget.setValues.length, 0);
 
     _loadTotalExerciseTime().then((_) {
@@ -54,9 +55,11 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     });
   }
 
-  // Create steps: one set and one rest for each value in setValues.
+  // Create steps: add an initial rest period ("Get Ready") then alternating set and rest.
   List<Step> _createSteps() {
     List<Step> steps = [];
+    // Initial rest period before the first set
+    steps.add(Step(type: StepType.rest, duration: widget.restTime));
     for (int i = 0; i < widget.setValues.length; i++) {
       steps.add(Step(type: StepType.set, duration: widget.setValues[i]));
       steps.add(Step(type: StepType.rest, duration: widget.restTime));
@@ -154,7 +157,7 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     DocumentSnapshot doc = await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.email)
-        .collection('AllExercisesTime') // Updated Collection
+        .collection('AllExercisesTime')
         .doc(_getDocKey())
         .get();
 
@@ -170,13 +173,11 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    // Compute burned calories regardless of exercise type
     double burnedCalories = 0.0;
     if (widget.isRepBased) {
       burnedCalories =
           _totalBurnCalRep.fold(0.0, (sum, cal) => sum + (cal as double));
     } else {
-      // For time-based exercise, get only the TotalCalBurnSec from the UserExercises document
       DocumentReference exerciseRef = FirebaseFirestore.instance
           .collection('Users')
           .doc(user.email)
@@ -188,7 +189,6 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
           : 0.0;
     }
 
-    // Save the current total exercise time.
     await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.email)
@@ -202,7 +202,6 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
       'lastUpdated': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 
-    // For time-based exercises (when not rep-based), update TotalCalBurnSec realtime.
     if (!widget.isRepBased) {
       double burnCalPerSec = widget.exercise['burnCalperSec']?.toDouble() ?? 0.0;
       double totalCalBurnSec = _totalExerciseTime * burnCalPerSec;
@@ -341,8 +340,20 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
   @override
   Widget build(BuildContext context) {
     final currentStep = _steps[_currentStepIndex];
-    final setNumber = (_currentStepIndex ~/ 2) + 1;
-    final isRestAfterSet = currentStep.type == StepType.rest && _currentStepIndex > 0;
+
+    // Check if the current step is the initial rest period ("Get Ready")
+    bool isInitialRest = _currentStepIndex == 0 && currentStep.type == StepType.rest;
+
+    // Calculate set number while accounting for the initial rest period
+    int setNumber = 0;
+    if (!isInitialRest) {
+      if (currentStep.type == StepType.set) {
+        setNumber = ((_currentStepIndex - 1) ~/ 2) + 1;
+      } else {
+        setNumber = _currentStepIndex ~/ 2;
+      }
+    }
+
     final progress = currentStep.type == StepType.set && widget.isRepBased
         ? 0.0
         : 1 - (_secondsRemaining / currentStep.duration);
@@ -359,7 +370,9 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
               children: [
                 // Exercise title and step details
                 Text(
-                  currentStep.type == StepType.set
+                  isInitialRest
+                      ? 'Get Ready'
+                      : currentStep.type == StepType.set
                       ? 'Set $setNumber of ${widget.setValues.length}'
                       : 'Rest $setNumber',
                   style: const TextStyle(
@@ -474,8 +487,8 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // For rest periods after a set, display calorie info and input if rep-based
-                if (currentStep.type == StepType.rest && _currentStepIndex > 0)
+                // For rest periods after a set, display calorie info and rep input if rep-based.
+                if (currentStep.type == StepType.rest && !isInitialRest)
                   Column(
                     children: [
                       Text(
@@ -654,9 +667,7 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
               }
             },
           ),
-
         ),
-
       ),
     );
   }

@@ -55,7 +55,7 @@ dependencies:
   firebase_auth: ^5.4.1
   cloud_firestore: ^5.6.2
   firebase_database: ^11.3.1
-  intl: ^0.18.1
+  intl: ^0.18.0
   flutter_spinkit: ^5.2.0
   shared_preferences: ^2.5.1
   percent_indicator: ^4.0.1

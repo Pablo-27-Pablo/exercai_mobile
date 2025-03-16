@@ -23,6 +23,7 @@ import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
 import 'package:exercai_mobile/pages/backup/BackupTrypage.dart';
 import 'package:exercai_mobile/pages/home.dart';
+import 'package:exercai_mobile/predictive_graph/predictive_graph_analysis.dart';
 import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page.dart';
 import 'package:exercai_mobile/homepage/starter_page.dart';

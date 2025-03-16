@@ -97,7 +97,7 @@ class _WorkoutCompleteAllexercisesState extends State<WorkoutCompleteAllexercise
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
