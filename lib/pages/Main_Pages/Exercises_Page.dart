@@ -31,6 +31,7 @@ class Trypage extends StatefulWidget {
 }
 
 class _TrypageState extends State<Trypage> {
+  String bodypartString = "";
   FlutterTts _flutterTts = FlutterTts();
   List<String> selectedInjuries = [];
   bool hasInjury = false;
@@ -170,6 +171,7 @@ class _TrypageState extends State<Trypage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Row(
             children: [
               Text("Exercise: "),
@@ -186,12 +188,12 @@ class _TrypageState extends State<Trypage> {
               for (int i = 0; i < exercise["steps"].length; i++) ...[
                 Text(
                   "Step ${i + 1}: ${exercise["steps"][i]}",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Text(exercise["instructions"][i]),
-                SizedBox(height: 8), // Spacing between steps
+                SizedBox(height: 18), // Spacing between steps
               ],
-              Divider(), // Separator
+              // Separator
             ],
           ),
           actions: [
@@ -199,15 +201,23 @@ class _TrypageState extends State<Trypage> {
               onPressed: () => Navigator.pop(context), // Close dialog
               child: Text("Cancel"),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => AgeSelectorScreen()),
-                );
-              },
-              child: Text("Continue"),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AgeSelectorScreen(),
+                    ),
+                  );
+                },
+                child: Text("Continue", style: TextStyle(color: Colors.white)),
+              ),
             ),
           ],
         );
@@ -220,6 +230,7 @@ class _TrypageState extends State<Trypage> {
     setState(() {
       selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
     });
+    bodypartString = selectedInjuries.join(", ");
   }
 
   final List<Map<String, String>> exercises0 = [
@@ -253,33 +264,46 @@ class _TrypageState extends State<Trypage> {
       "image": "mountainclimbers.gif",
       "PrimaryName": "Mountain Climbers",
     },
-    {"name": "highknees", "image": "highknee.gif", "PrimaryName": "High-Knees"},
+    {"name": "highknee", "image": "highknee.gif", "PrimaryName": "High-Knees"},
   ];
-
   void _showInjuryDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Warning: Injury Detected!"),
-          content: Text(
-            "This exercise may affect your injury. Proceed with caution or choose another exercise.",
+          backgroundColor: Colors.white,
+          title: Text("Injury Detected!"),
+          content: Container(
+            child: Text(
+              "This exercise may affect your injury (e.g., ${bodypartString}). Proceed with caution or choose another exercise.",
+              style: TextStyle(fontSize: 15),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), // Close dialog
-              child: Text("Cancel"),
+              child: Text("Cancel", style: TextStyle(color: AppColor.primary)),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                _instructionShowDialog(
-                  instructionsList.firstWhere(
-                    (exercise) => exercise["image"] == ExerciseName,
-                  ),
-                );
-              },
-              child: Text("Proceed Anyway"),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  _instructionShowDialog(
+                    instructionsList.firstWhere(
+                      (exercise) => exercise["image"] == ExerciseName,
+                    ),
+                  );
+                },
+                child: Text(
+                  "Proceed anyway",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ],
         );
@@ -295,20 +319,23 @@ class _TrypageState extends State<Trypage> {
         List<String> bodyparts = exerciseInjury["bodyparts"]?.split(", ") ?? [];
         // print(bodyparts);
         // print(selectedInjuries.toString());
-        String bodypartString = selectedInjuries.join(", ");
+        bodypartString = selectedInjuries.join(", ");
         print(bodypartString);
+        outerLoop:
         for (var injury in bodyparts) {
-          print(injury);
-          if (injury == bodypartString) {
-            hasInjury = true;
-            print("have");
-            //print(injury.toString());
-            //print(selectedInjuries.toString());
-            break;
-          } else {
-            hasInjury = false;
-            print("sssss");
+          for (var databaseInjury in selectedInjuries) {
+            if (injury == databaseInjury) {
+              print(injury + " == " + databaseInjury);
+              hasInjury = true;
+              print("have");
+              //print(injury.toString());
+              //print(selectedInjuries.toString());
+              break outerLoop;
+            } else {
+              hasInjury = false;
+            }
           }
+
           // print(selectedInjuries);
         }
         break;
