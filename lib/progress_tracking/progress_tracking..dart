@@ -83,7 +83,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       for (var doc in exercisesSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         double finalTotalBurnCalRep =
-        (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
+            (data['FinalTotalBurnCalRep'] ?? 0).toDouble();
         double totalCalBurnSec = (data['TotalCalBurnSec'] ?? 0).toDouble();
 
         totalCaloriesBurned += (finalTotalBurnCalRep + totalCalBurnSec);
@@ -103,7 +103,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
             data['TotalCaloriesBurned'] is List) {
           totalCaloriesBurnedArray = List<double>.from(
             (data['TotalCaloriesBurned'] as List).map(
-                  (e) => (e is num ? e.toDouble() : 0),
+              (e) => (e is num ? e.toDouble() : 0),
             ),
           );
         }
@@ -119,7 +119,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       double change = 0;
       if (totalCaloriesBurnedArray.length > 1) {
         double previousValue =
-        totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
+            totalCaloriesBurnedArray[totalCaloriesBurnedArray.length - 2];
         double newValue = totalCaloriesBurnedArray.last;
 
         if (newValue >= previousValue ||
@@ -164,9 +164,12 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
       DocumentSnapshot metadataSnapshot = await userMetadataRef.get(
         const GetOptions(source: Source.server),
       );
-      List<dynamic> currentDays = metadataSnapshot.exists
-          ? (metadataSnapshot.data() as Map<String, dynamic>)['currentDay'] ?? []
-          : [];
+      List<dynamic> currentDays =
+          metadataSnapshot.exists
+              ? (metadataSnapshot.data()
+                      as Map<String, dynamic>)['currentDay'] ??
+                  []
+              : [];
 
       print('Current Days: $currentDays'); // Debug current days
 
@@ -207,8 +210,8 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
   }
 
   Future<int> _calculateTotalExerciseTime(
-      List<QueryDocumentSnapshot> exerciseDocs,
-      ) async {
+    List<QueryDocumentSnapshot> exerciseDocs,
+  ) async {
     int totalExerciseTime = 0;
 
     for (var exerciseDoc in exerciseDocs) {
@@ -253,16 +256,19 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87)),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
                     SizedBox(height: 8),
                     content,
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -275,13 +281,19 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(
-                color: AppColor.backgroundgrey,
-                fontWeight: FontWeight.bold,
-                fontSize: 14)),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColor.backgroundWhite,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
         SizedBox(height: 4),
-        Text(value, style: TextStyle(color: AppColor.supersolidPrimary, fontSize: 14)),
+        Text(
+          value,
+          style: TextStyle(color: AppColor.backgroundgrey, fontSize: 14),
+        ),
       ],
     );
   }
@@ -291,16 +303,19 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     return Scaffold(
       backgroundColor: Colors.white, // White background for a clean look
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColor.primary,
         elevation: 0,
         centerTitle: true,
         leading: BackButton(
-          color: AppColor.primary, // Use primary color for back button
+          color: AppColor.backgroundWhite, // Use primary color for back button
         ),
         title: const Text(
           'Progress Tracking',
           style: TextStyle(
-              color: AppColor.primary, fontSize: 25, fontWeight: FontWeight.bold),
+            color: AppColor.backgroundWhite,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -312,8 +327,11 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
 
           if (snapshot.hasError) {
             return Center(
-                child: Text("Error: ${snapshot.error}",
-                    style: TextStyle(color: Colors.red)));
+              child: Text(
+                "Error: ${snapshot.error}",
+                style: TextStyle(color: Colors.red),
+              ),
+            );
           }
 
           if (snapshot.hasData) {
@@ -324,62 +342,78 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
+                  //SizedBox(height: 20),
                   // User Profile Card
-                  Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    elevation: 4,
-                    margin: EdgeInsets.symmetric(horizontal: 16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      '${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}',
-                                      style: TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(width: 8),
-                                    user?['gender'] == 'Male'
-                                        ? Icon(Icons.male,
-                                        color: Colors.blue, size: 20)
-                                        : Icon(Icons.female,
-                                        color: Colors.pink, size: 20),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _buildProfileInfo(
-                                        "Age",
-                                        user?['dateOfBirth'] != null
-                                            ? computeAge(user!['dateOfBirth'])
-                                            : 'N/A'),
-                                    SizedBox(width: 16),
-                                    _buildProfileInfo("Weight",
-                                        '${user?['weight'] ?? 'N/A'} Kg'),
-                                    SizedBox(width: 16),
-                                    _buildProfileInfo("Height",
-                                        '${user?['height'] ?? 'N/A'} CM'),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColor.primary,
+                      
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
                       ),
+                      
+                    ),
+                    //margin: EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    '${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}',
+                                    style: TextStyle(
+                                      color: AppColor.backgroundWhite,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  user?['gender'] == 'Male'
+                                      ? Icon(
+                                        Icons.male,
+                                        color: Colors.blue,
+                                        size: 20,
+                                      )
+                                      : Icon(
+                                        Icons.female,
+                                        color: Colors.pink,
+                                        size: 20,
+                                      ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildProfileInfo(
+                                    "Age",
+                                    user?['dateOfBirth'] != null
+                                        ? computeAge(user!['dateOfBirth'])
+                                        : 'N/A',
+                                  ),
+                                  SizedBox(width: 16),
+                                  _buildProfileInfo(
+                                    "Weight",
+                                    '${user?['weight'] ?? 'N/A'} Kg',
+                                  ),
+                                  SizedBox(width: 16),
+                                  _buildProfileInfo(
+                                    "Height",
+                                    '${user?['height'] ?? 'N/A'} CM',
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 20),
@@ -392,11 +426,15 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         Text(
                           'Workout Log',
                           style: TextStyle(
-                              color: AppColor.backgroundgrey,
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold),
+                            color: AppColor.backgroundgrey,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        Text('( Click card for more information. )',style: TextStyle(color: Colors.grey.shade500),)
+                        Text(
+                          '( Click card for more information. )',
+                          style: TextStyle(color: Colors.grey.shade500),
+                        ),
                       ],
                     ),
                   ),
@@ -404,17 +442,21 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                   // Total Calories Burn Card
                   _buildInfoCard(
                     title: 'Recommended Exercise Calories Burn',
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => InfoCardExerecommend())),
+                    onTap:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => InfoCardExerecommend(),
+                          ),
+                        ),
                     content: StreamBuilder<DocumentSnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('Users')
-                          .doc(currentUser!.email)
-                          .collection('TotalCaloriesExercises')
-                          .doc('TotalCaloriesBurnofUser')
-                          .snapshots(),
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('Users')
+                              .doc(currentUser!.email)
+                              .collection('TotalCaloriesExercises')
+                              .doc('TotalCaloriesBurnofUser')
+                              .snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return Text(
@@ -427,8 +469,8 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                           return CircularProgressIndicator();
                         }
 
-                        final data = snapshot.data?.data()
-                        as Map<String, dynamic>?;
+                        final data =
+                            snapshot.data?.data() as Map<String, dynamic>?;
 
                         List<double> totalCaloriesBurnedArray = [];
                         if (data != null &&
@@ -436,14 +478,13 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             data['TotalCaloriesBurned'] is List) {
                           totalCaloriesBurnedArray = List<double>.from(
                             (data['TotalCaloriesBurned'] as List).map(
-                                  (e) => (e is num ? e.toDouble() : 0),
+                              (e) => (e is num ? e.toDouble() : 0),
                             ),
                           );
                         }
 
                         double finalTotalCalories =
-                        (data?['FinalTotalCaloriesBurned'] ?? 0)
-                            .toDouble();
+                            (data?['FinalTotalCaloriesBurned'] ?? 0).toDouble();
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,12 +492,16 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             Text(
                               'Total Burned Calories: ${finalTotalCalories.toStringAsFixed(2)} Kcal',
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 16),
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
                             ),
                             Text(
                               'Burned Calories Today: ${totalCaloriesBurnedArray.isNotEmpty ? totalCaloriesBurnedArray.last.toStringAsFixed(2) : "0"} Kcal',
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 16),
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         );
@@ -472,20 +517,26 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                       children: [
                         Text(
                           '100 days exercise calories burn: ${(peopleBox.get("daychallenge", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                          style:
-                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           'Arcade calories burn: ${(peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                          style:
-                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                          style:
-                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
                         ),
                       ],
                     ),
@@ -494,20 +545,26 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                   // Different Exercises Burn Calories Card
                   _buildInfoCard(
                     title: 'Different Exercises Burn Calories',
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DiffExeCard())),
+                    onTap:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DiffExeCard(),
+                          ),
+                        ),
                     content: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('Users')
-                          .doc(currentUser!.email)
-                          .collection('AllExercises')
-                          .snapshots(),
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('Users')
+                              .doc(currentUser!.email)
+                              .collection('AllExercises')
+                              .snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}',
-                              style: TextStyle(color: Colors.black87));
+                          return Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(color: Colors.black87),
+                          );
                         }
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -519,9 +576,11 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
 
                         for (var doc in snapshot.data!.docs) {
                           final data = doc.data() as Map<String, dynamic>;
-                          final bool isRepBased = data['baseSetsReps'] != null &&
+                          final bool isRepBased =
+                              data['baseSetsReps'] != null &&
                               data['baseReps'] != null;
-                          final bool isTimeBased = data['baseSetsSecs'] != null ||
+                          final bool isTimeBased =
+                              data['baseSetsSecs'] != null ||
                               data['baseSecs'] != null;
 
                           if (isRepBased) {
@@ -539,17 +598,23 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                             Text(
                               'Repetition Based Exercise: ${totalRepCalories.toStringAsFixed(2)} Kcal',
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 16),
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
                             ),
                             Text(
                               'Time Based Exercise: ${totalTimeCalories.toStringAsFixed(2)} Kcal',
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 16),
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
                             ),
                             Text(
                               'Total: ${(totalRepCalories + totalTimeCalories).toStringAsFixed(2)} Kcal',
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 16),
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         );

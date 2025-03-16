@@ -739,15 +739,24 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColor.primary,
         elevation: 1,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: const IconThemeData(color: AppColor.primary),
         title: const Text(
           'BMI and Other Settings',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColor.backgroundWhite,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        leading: const BackButton(color: Colors.black87),
+        // leading: BackButton(color: AppColor.backgroundWhite),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios, color: AppColor.backgroundWhite),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
