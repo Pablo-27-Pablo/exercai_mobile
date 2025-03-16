@@ -117,6 +117,9 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
           style:
           TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
+        leading: IconButton(onPressed: (){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
+        }, icon: Icon(Icons.arrow_back)),
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: getUserDetails(),

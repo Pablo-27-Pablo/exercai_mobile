@@ -1,4 +1,5 @@
 import 'package:exercai_mobile/auth/login_or_register.dart';
+import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
 import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page_proffile.dart';
@@ -114,6 +115,9 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(
               color: Colors.black87, fontWeight: FontWeight.bold),
         ),
+        leading: IconButton(onPressed: (){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MainLandingPage()));
+        }, icon: Icon(Icons.arrow_back)),
         elevation: 0,
         backgroundColor: AppColor.backgroundWhite,
         flexibleSpace: Container(

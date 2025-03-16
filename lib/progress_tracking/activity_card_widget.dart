@@ -22,12 +22,16 @@ class ActivityCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColor.textwhite.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
+        gradient: LinearGradient(
+          colors: [AppColor.buttonPrimary, AppColor.primary.withOpacity(0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Row(
         children: [
-          Icon(Icons.directions_run, color: AppColor.primary, size: 30),
+          Icon(Icons.directions_run, color: AppColor.supersolidPrimary, size: 30),
           SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,11 +44,11 @@ class ActivityCard extends StatelessWidget {
                     ? '${word[0].toUpperCase()}${word.substring(1)}'
                     : '')
                     .join(' '),
-                style: TextStyle(color: AppColor.textwhite, fontSize: 16),
+                style: TextStyle(color: AppColor.backgroundWhite, fontSize: 16,fontWeight: FontWeight.bold),
               ),
               Text(
                 '$timeanddate',
-                style: TextStyle(color: AppColor.yellowtext, fontSize: 14),
+                style: TextStyle(color: AppColor.backgroundWhite, fontSize: 14),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +56,7 @@ class ActivityCard extends StatelessWidget {
                   Text(
                     'Duration: $duration',
                     style: TextStyle(
-                      color: AppColor.yellowtext,
+                      color: AppColor.backgroundWhite,
                       fontSize: 14,
                     ),
                   ),
@@ -66,7 +70,7 @@ class ActivityCard extends StatelessWidget {
                   Text(
                     'Calories: ${burnCalories.toStringAsFixed(2)} kcal',
                     style: TextStyle(
-                      color: AppColor.yellowtext,
+                      color: AppColor.backgroundWhite,
                       fontSize: 14,
                     ),
                   ),
