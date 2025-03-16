@@ -365,6 +365,23 @@ class _TrypageState extends State<Trypage> {
     // TODO: implement initState
     super.initState();
     _loadSelectedInjuries();
+    _loadUserWeight();
+  }
+
+  void _loadUserWeight() async {
+    double weight2 = await getUserWeight();
+    setState(() {
+      weight = weight2;
+    });
+    print(weight);
+  }
+
+  Future<double> getUserWeight() async {
+    final prefs = await SharedPreferences.getInstance();
+    String savedWeightStr = prefs.getString('weight') ?? "";
+    return savedWeightStr.isNotEmpty
+        ? double.tryParse(savedWeightStr) ?? 70.0
+        : 70.0;
   }
 
   void _startExercise(
@@ -474,9 +491,11 @@ class _TrypageState extends State<Trypage> {
                           exercise["PrimaryName"]!,
                         ),
                     child: Card(
+                      
                       color: Colors.white,
                       elevation: 3,
                       shape: RoundedRectangleBorder(
+                            side: BorderSide(color: AppColor.primary, width: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Column(

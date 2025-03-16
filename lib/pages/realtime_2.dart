@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
         print("Exercise found: ${exercises2[i]}");
         double formula =
             (((exercises2[i]["MET"] as num).toDouble() *
-                    85 *
+                    weight *
                     raise.toDouble()) /
                 1000);
         totalCaloriesBurn = totalCaloriesBurn + formula;

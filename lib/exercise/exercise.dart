@@ -22,7 +22,7 @@ Formula() {
     if (exercises2[i]["name"] == ExerciseName) {
       print("Exercise found: ${exercises2[i]}");
       double formula =
-          (((exercises2[i]["MET"] as num).toDouble() * 85 * raise.toDouble()) /
+          (((exercises2[i]["MET"] as num).toDouble() * weight * raise.toDouble()) /
               1000);
       totalCaloriesBurn = totalCaloriesBurn + formula;
       totalCaloriesBurnDatabase =

@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:async';
 
-
-
-
 //global variable
 bool staticIsUp = false;
 bool staticIsDown = false;
@@ -14,6 +11,7 @@ String warningIndicatorTextExercise = "";
 int raise = 0;
 int seconds = 60;
 int seconds2 = 30;
+double weight = 80.0;
 Timer? timer;
 String ExerciseName = "";
 String PrimaryExerciseName = "";
@@ -34,23 +32,16 @@ int repsWants = 0;
 
 //small Gap
 
-const smallGap = SizedBox(
-  height: 15,
-);
+const smallGap = SizedBox(height: 15);
 
 //large Gap
-const largeGap = SizedBox(
-  height: 30,
-);
+const largeGap = SizedBox(height: 30);
 
 extension ShowSnackBar on BuildContext {
   void showErrorMessage(String message) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: TextStyle(color: Colors.redAccent),
-        ),
+        content: Text(message, style: TextStyle(color: Colors.redAccent)),
         backgroundColor: Colors.grey,
       ),
     );
@@ -73,17 +64,49 @@ extension ShowSnackBar on BuildContext {
 //exercises
 
 final List<Map<String, String>> exercises = [
-  {"name": "squat", "image": "squat.gif", "bodyparts": "upper legs, lower legs, waist"},
-  {"name": "jumpingjacks", "image": "jumpingjacks.gif", "bodyparts": "upper legs, lower legs, shoulders"},
+  {
+    "name": "squat",
+    "image": "squat.gif",
+    "bodyparts": "upper legs, lower legs, waist",
+  },
+  {
+    "name": "jumpingjacks",
+    "image": "jumpingjacks.gif",
+    "bodyparts": "upper legs, lower legs, shoulders",
+  },
   {"name": "legraises", "image": "legraises.gif", "bodyparts": "waist"},
   {"name": "situp", "image": "situp.gif", "bodyparts": "waist"},
-  {"name": "mountainclimbers", "image": "mountainclimbers.gif", "bodyparts": "upper legs, lower legs, waist, shoulders"},
-  {"name": "highknee", "image": "highknee.gif", "bodyparts": "upper legs, lower legs, waist"},
-  {"name": "lunges", "image": "lunges.gif", "bodyparts": "upper legs, lower legs, waist"},
+  {
+    "name": "mountainclimbers",
+    "image": "mountainclimbers.gif",
+    "bodyparts": "upper legs, lower legs, waist, shoulders",
+  },
+  {
+    "name": "highknee",
+    "image": "highknee.gif",
+    "bodyparts": "upper legs, lower legs, waist",
+  },
+  {
+    "name": "lunges",
+    "image": "lunges.gif",
+    "bodyparts": "upper legs, lower legs, waist",
+  },
   {"name": "plank", "image": "plank.jpg", "bodyparts": "waist, shoulders"},
-  {"name": "rightplank", "image": "sideplank.gif", "bodyparts": "waist, shoulders"},
-  {"name": "leftplank", "image": "sideplank.gif", "bodyparts": "waist, shoulders"},
-  {"name": "pushup", "image": "pushup.gif", "bodyparts": "chest, shoulders, upper arms"},
+  {
+    "name": "rightplank",
+    "image": "sideplank.gif",
+    "bodyparts": "waist, shoulders",
+  },
+  {
+    "name": "leftplank",
+    "image": "sideplank.gif",
+    "bodyparts": "waist, shoulders",
+  },
+  {
+    "name": "pushup",
+    "image": "pushup.gif",
+    "bodyparts": "chest, shoulders, upper arms",
+  },
 ];
 
 final List<Map<String, dynamic>> exercises2 = [
@@ -100,9 +123,6 @@ final List<Map<String, dynamic>> exercises2 = [
   {"name": "mountainclimbers", "MET": 8},
 ];
 
-
-
-
 class Utils extends StatefulWidget {
   const Utils({super.key});
 
@@ -116,9 +136,3 @@ class _UtilsState extends State<Utils> {
     return Scaffold();
   }
 }
-
-
-
-
-
-
