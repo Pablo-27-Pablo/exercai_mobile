@@ -10,9 +10,7 @@ import '../login_register_pages/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
-
-
-
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -20,12 +18,11 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
-  //current login user
+  // Current logged in user
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
-  //future to fetch users details
-  Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails()async{
+  // Future to fetch user's details
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
     return await FirebaseFirestore.instance
         .collection("Users")
         .doc(currentUser!.email)
@@ -42,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-          (route) => false, // Removes all previous routes
+          (route) => false,
     );
   }
 
@@ -51,21 +48,35 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Logout"),
-          content: Text("Are you sure you want to log out?"),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            "Confirm Logout",
+            style: GoogleFonts.poppins(color: Colors.black87, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            "Are you sure you want to log out?",
+            style: GoogleFonts.poppins(color: Colors.black54),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text("Cancel"),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.poppins(color: Colors.blue),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                logout(context); // Call the logout function
+                logout(context);
               },
-              child: Text("Logout", style: TextStyle(color: Colors.red)),
+              child: Text(
+                "Logout",
+                style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -73,11 +84,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-
-
   String computeAge(Timestamp? dob) {
-    if (dob == null) return "N/A"; // Handle missing DOB
-
+    if (dob == null) return "N/A";
     DateTime birthDate = dob.toDate();
     DateTime today = DateTime.now();
 
@@ -95,206 +103,242 @@ class _ProfilePageState extends State<ProfilePage> {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Crisp white background
       appBar: AppBar(
-
-        title: Text('My Profile',
-            style: TextStyle(
-                color: AppColor.textwhite, fontWeight: FontWeight.bold)),
-        backgroundColor: AppColor.primary,
+        centerTitle: true,
+        title: Text(
+          'My Profile',
+          style: TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
+        backgroundColor: AppColor.backgroundWhite,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColor.backgroundWhite, AppColor.superlightPrimary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: getUserDetails(),
         builder: (context, snapshot) {
-          // Loading
+          // Loading state
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-
-          // Error
+          // Error state
           else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           }
-
           // Data received
           else if (snapshot.hasData) {
-            // Extract user data
             Map<String, dynamic>? user = snapshot.data!.data();
 
-            return Column(
-              children: [
-                // Profile header section
-                Container(
-                  color: AppColor.primary,
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Column(
-                    children: [
-                      /*CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage(
-                            'assets/MikoProfile.jpg'), // Use a default image or user's image if available
-                      ),*/
-                      SizedBox(height: 10),
-
-                      // Display User's Name from Firebase
-                      Text(
-                        "${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}",
-                        style: TextStyle(
-                          fontSize: 40,
-                          color: AppColor.textwhite,
-                          fontWeight: FontWeight.bold,
-                        ),
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Header with gradient and inline avatar/details
+                  Container(
+                    height: 140,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColor.superlightPrimary, AppColor.primary],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-
-
-                      SizedBox(height: 5),
-
-                      // Display User's Email from Firebase
-                      Text(
-                        user?['email'] ?? 'No Email Provided',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: AppColor.textwhite.withOpacity(0.7),
-                        ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
                       ),
-                      SizedBox(height: 15),
-
-                      Container(
-                        margin: EdgeInsets.only(left: 60, right: 60),
-                        padding: EdgeInsets.only(top: 15, bottom: 15),
-                        decoration: BoxDecoration(
-                            color: AppColor.shadow.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
                         child: Row(
                           children: [
-                            Expanded(child: _infoCard(user?['weight'] ?? 'No Weight Provided', 'Weight (kg)')),
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.white,
+                              child: Text(
+                                // User's initials
+                                "${_capitalize(user?['firstname']?[0] ?? 'U')}${_capitalize(user?['lastname']?[0] ?? 'U')}",
+                                style: TextStyle(
+                                    fontSize: 30,
+
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(width: 20),
                             Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
+                                Text(
+                                  "${_capitalize(user?['firstname'] ?? 'Unknown')} ${_capitalize(user?['lastname'] ?? 'User')}",
+                                  style: TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 6),
+                                Text(
+                                  user?['email'] ?? 'No Email Provided',
+                                  style: TextStyle(fontSize: 16, color: Colors.white70),
+                                ),
                               ],
                             ),
-                            Expanded(child: _infoCard(computeAge(user?['dateOfBirth']), 'Years Old')),
-                            Column(
-                              children: [
-                                Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                                Text("|", style: TextStyle(color: AppColor.textwhite.withOpacity(0.5))),
-                              ],
-                            ),
-                            Expanded(child: _infoCard(user?['height'] ?? 'No Height Provided', 'Height (cm)')),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-
-                // Options section
-                Expanded(
-                  child: Container(
-                    color: AppColor.backgroundgrey,
-                    child: ListView(
+                  SizedBox(height: 20),
+                  // Metrics section with a soft elevated card
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Card(
+                      color: AppColor.backgroundWhite,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      elevation: 3,
+                      shadowColor: AppColor.backgroundgrey,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _infoMetric(
+                                user?['weight'].toString() ?? 'N/A', 'Weight (kg)'),
+                            _infoMetric(
+                                computeAge(user?['dateOfBirth']), 'Age'),
+                            _infoMetric(
+                                user?['height'].toString() ?? 'N/A', 'Height (cm)'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  // Options section with custom interactive tiles
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Column(
                       children: [
-                        _optionTile(Icons.person, 'Profile', () {
+                        _customOptionTile(Icons.person, 'Profile', () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ProfilePageProfile()));
+                                  builder: (context) =>
+                                      ProfilePageProfile()));
                         }),
-                        _optionTile(Icons.track_changes_outlined, 'Progress Tracking', () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ProgressTrackingScreen()));
-                        }),
-
-                        _optionTile(Icons.settings_accessibility, 'BMI and Other Settings', () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BMIEditProfilePage()));
-                        }),
-                        /*_optionTile(Icons.settings, 'Settings', () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ProfilePageSetting()));
-                        }),*/
-                        /*_optionTile(Icons.logout, 'Logout', () {
-                          logout(context);
-                        }),*/
-
-                        _optionTile(Icons.logout, 'Logout', () {
+                        _customOptionTile(Icons.show_chart,
+                            'Progress Tracking', () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProgressTrackingScreen()));
+                            }),
+                        _customOptionTile(Icons.settings_accessibility,
+                            'BMI and Other Settings', () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          BMIEditProfilePage()));
+                            }),
+                        _customOptionTile(Icons.logout, 'Logout', () {
                           _showLogoutConfirmationDialog(context);
                         }),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 30),
+                ],
+              ),
             );
-          }
-
-          else {
+          } else {
             return Center(child: Text('No Data Available'));
           }
         },
       ),
-
-
-      // Bottom navigation bar
-      
     );
   }
 
-  // Helper widget for info cards
-  Widget _infoCard(String value, String label) {
+  // Helper widget for metric display
+  Widget _infoMetric(String value, String label) {
     return Column(
       children: [
         Text(
           value,
           style: TextStyle(
-              fontSize: 16,
-              color: AppColor.textwhite,
+              fontSize: 20,
+              color: AppColor.backgroundgrey,
               fontWeight: FontWeight.bold),
         ),
+        SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-              fontSize: 14, color: AppColor.textwhite.withOpacity(0.7)),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
       ],
     );
   }
 
-  // Helper widget for option tiles
-  Widget _optionTile(IconData icon, String title, VoidCallback onTap) {
-    return Container(
-      margin: EdgeInsets.only(top: 10,bottom: 10),
-      child: ListTile(
-        leading: ClipOval(
-          child: Container(
-              height: 50,
-              width: 50,
-              color: AppColor.primary,
-          
-              child: Icon(icon, color: AppColor.textwhite)),
+  // Helper widget for custom option tiles
+  Widget _customOptionTile(IconData icon, String title, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      splashColor: AppColor.superlightPrimary.withOpacity(0.2),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 15),
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            )
+          ],
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
         ),
-        title: Text(
-          title,
-          style: TextStyle(color: AppColor.textwhite, fontSize: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColor.superlightPrimary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: AppColor.backgroundgrey),
+            ),
+            SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios,
+                color: AppColor.backgroundgrey.withOpacity(0.6), size: 16),
+          ],
         ),
-        trailing: Icon(Icons.arrow_forward_ios,
-            color: AppColor.yellowtext.withOpacity(0.7), size: 16),
-        onTap: onTap,
       ),
     );
   }

@@ -9,8 +9,17 @@ import 'package:exercai_mobile/intro_pages/openingpage.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
+import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
 import 'package:exercai_mobile/login_register_pages/createaccount.dart';
+import 'package:exercai_mobile/login_register_pages/date_of_birth.dart';
+import 'package:exercai_mobile/login_register_pages/gender_choose.dart';
+import 'package:exercai_mobile/login_register_pages/height_choose.dart';
+import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
+import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
+import 'package:exercai_mobile/login_register_pages/summary_page.dart';
+import 'package:exercai_mobile/login_register_pages/weight_choose.dart';
+import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
 import 'package:exercai_mobile/pages/backup/BackupTrypage.dart';
 import 'package:exercai_mobile/pages/home.dart';
@@ -172,9 +181,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          //home: AuthPage(),
           home: AuthPage(),
           //home: ButtonDownloadExercises(),
           //home :DownloadGifsScreen(),
+
           routes: {
             //'/login_register_page': (context) => LoginOrRegister(),
             '/home_page': (context) => MainLandingPage(),
@@ -202,7 +213,17 @@ class AppColor {
   // **Existing Colors**
   static const Color bottonPrimary = Color.fromARGB(255, 51, 51, 51);
   static const Color bottonSecondary = Color.fromARGB(255, 146, 146, 146);
+
+  //Different Violet
   static const Color primary = Color(0xFF9575CD);
+  static const Color lightPrimary = Color(0xFFa388d4);
+  static const Color morelightPrimary = Color(0xFFb29adb);
+  static const Color superlightPrimary = Color(0xFFc0ade1);
+  static const Color solidPrimary = Color(0xFF744abd);
+  static const Color moresolidPrimary = Color(0xFF6a41b3);
+  static const Color supersolidPrimary = Color(0xFF894af8);
+
+
   static const Color shadow = Color(0xFF5E35B1);
   static const Color solidtext = Color.fromARGB(255, 52, 28, 102);
   static const Color buttonPrimary = Color.fromARGB(255, 51, 51, 51);

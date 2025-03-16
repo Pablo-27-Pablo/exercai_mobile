@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'package:exercai_mobile/components/my_button.dart';
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
-import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
@@ -8,94 +8,67 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'createaccount.dart';
 import 'package:exercai_mobile/helper/helper_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:exercai_mobile/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io'; // For Internet check
 
-
-class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
-
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  @override
-
-  State<LoginPage> createState() => _LoginPageState();
+// ----------------------------------
+// The same top-level login function
+// ----------------------------------
+Future<bool> _isConnected() async {
+  try {
+    final result = await InternetAddress.lookup('google.com');
+    return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+  } on SocketException catch (_) {
+    return false;
+  }
 }
 
-// Check Internet Connection
-      Future<bool> _isConnected() async {
-        try {
-          final result = await InternetAddress.lookup('google.com');
-          return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-        } on SocketException catch (_) {
-          return false;
-        }
-      }
+Future<void> saveUserSession(String token) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('user_token', token);
+}
 
-
-
-      // Save user token for session management
-      Future<void> saveUserSession(String token) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_token', token);
-      }
-
-void login(BuildContext context) async {
+void login(BuildContext context, TextEditingController emailController, TextEditingController passwordController) async {
   String email = emailController.text.trim();
   String password = passwordController.text.trim();
 
-  // Check if email or password fields are empty
   if (email.isEmpty || password.isEmpty) {
     displayMessagetoUser("Please enter both email and password.", context);
     return;
   }
 
-  // Check if email format is valid
   bool emailValid = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(email);
   if (!emailValid) {
     displayMessagetoUser("Please enter a valid email address.", context);
     return;
   }
 
-  // Check for internet connection
   bool hasInternet = await _isConnected();
   if (!hasInternet) {
     displayMessagetoUser("No Internet Connection", context);
     return;
   }
 
-  // Show loading indicator
   showDialog(
     context: context,
-    barrierDismissible: false, // Prevent user from dismissing
+    barrierDismissible: false,
     builder: (context) => const Center(child: CircularProgressIndicator()),
   );
 
   try {
-    UserCredential userCredential = await FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password);
+    UserCredential userCredential =
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
 
-    // Save session token
     await saveUserSession(userCredential.user!.uid);
 
-    // Clear text fields after successful login
     emailController.clear();
     passwordController.clear();
 
-    // Close loading indicator and navigate
     if (context.mounted) {
-      Navigator.pop(context); // Close loading
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MainLandingPage()),
-      );
+      Navigator.pop(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainLandingPage()));
     }
   } on FirebaseAuthException catch (e) {
-    Navigator.pop(context); // Close loading
-
-    // Handle Firebase Authentication errors
+    Navigator.pop(context);
     if (e.code == 'user-not-found' || e.code == 'wrong-password') {
       displayMessagetoUser("Login Failed: Incorrect email or password.", context);
     } else if (e.code == 'invalid-email') {
@@ -103,267 +76,333 @@ void login(BuildContext context) async {
     } else if (e.code == 'network-request-failed') {
       displayMessagetoUser("Network error. Please check your connection.", context);
     } else {
-      displayMessagetoUser("Login Failed: \nYour email or password is incorrect", context);
-      //displayMessagetoUser("Login Failed: ${e.message ?? "Unknown error occurred"}", context);
+      displayMessagetoUser("Login Failed: Your email or password is incorrect", context);
     }
   }
 }
 
+// ----------------------------------
+// The redesigned LoginPage
+// ----------------------------------
+class LoginPage extends StatefulWidget {
+  LoginPage({super.key});
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
 class _LoginPageState extends State<LoginPage> {
-  var _obsecurepass = true;
+  bool _obsecurepass = true;
+  //bool _rememberMe = false; // For the "Remember me" toggle
 
   @override
   void dispose() {
-    // Clear the email and password fields when the user leaves the page
-    emailController.clear();
-    passwordController.clear();
+    widget.emailController.clear();
+    widget.passwordController.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  AppColor.backgroundgrey,
-      //appBar: AppbarSection(),
-      body: ListView(
-        children: [
-          const SizedBox(height: 30,),
-          TextSection(),
-          TextFieldSection(),
-          SizedBox(
-            height: 30,
-          ),
-          LoginButton(text: "Login", onTap: ()=>login(context)),
-          SizedBox(
-            height: 15,
-          ),
-          dividerSection(),
-          SizedBox(
-            height: 15,
-          ),
-          signUpSection()
-        ],
-      ),
-    );
-  }
+      // White background
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // 1) Top Wave + Logo
+              _buildTopWave(context),
 
-  Container dividerSection() {
-    return Container(
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "----------------------------",
-              style: TextStyle(
-                  color: AppColor.buttonSecondary.withOpacity(.5),
-                  fontSize: 15),
-            ),
-            Text("  Or  ",
+              // 2) "Welcome back!" text
+              const SizedBox(height: 20),
+              Text(
+                "Welcome Back !",
                 style: TextStyle(
-                    color: AppColor.buttonSecondary.withOpacity(.5),
-                    fontSize: 15)),
-            Text("----------------------------",
-                style: TextStyle(
-                    color: AppColor.buttonSecondary.withOpacity(.5),
-                    fontSize: 15))
-          ],
-        ),
-      ),
-    );
-  }
-
-  Row signUpSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Dont have an account yet? ",
-          style: TextStyle(color: Colors.white),
-        ),
-        GestureDetector(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));
-            },
-                    //(){Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));},
-            child: Text("Sign Up",
-                style: TextStyle(
-                    color: AppColor.yellowtext, fontWeight: FontWeight.bold)))
-      ],
-    );
-  }
-
-
-
-  Container TextFieldSection() {
-    return Container(
-      decoration: BoxDecoration(
-          color: AppColor.primary.withOpacity(0.9),
-          ),
-      margin: EdgeInsets.only(top: 20),
-      padding: EdgeInsets.only(top: 20, bottom: 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 25.0, left: 25),
-            child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Email',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.solidtext),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                          color: AppColor.shadow.withOpacity(0.5),
-                          blurRadius: 40,
-                          spreadRadius: 0.0)
-                    ]),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email_outlined),
-                        hintText: 'Enter Your Email',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      controller: emailController,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 25.0, left: 25),
-            child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Password',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.solidtext),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Container(
-                    height: 50,
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                          color: AppColor.shadow.withOpacity(0.5),
-                          blurRadius: 40,
-                          spreadRadius: 0.0)
-                    ]),
-                    child: TextField(
-                      obscureText: _obsecurepass,
-                      decoration: InputDecoration(
-                        suffix: IconButton(
-                          padding: const EdgeInsetsDirectional.only(end: 20),
-                          onPressed: () {
-                            setState(() {
-                              _obsecurepass = !_obsecurepass;
-                            });
-                          },
-                          icon: _obsecurepass
-                              ? const Icon(Icons.visibility_off_outlined)
-                              : const Icon(Icons.visibility_outlined),
-                        ),
-                        prefixIcon: Icon(Icons.lock_clock_outlined),
-                        hintText: 'Enter Your Password',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      controller: passwordController,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
-
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 30),
-                child: Text(
-                  "Forgot Password?",
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                  textAlign: TextAlign.start,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
-              ))
-        ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // 3) Username/Email text field
+              _buildTextField(
+                controller: widget.emailController,
+                hintText: "Email",
+                icon: Icons.person_outline,
+                obscure: false,
+              ),
+
+              const SizedBox(height: 20),
+
+              // 4) Password text field
+              _buildTextField(
+                controller: widget.passwordController,
+                hintText: "Password",
+                icon: Icons.lock_outline,
+                obscure: _obsecurepass,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obsecurepass ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obsecurepass = !_obsecurepass;
+                    });
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // 5) Remember me & Forgot password row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Remember me
+                    /*Expanded(
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (val) {
+                              setState(() {
+                                _rememberMe = val ?? false;
+                              });
+                            },
+                            activeColor: AppColor.solidPrimary,
+                          ),
+                          const Text("Remember me"),
+                        ],
+                      ),
+                    ),*/
+
+                    // Forgot password?
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
+                      },
+                      child: const Text(
+                        "Forgot password?",
+                        style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 6) Login button
+              const SizedBox(height: 20),
+              _buildLoginButton(context),
+
+              const SizedBox(height: 20),
+
+              // 8) Divider with "OR"
+              Row(
+                children: const [
+                  Expanded(
+                    child: Divider(
+                      thickness: 1,
+                      color: Colors.grey,
+                      indent: 40,
+                      endIndent: 10,
+                    ),
+                  ),
+                  Text("OR"),
+                  Expanded(
+                    child: Divider(
+                      thickness: 1,
+                      color: Colors.grey,
+                      indent: 10,
+                      endIndent: 40,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 15),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? "),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));
+                    },
+                    child: Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        color: AppColor.solidPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Container TextSection() {
-    return Container(
-      height: 190,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+  // ----------------------------------
+  // UI BUILDING BLOCKS
+  // ----------------------------------
 
-            Image.asset('assets/exercai-logo-violet.png',height: 130,),
-            SizedBox(height: 20,),
-            Text("Enjoy Exercising With Us",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20)),
+  // Wave shaped container with gradient + logo at the top
+  Widget _buildTopWave(BuildContext context) {
+    return ClipPath(
+      clipper: _WaveClipper(),
+      child: Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColor.supersolidPrimary, AppColor.lightPrimary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // LOGO
+            Positioned(
+              top: 50,
+              child: Image.asset(
+                'assets/exercai-front.png',
+                height: 90,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-/*  AppBar AppbarSection() {
-    return AppBar(
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
-      //leading: Icon(),
-      title: Text(
-        "Login",
-        style: TextStyle(color: AppColor.yellowtext, fontWeight: FontWeight.bold),
+  // Single text field with a prefix icon
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    bool obscure = false,
+    Widget? suffixIcon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.grey),
+          suffixIcon: suffixIcon,
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.grey),
+          fillColor: Colors.grey[100],
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.transparent),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColor.solidPrimary),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
       ),
     );
-  }*/
+  }
+
+  // Login button with style matching the reference
+  Widget _buildLoginButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: GestureDetector(
+        onTap: () => login(context, widget.emailController, widget.passwordController),
+        child: Container(
+          height: 55,
+          decoration: BoxDecoration(
+            color: AppColor.supersolidPrimary,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: AppColor.supersolidPrimary, width: 1),
+          ),
+          child: Center(
+            child: Text(
+              "Login",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColor.backgroundWhite,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Circle button for each social icon
+  Widget _socialCircleButton(IconData icon, Color color) {
+    return Container(
+      height: 45,
+      width: 45,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
+      ),
+      child: Icon(icon, color: color),
+    );
+  }
+}
+
+// ----------------------------------
+// A custom clipper to create a wave
+// ----------------------------------
+class _WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    // Creates a wave shape from top-left to bottom-right
+    Path path = Path();
+    path.lineTo(0, size.height - 50);
+
+    // Quadratic bezier wave
+    var firstControlPoint = Offset(size.width / 4, size.height);
+    var firstEndPoint = Offset(size.width / 2, size.height - 30);
+
+    var secondControlPoint = Offset(3 * size.width / 4, size.height - 60);
+    var secondEndPoint = Offset(size.width, size.height - 20);
+
+    path.quadraticBezierTo(
+      firstControlPoint.dx,
+      firstControlPoint.dy,
+      firstEndPoint.dx,
+      firstEndPoint.dy,
+    );
+
+    path.quadraticBezierTo(
+      secondControlPoint.dx,
+      secondControlPoint.dy,
+      secondEndPoint.dx,
+      secondEndPoint.dy,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(_WaveClipper oldClipper) => false;
 }

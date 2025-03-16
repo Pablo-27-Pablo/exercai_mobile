@@ -1,16 +1,28 @@
-import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:flutter/material.dart';
-import '../login_register_pages/login.dart';
-import '../login_register_pages/createaccount.dart';
-import 'package:exercai_mobile/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'package:exercai_mobile/homepage/mainlandingpage.dart';
+import 'package:exercai_mobile/main.dart';
+import '../login_register_pages/login.dart';
+import '../login_register_pages/createaccount.dart';
+
+// A helper to convert each word's first letter to uppercase.
+String toTitleCase(String text) {
+  if (text.isEmpty) return text;
+  return text
+      .split(' ')
+      .map((word) => word.isNotEmpty
+      ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+      : word)
+      .join(' ');
+}
 
 class WelcomeScreen extends StatelessWidget {
-  // Current logged-in user
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
-  // Future to fetch user details
+  // Fetch user details
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
     return await FirebaseFirestore.instance
         .collection("Users")
@@ -21,119 +33,146 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Fullscreen Background Image
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/welcomescreen.jpg'), // Replace with your image
-                fit: BoxFit.cover,
+      backgroundColor: Colors.white, // Minimalist white background
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Subtle circular accent in the background (top-right)
+            Positioned(
+              top: -50,
+              right: -50,
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: AppColor.superlightPrimary.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-          ),
-          // Overlay with gradient effect
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColor.backgroundgrey.withOpacity(1),
-                  AppColor.backgroundgrey.withOpacity(0.7),
-                  Colors.transparent,
-                ],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
+            // Subtle circular accent in the background (bottom-left)
+            Positioned(
+              bottom: -70,
+              left: -70,
+              child: Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  color: AppColor.lightPrimary.withOpacity(0.6),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-          ),
-          // Content
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            // Main content
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Fetch and display user's first name
+                    // Fetch and display user's first name in Title Case
                     FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                       future: getUserDetails(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
+                          return const CircularProgressIndicator();
                         } else if (snapshot.hasError) {
-                          return Text("Error fetching name", style: TextStyle(color: Colors.white));
+                          return Text(
+                            "Error Fetching Name",
+                            style: GoogleFonts.poppins(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          );
                         } else if (!snapshot.hasData || !snapshot.data!.exists) {
-                          return Text("Welcome, User",
-                              style: TextStyle(fontSize: 39, fontWeight: FontWeight.bold, color: Colors.white));
+                          return Text(
+                            "Welcome, User",
+                            style: GoogleFonts.poppins(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          );
                         }
 
-                        // Extract user's first name
                         Map<String, dynamic>? userData = snapshot.data!.data();
                         String firstName = userData?['firstname'] ?? 'User';
+                        // Convert to Title Case
+                        firstName = toTitleCase(firstName);
 
                         return Text(
                           "Welcome, $firstName",
-                          style: TextStyle(fontSize: 39, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: GoogleFonts.poppins(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         );
                       },
                     ),
-
-                    SizedBox(height: 16),
-                    // Motivational Message
+                    const SizedBox(height: 12),
+                    // Motivational Quote
                     Text(
                       "Consistency Is The Key To Progress.\nDon't Give Up!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFFFEB3B), // Bright yellow text
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[800],
                       ),
                     ),
-                    SizedBox(height: 16),
-                    // Subtitle or Description
+                    const SizedBox(height: 16),
+                    // Sub-Message
                     Container(
-                      height: 70,
-                      color: AppColor.primary,
-                      child: Center(
-                        child: Text(
-                          "You are all set now, let's reach your goals\ntogether with us.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        "You are all set now. Let's reach your goals together!",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
                         ),
                       ),
                     ),
-                    SizedBox(height: 32),
-                    // "Go To Home" Button
+                    const SizedBox(height: 32),
+                    // Go To Home Button
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => MainLandingPage()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MainLandingPage()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        side: BorderSide(color: AppColor.textwhite),
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        backgroundColor: AppColor.moresolidPrimary,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        backgroundColor: AppColor.buttonPrimary,
+                        elevation: 5,
                       ),
                       child: Text(
                         "Go To Home",
-                        style: TextStyle(fontSize: 18, color: AppColor.textwhite),
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 32),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
