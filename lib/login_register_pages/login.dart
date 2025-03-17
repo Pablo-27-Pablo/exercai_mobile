@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:exercai_mobile/components/my_button.dart';
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
 import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'createaccount.dart';
 import 'package:exercai_mobile/helper/helper_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 
 // ----------------------------------
 // The same top-level login function
@@ -188,7 +188,8 @@ class _LoginPageState extends State<LoginPage> {
                     // Forgot password?
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
+                        //Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
+                        navigateWithSlideTransition(context, ForgotPasswordPage(), slideRight: true);
                       },
                       child: const Text(
                         "Forgot password?",

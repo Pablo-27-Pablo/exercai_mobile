@@ -120,14 +120,14 @@ class _RepsPageState extends State<RepsPage> {
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.black),
           title: Text(
-            widget.exercise['name'] ?? 'Unnamed Exercise',
+            (widget.exercise['name']?.toString().toUpperCase() ?? 'UNNAMED EXERCISE'),
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ShowRepsKcal(exercise: widget.exercise,))),
           ),
         ),

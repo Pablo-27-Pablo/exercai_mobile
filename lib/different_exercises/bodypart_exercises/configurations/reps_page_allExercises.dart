@@ -134,7 +134,7 @@ class _RepsPageAllexercisesState extends State<RepsPageAllexercises> {
             ),
           ),
             leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ShowRepsAllexercises(exercise: widget.exercise,))),
           ),
         ),

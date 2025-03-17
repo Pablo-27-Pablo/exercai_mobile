@@ -8,6 +8,9 @@ import 'package:flutter/cupertino.dart';
 import '../../workout_complete/workoutcomplete.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/configurations/reps_page_allExercises.dart';
 
+// 1. Import audioplayers package.
+import 'package:audioplayers/audioplayers.dart';
+
 enum StepType { set, rest }
 
 class Step {
@@ -46,6 +49,10 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
   List<int> _baseRepsConcat = [];
   List<double> _totalBurnCalRep = [];
 
+  // 2. Create an AudioPlayer instance and track the playing state.
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isMusicPlaying = false;
+
   @override
   void initState() {
     super.initState();
@@ -54,10 +61,26 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     _secondsRemaining = _steps[_currentStepIndex].duration;
     _currentCount = 0;
     _baseRepsConcat = List.filled(widget.setValues.length, 0);
+
+    // 3. Set the AudioPlayer to loop the music.
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+
     _loadTotalExerciseTime().then((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _startTimer();
       });
+    });
+  }
+
+  // 4. Toggle music playback.
+  void _toggleMusic() async {
+    if (_isMusicPlaying) {
+      await _audioPlayer.pause();
+    } else {
+      await _audioPlayer.play(AssetSource('audio/musicbackground.mp3'));
+    }
+    setState(() {
+      _isMusicPlaying = !_isMusicPlaying;
     });
   }
 
@@ -329,6 +352,8 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
       _saveTotalExerciseTime();
     }
     _timer?.cancel();
+    // 5. Stop the music when disposing.
+    _audioPlayer.stop();
     super.dispose();
   }
 
@@ -356,6 +381,106 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
       canPop: false,
       child: Scaffold(
         backgroundColor: Colors.white,
+        // 6. Add the AppBar with the music icon button in actions.
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 2,
+          centerTitle: true,
+          title: Text(
+            (widget.exercise['name'] ?? 'Exercise Timer').toString().toUpperCase(),
+            style: const TextStyle(color: AppColor.supersolidPrimary),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: AppColor.supersolidPrimary),
+            onPressed: () async {
+              bool? exitConfirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 10,
+                  backgroundColor: Colors.white,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "Exit Workout",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.supersolidPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Are you sure you want to exit?\nDon't worry, your recent progress will be saved.",
+                          style: TextStyle(fontSize: 18, color: Colors.black87),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[300],
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text("Cancel", style: TextStyle(fontSize: 16)),
+                            ),
+                            const SizedBox(width: 10),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.moresolidPrimary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text("Exit", style: TextStyle(fontSize: 16)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+              if (exitConfirmed == true) {
+                String bodyPart = widget.exercise['bodyPart']?.toString().toLowerCase() ?? 'neck';
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RepsPage(exercise: widget.exercise),
+                  ),
+                );
+              }
+            },
+          ),
+          actions: [
+            // 7. Music toggle icon button.
+            IconButton(
+              icon: Icon(_isMusicPlaying ? Icons.music_note : Icons.music_off,size: 35,),
+              color: _isMusicPlaying ? AppColor.supersolidPrimary : AppColor.lightPrimary,
+              onPressed: _toggleMusic,
+            ),
+          ],
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -563,97 +688,6 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                 const SizedBox(height: 30),
               ],
             ),
-          ),
-        ),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 2,
-          centerTitle: true,
-          title: Text(
-            (widget.exercise['name'] ?? 'Exercise Timer').toString().toUpperCase(),
-            style: const TextStyle(color: AppColor.supersolidPrimary),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
-            onPressed: () async {
-              bool? exitConfirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 10,
-                  backgroundColor: Colors.white,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                "Exit Workout",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColor.supersolidPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          "Are you sure you want to exit?\nDon't worry, your recent progress will be saved.",
-                          style: TextStyle(fontSize: 18, color: Colors.black87),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[300],
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: Text("Cancel", style: TextStyle(fontSize: 16)),
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColor.moresolidPrimary,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: Text("Exit", style: TextStyle(fontSize: 16)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-              if (exitConfirmed == true) {
-                String bodyPart = widget.exercise['bodyPart']?.toString().toLowerCase() ?? 'neck';
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RepsPage(exercise: widget.exercise),
-                  ),
-                );
-              }
-            },
           ),
         ),
       ),

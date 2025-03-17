@@ -119,7 +119,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         ),
         leading: IconButton(onPressed: (){
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
-        }, icon: Icon(Icons.arrow_back)),
+        }, icon: Icon(Icons.arrow_back_ios)),
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: getUserDetails(),

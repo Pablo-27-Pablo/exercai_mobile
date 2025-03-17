@@ -306,9 +306,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
         backgroundColor: AppColor.primary,
         elevation: 0,
         centerTitle: true,
-        leading: BackButton(
-          color: AppColor.backgroundWhite, // Use primary color for back button
-        ),
+        leading: IconButton(onPressed: (){
+          Navigator.pop(context);
+        }, icon: Icon(Icons.arrow_back_ios,color: AppColor.backgroundWhite,)),
         title: const Text(
           'Progress Tracking',
           style: TextStyle(
@@ -509,39 +509,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  // Pose Estimation Burn Calories Card
-                  _buildInfoCard(
-                    title: 'Pose Estimation Burn Calories',
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '100 days exercise calories burn: ${(peopleBox.get("daychallenge", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Arcade calories burn: ${(peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
                   // Different Exercises Burn Calories Card
                   _buildInfoCard(
                     title: 'Different Exercises Burn Calories',
@@ -619,6 +586,39 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                           ],
                         );
                       },
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Pose Estimation Burn Calories Card
+                  _buildInfoCard(
+                    title: 'Pose Estimation Burn Calories',
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '100 days exercise calories burn: ${(peopleBox.get("daychallenge", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Arcade calories burn: ${(peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 20),

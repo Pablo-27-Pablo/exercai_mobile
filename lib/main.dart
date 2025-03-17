@@ -1,56 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/auth/auth.dart';
-import 'package:exercai_mobile/auth/login_or_register.dart';
-import 'package:exercai_mobile/exercise_posture/exerciseposturepage1.dart';
-import 'package:exercai_mobile/food_nutrition/nutrients_show_screen.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
-import 'package:exercai_mobile/intro_pages/intro3.dart';
-import 'package:exercai_mobile/intro_pages/openingpage.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
-import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
-import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
-import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
-import 'package:exercai_mobile/login_register_pages/createaccount.dart';
-import 'package:exercai_mobile/login_register_pages/date_of_birth.dart';
-import 'package:exercai_mobile/login_register_pages/gender_choose.dart';
-import 'package:exercai_mobile/login_register_pages/height_choose.dart';
-import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
-import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
-import 'package:exercai_mobile/login_register_pages/summary_page.dart';
-import 'package:exercai_mobile/login_register_pages/weight_choose.dart';
-import 'package:exercai_mobile/login_register_pages/workout_level.dart';
-import 'package:exercai_mobile/pages/Main_Pages/resttime.dart';
-import 'package:exercai_mobile/pages/backup/BackupTrypage.dart';
-import 'package:exercai_mobile/pages/home.dart';
-import 'package:exercai_mobile/predictive_graph/predictive_graph_analysis.dart';
 import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page.dart';
-import 'package:exercai_mobile/homepage/starter_page.dart';
-import 'package:exercai_mobile/login_register_pages/welcome.dart';
 import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
-import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/download_button_exercises_firebase.dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/exercise_download_firebase.dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/show_with_reps_kcals/filter_reps_kcal.dart';
-import 'package:exercai_mobile/show_firestore_exercises_download/device_download_gif.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart';
 import 'login_register_pages/mainlandingpage.dart';
-import 'auth/login_or_register.dart';
-import 'workout_complete/workoutcomplete.dart';
 import 'local_notification/notification_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'local_notification/notification_service.dart';
 import 'package:camera/camera.dart';
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:exercai_mobile/services/my_firebase_messaging_service.dart';
-import 'pages/repsCounter.dart';
 
 late List<CameraDescription> cameras;
 void main() async {
@@ -79,11 +45,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  /*@override
-  void initState() {
-    super.initState();
-    fetchAndStoreBodyweightExercises(); // Calls only if Firestore is empty
-  }*/
 
   @override
   void initState() {

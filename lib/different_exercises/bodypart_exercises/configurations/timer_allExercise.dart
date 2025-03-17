@@ -8,6 +8,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/workout_complete/workoutcomplete.dart';
 import 'package:flutter/cupertino.dart';
 
+// 1. Import the audioplayers package
+import 'package:audioplayers/audioplayers.dart';
+
 class TimerAllexercise extends StatefulWidget {
   final Map<String, dynamic> exercise;
   final List<int> setValues;
@@ -38,6 +41,10 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
   List<int> _baseRepsConcat = [];
   List<double> _totalBurnCalRep = [];
 
+  // 2. Create an AudioPlayer instance & track state
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isMusicPlaying = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,13 +52,31 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     _steps = _createSteps();
     _secondsRemaining = _steps[_currentStepIndex].duration;
     _currentCount = 0;
+
     // Initialize with one value per actual set (excluding the initial rest)
     _baseRepsConcat = List.filled(widget.setValues.length, 0);
+
+    // 3. Set the release mode so that music loops when played
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
 
     _loadTotalExerciseTime().then((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _startTimer();
       });
+    });
+  }
+
+  // 4. Toggle music method
+  void _toggleMusic() async {
+    if (_isMusicPlaying) {
+      // If music is playing, pause it
+      await _audioPlayer.pause();
+    } else {
+      // If music is not playing, start playing
+      await _audioPlayer.play(AssetSource('audio/musicbackground.mp3'));
+    }
+    setState(() {
+      _isMusicPlaying = !_isMusicPlaying;
     });
   }
 
@@ -92,7 +117,8 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
 
       if (!snapshot.exists ||
           snapshot.data() == null ||
-          !(snapshot.data() as Map<String, dynamic>).containsKey('TotalBurnCalRep')) {
+          !(snapshot.data() as Map<String, dynamic>)
+              .containsKey('TotalBurnCalRep')) {
         transaction.set(
           exerciseRef,
           {
@@ -104,8 +130,8 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
           SetOptions(merge: true),
         );
       } else {
-        totalBurnCalRep =
-            List.from((snapshot.data() as Map<String, dynamic>)['TotalBurnCalRep'] ?? []);
+        totalBurnCalRep = List.from(
+            (snapshot.data() as Map<String, dynamic>)['TotalBurnCalRep'] ?? []);
       }
 
       totalBurnCalRep.add(setCalories);
@@ -185,7 +211,9 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
           .doc(widget.exercise['name'].toString());
       DocumentSnapshot snapshot = await exerciseRef.get();
       burnedCalories = snapshot.exists && snapshot.data() != null
-          ? (snapshot.data() as Map<String, dynamic>)['TotalCalBurnSec']?.toDouble() ?? 0.0
+          ? (snapshot.data() as Map<String, dynamic>)['TotalCalBurnSec']
+          ?.toDouble() ??
+          0.0
           : 0.0;
     }
 
@@ -203,7 +231,8 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
     }, SetOptions(merge: true));
 
     if (!widget.isRepBased) {
-      double burnCalPerSec = widget.exercise['burnCalperSec']?.toDouble() ?? 0.0;
+      double burnCalPerSec =
+          widget.exercise['burnCalperSec']?.toDouble() ?? 0.0;
       double totalCalBurnSec = _totalExerciseTime * burnCalPerSec;
       await FirebaseFirestore.instance
           .collection('Users')
@@ -304,7 +333,9 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => WorkoutCompleteAllexercises(exercise: widget.exercise),
+          builder: (context) => WorkoutCompleteAllexercises(
+            exercise: widget.exercise,
+          ),
         ),
       );
     }
@@ -334,6 +365,8 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
       _saveTotalExerciseTime();
     }
     _timer?.cancel();
+    // Stop music if playing
+    _audioPlayer.stop();
     super.dispose();
   }
 
@@ -362,218 +395,6 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
       canPop: false,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Exercise title and step details
-                Text(
-                  isInitialRest
-                      ? 'Get Ready'
-                      : currentStep.type == StepType.set
-                      ? 'Set $setNumber of ${widget.setValues.length}'
-                      : 'Rest $setNumber',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  currentStep.type == StepType.set
-                      ? widget.isRepBased
-                      ? 'Timer: ${_formatTime(_currentCount)}\n${currentStep.duration} Reps'
-                      : '$_secondsRemaining Seconds'
-                      : 'Rest: $_secondsRemaining Seconds',
-                  style: const TextStyle(fontSize: 18, color: Colors.black54),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                // Circular progress indicator with gif inside the circle
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 220,
-                      height: 220,
-                      child: CircularProgressIndicator(
-                        value: progress.clamp(0.0, 1.0),
-                        strokeWidth: 10,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          currentStep.type == StepType.set && widget.isRepBased
-                              ? Colors.grey
-                              : Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                    // Gif inside a circular clip
-                    ClipOval(
-                      child: Image.asset(
-                        widget.exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
-                        width: 180,
-                        height: 180,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.error_outline, size: 100),
-                      ),
-                    ),
-                    // Countdown text overlay (optional)
-                    Positioned(
-                      bottom: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          currentStep.type == StepType.set
-                              ? (widget.isRepBased ? _formatTime(_currentCount) : '$_secondsRemaining')
-                              : '$_secondsRemaining',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Control buttons row
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white70,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.fast_rewind),
-                        iconSize: 40,
-                        onPressed: _currentStepIndex > 0 ? _rewindStep : null,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.replay),
-                        iconSize: 40,
-                        onPressed: _resetTimer,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      IconButton(
-                        icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                        iconSize: 50,
-                        onPressed: () => _isRunning ? _stopTimer() : _startTimer(),
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.double_arrow),
-                        iconSize: 40,
-                        onPressed: _skipForward,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // For rest periods after a set, display calorie info and rep input if rep-based.
-                if (currentStep.type == StepType.rest && !isInitialRest)
-                  Column(
-                    children: [
-                      Text(
-                        'Calories Burnt in Set: ${_calculateCurrentSetCalories(setNumber - 1).toStringAsFixed(2)} kcal',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      if (widget.isRepBased)
-                        Column(
-                          children: [
-                            const Text(
-                              'Select Reps',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              height: 50,
-                              width: 300, // Adjust width as needed
-                              child: RotatedBox(
-                                quarterTurns: 1, // Rotate the picker for horizontal scrolling
-                                child: CupertinoPicker(
-                                  scrollController: FixedExtentScrollController(
-                                    initialItem: 99 - _baseRepsConcat[setNumber - 1],
-                                  ),
-                                  itemExtent: 40,
-                                  onSelectedItemChanged: (int index) {
-                                    setState(() {
-                                      _baseRepsConcat[setNumber - 1] = 99 - index;
-                                    });
-                                  },
-                                  children: List<Widget>.generate(
-                                    100, // Generates numbers from 0 to 99 in reversed order
-                                        (index) {
-                                      final displayNumber = 99 - index;
-                                      return RotatedBox(
-                                        quarterTurns: -1, // Rotate child back to normal orientation
-                                        child: Center(
-                                          child: Text(
-                                            "$displayNumber",
-                                            style: const TextStyle(fontSize: 18),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          double burnedCalories = _calculateCurrentSetCalories(setNumber - 1);
-                          _saveTotalBurnCalRep(setNumber - 1);
-                          setState(() {
-                            _totalBurnCalRep.add(burnedCalories);
-                          });
-                          print("TotalBurnCalRep updated: $_totalBurnCalRep");
-                          _skipForward();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: const Text(
-                          'Confirm & Proceed',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 30),
-              ],
-            ),
-          ),
-        ),
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 2,
@@ -583,7 +404,7 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
             style: const TextStyle(color: AppColor.supersolidPrimary),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
+            icon: const Icon(Icons.arrow_back_ios, color: AppColor.supersolidPrimary),
             onPressed: () async {
               bool? exitConfirmed = await showDialog<bool>(
                 context: context,
@@ -657,7 +478,8 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
                 ),
               );
               if (exitConfirmed == true) {
-                String bodyPart = widget.exercise['bodyPart']?.toString().toLowerCase() ?? 'neck';
+                String bodyPart =
+                    widget.exercise['bodyPart']?.toString().toLowerCase() ?? 'neck';
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -667,6 +489,234 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
               }
             },
           ),
+          // 5. Add the music icon button in the AppBar actions
+          actions: [
+            IconButton(
+              icon: Icon(_isMusicPlaying ? Icons.music_note : Icons.music_off,size: 35,),
+              color: _isMusicPlaying ? AppColor.supersolidPrimary : AppColor.lightPrimary,
+              onPressed: _toggleMusic,
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Exercise title and step details
+                Text(
+                  isInitialRest
+                      ? 'Get Ready'
+                      : currentStep.type == StepType.set
+                      ? 'Set $setNumber of ${widget.setValues.length}'
+                      : 'Rest $setNumber',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  currentStep.type == StepType.set
+                      ? widget.isRepBased
+                      ? 'Timer: ${_formatTime(_currentCount)}\n${currentStep.duration} Reps'
+                      : '$_secondsRemaining Seconds'
+                      : 'Rest: $_secondsRemaining Seconds',
+                  style: const TextStyle(fontSize: 18, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                // Circular progress indicator with gif inside the circle
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 220,
+                      height: 220,
+                      child: CircularProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        strokeWidth: 10,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          currentStep.type == StepType.set && widget.isRepBased
+                              ? Colors.grey
+                              : Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                    // Gif inside a circular clip
+                    ClipOval(
+                      child: Image.asset(
+                        widget.exercise['gifPath'] ?? 'assets/exercaiGif/fallback.gif',
+                        width: 180,
+                        height: 180,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error_outline, size: 100),
+                      ),
+                    ),
+                    // Countdown text overlay (optional)
+                    Positioned(
+                      bottom: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          currentStep.type == StepType.set
+                              ? (widget.isRepBased
+                              ? _formatTime(_currentCount)
+                              : '$_secondsRemaining')
+                              : '$_secondsRemaining',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Control buttons row
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white70,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.fast_rewind),
+                        iconSize: 40,
+                        onPressed: _currentStepIndex > 0 ? _rewindStep : null,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.replay),
+                        iconSize: 40,
+                        onPressed: _resetTimer,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      IconButton(
+                        icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                        iconSize: 50,
+                        onPressed: () => _isRunning ? _stopTimer() : _startTimer(),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.double_arrow),
+                        iconSize: 40,
+                        onPressed: _skipForward,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // For rest periods after a set, display calorie info and rep input if rep-based.
+                if (currentStep.type == StepType.rest && !isInitialRest)
+                  Column(
+                    children: [
+                      Text(
+                        'Calories Burnt in Set: '
+                            '${_calculateCurrentSetCalories(setNumber - 1).toStringAsFixed(2)} kcal',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      if (widget.isRepBased)
+                        Column(
+                          children: [
+                            const Text(
+                              'Select Reps',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: 50,
+                              width: 300, // Adjust width as needed
+                              child: RotatedBox(
+                                quarterTurns: 1, // Rotate the picker for horizontal scrolling
+                                child: CupertinoPicker(
+                                  scrollController: FixedExtentScrollController(
+                                    initialItem: 99 - _baseRepsConcat[setNumber - 1],
+                                  ),
+                                  itemExtent: 40,
+                                  onSelectedItemChanged: (int index) {
+                                    setState(() {
+                                      _baseRepsConcat[setNumber - 1] = 99 - index;
+                                    });
+                                  },
+                                  children: List<Widget>.generate(
+                                    100, // Generates numbers from 0 to 99 in reversed order
+                                        (index) {
+                                      final displayNumber = 99 - index;
+                                      return RotatedBox(
+                                        quarterTurns: -1, // Rotate child back
+                                        child: Center(
+                                          child: Text(
+                                            "$displayNumber",
+                                            style: const TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          double burnedCalories =
+                          _calculateCurrentSetCalories(setNumber - 1);
+                          _saveTotalBurnCalRep(setNumber - 1);
+                          setState(() {
+                            _totalBurnCalRep.add(burnedCalories);
+                          });
+                          print("TotalBurnCalRep updated: $_totalBurnCalRep");
+                          _skipForward();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          'Confirm & Proceed',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -674,10 +724,12 @@ class _TimerAllexerciseState extends State<TimerAllexercise> {
 
   double _calculateCurrentSetCalories(int setIndex) {
     if (widget.isRepBased) {
-      return (_baseRepsConcat[setIndex] * (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0))
+      return (_baseRepsConcat[setIndex] *
+          (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0))
           .toDouble();
     }
-    return (widget.setValues[setIndex] * (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0))
+    return (widget.setValues[setIndex] *
+        (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0))
         .toDouble();
   }
 }

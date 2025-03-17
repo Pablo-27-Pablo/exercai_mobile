@@ -311,7 +311,7 @@ class _NeckAllexercisesState extends State<NeckAllexercises>
         appBar: AppBar(
           backgroundColor: AppColor.backgroundWhite,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColor.moresolidPrimary),
+            icon: Icon(Icons.arrow_back_ios, color: AppColor.moresolidPrimary),
             onPressed: () => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

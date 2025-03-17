@@ -70,10 +70,10 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                 );
               });
             },
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_ios),
           ),
           title: Text(
-            widget.exercise['name'] ?? 'Unnamed Exercise',
+            (widget.exercise['name']?.toString().toUpperCase() ?? 'UNNAMED EXERCISE'),
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,

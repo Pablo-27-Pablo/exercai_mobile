@@ -1,6 +1,11 @@
 import 'package:exercai_mobile/auth/login_or_register.dart';
+import 'package:exercai_mobile/food_nutrition/nutrients_show_screen.dart';
+import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
 import 'package:exercai_mobile/homepage/mainlandingpage.dart';
+import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
+import 'package:exercai_mobile/month_log_exercise/month_note_exercise.dart';
+import 'package:exercai_mobile/predictive_graph/predictive_graph_analysis.dart';
 import 'package:exercai_mobile/profile_pages/bmi_settings.dart';
 import 'package:exercai_mobile/profile_pages/profile_page_proffile.dart';
 import 'package:exercai_mobile/profile_pages/profile_page_setting.dart';
@@ -297,6 +302,63 @@ class _ProfilePageState extends State<ProfilePage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => BMIEditProfilePage(),
+                              ),
+                            );
+                          },
+                        ),
+                        _customOptionTile(
+                          Icons.food_bank_outlined,
+                          'Nutrition and Calories',
+                              () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NutritionCalculatorFirebase(),
+                              ),
+                            );
+                          },
+                        ),
+                        _customOptionTile(
+                          Icons.alarm,
+                          'Set Reminders',
+                              () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReminderSettings(),
+                              ),
+                            );
+                          },
+                        ),
+                        _customOptionTile(
+                          Icons.monitor_weight_outlined,
+                          'Weight Analysis',
+                              () {
+                                // Get the current user's email from FirebaseAuth.
+                                final userEmail = FirebaseAuth.instance.currentUser?.email;
+                                if (userEmail != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PredictiveAnalysisPage(userEmail: userEmail),
+                                    ),
+                                  );
+                                } else {
+                                  // Handle the case where the email is null.
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("No user email available.")),
+                                  );
+                                }
+                          },
+                        ),
+                        _customOptionTile(
+                          Icons.calendar_month_outlined,
+                          'Log Exercise Date',
+                              () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MonthExercisePage(),
                               ),
                             );
                           },

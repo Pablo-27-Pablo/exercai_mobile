@@ -428,135 +428,138 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 30, bottom: 30),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainLandingPage()),
-                  );
-                },
-                icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 20),
-              child: Container(
-                padding: EdgeInsets.only(right: 30),
-                child: Text(
-                  "Choose your challenge: \n30-day workout or Arcade mode!",
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            Text(
-              "Swipe to explore more challenges.",
-              style: TextStyle(fontSize: 15),
-            ),
-            Column(
-              children: [
-                Swiper(
-                  itemCount: exercises7.length,
-                  itemWidth: MediaQuery.of(context).size.width * 0.8,
-                  layout: SwiperLayout.TINDER,
-                  itemHeight: 380,
-                  onIndexChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    number = index;
-                    return GestureDetector(
-                      onTap: () => _onExerciseTap(index),
-                      child: planCard(
-                        exercises7[index]["name"]!,
-                        exercises7[index]["image"]!,
-                        exercises7[index]["definition"]!,
-                      ),
-                    );
-                  },
-                ),
-                smallGap,
-                Center(
-                  child: SmoothPageIndicator(
-                    controller: PageController(initialPage: _currentIndex),
-                    count: exercises7.length,
-                    effect: WormEffect(
-                      dotWidth: 10,
-                      dotHeight: 10,
-                      activeDotColor: AppColor.primary,
-                      dotColor: Colors.grey.withOpacity(0.5),
+      appBar: AppBar(
+        backgroundColor: AppColor.backgroundWhite,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainLandingPage()),
+            );
+          },
+          icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
+        ),
+      ),
+      backgroundColor: AppColor.backgroundWhite,
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.only(right: 20, left: 20, bottom: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            // You can keep spaceBetween if you like, though note that in a scroll view
+            // the Column will size itself to fit its children.
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 20),
+                child: Container(
+                  padding: EdgeInsets.only(right: 30),
+                  child: Text(
+                    "Choose your challenge: \n30-day workout or\nArcade mode!",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                SizedBox(height: 50),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (number == 0) {
-                        number = 5;
-                      }
-                      if ("Arcade" == exercises7[number - 1]['name']) {
-                        Mode = "Arcade";
-                        print(selectedInjuries);
-                        if (selectedInjuries == []) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RestimeTutorial(),
-                            ),
-                          );
-                        } else if (bodypartString == "none of them") {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RestimeTutorial(),
-                            ),
-                          );
-                        } else {
-                          _showInjuryDialog();
-                        }
-                      } else {
-                        startExercise(
-                          exercises7[number - 1]["PrimaryName"]!,
-                          exercises7[number - 1]["image"]!,
-                          exercises7[number - 1]["name"]!,
-                        );
-                      }
+              ),
+              Text(
+                "Swipe to explore more challenges.",
+                style: TextStyle(fontSize: 15),
+              ),
+              Column(
+                children: [
+                  Swiper(
+                    itemCount: exercises7.length,
+                    itemWidth: MediaQuery.of(context).size.width * 0.8,
+                    layout: SwiperLayout.TINDER,
+                    itemHeight: 380,
+                    onIndexChanged: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
                     },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          14,
-                        ), // Set border radius here
+                    itemBuilder: (context, index) {
+                      number = index;
+                      return GestureDetector(
+                        onTap: () => _onExerciseTap(index),
+                        child: planCard(
+                          exercises7[index]["name"]!,
+                          exercises7[index]["image"]!,
+                          exercises7[index]["definition"]!,
+                        ),
+                      );
+                    },
+                  ),
+                  smallGap,
+                  Center(
+                    child: SmoothPageIndicator(
+                      controller: PageController(initialPage: _currentIndex),
+                      count: exercises7.length,
+                      effect: WormEffect(
+                        dotWidth: 10,
+                        dotHeight: 10,
+                        activeDotColor: AppColor.primary,
+                        dotColor: Colors.grey.withOpacity(0.5),
                       ),
-                      backgroundColor: AppColor.primary,
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                    ),
-                    child: Text(
-                      "Begin",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  SizedBox(height: 50),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (number == 0) {
+                          number = 5;
+                        }
+                        if ("Arcade" == exercises7[number - 1]['name']) {
+                          Mode = "Arcade";
+                          print(selectedInjuries);
+                          if (selectedInjuries == []) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RestimeTutorial(),
+                              ),
+                            );
+                          } else if (bodypartString == "none of them") {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RestimeTutorial(),
+                              ),
+                            );
+                          } else {
+                            _showInjuryDialog();
+                          }
+                        } else {
+                          startExercise(
+                            exercises7[number - 1]["PrimaryName"]!,
+                            exercises7[number - 1]["image"]!,
+                            exercises7[number - 1]["name"]!,
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        backgroundColor: AppColor.primary,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: Text(
+                        "Begin",
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

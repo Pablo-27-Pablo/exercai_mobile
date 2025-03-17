@@ -88,7 +88,7 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
         ),
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios,
             color: AppColor.moresolidPrimary,
           ),
           onPressed: () {

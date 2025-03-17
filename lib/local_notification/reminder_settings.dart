@@ -254,6 +254,9 @@ class _ReminderSettingsState extends State<ReminderSettings> {
         title: const Text('Set Reminders', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: AppColor.primary,
         elevation: 2,
+        leading: IconButton(onPressed: (){
+          Navigator.pop(context);
+        }, icon: Icon(Icons.arrow_back_ios,color: Colors.white,)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

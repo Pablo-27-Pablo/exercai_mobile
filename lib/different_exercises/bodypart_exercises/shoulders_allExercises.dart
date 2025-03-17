@@ -310,7 +310,7 @@ class _ShouldersAllexercisesState extends State<ShouldersAllexercises>
         appBar: AppBar(
           backgroundColor: AppColor.backgroundWhite,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
+            icon: Icon(Icons.arrow_back_ios, color: AppColor.supersolidPrimary),
             onPressed: () => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

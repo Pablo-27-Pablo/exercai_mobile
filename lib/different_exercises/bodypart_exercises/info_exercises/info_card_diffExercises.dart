@@ -67,8 +67,11 @@ class _DiffExeCardState extends State<DiffExeCard> {
     if (currentUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Different Exercises Time"),
+          title: const Text("Different Exercises Time",style: TextStyle(color: AppColor.backgroundWhite),),
           backgroundColor: AppColor.primary,
+          leading: IconButton(onPressed: (){
+            Navigator.pop(context);
+          }, icon: Icon(Icons.arrow_back_ios,color: AppColor.backgroundWhite,)),
         ),
         body: const Center(child: Text("User not logged in")),
       );
@@ -76,8 +79,11 @@ class _DiffExeCardState extends State<DiffExeCard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Different Exercises Time"),
+        title: const Text("Different Exercises Time",style: TextStyle(color: AppColor.backgroundWhite),),
         backgroundColor: AppColor.primary,
+        leading: IconButton(onPressed: (){
+          Navigator.pop(context);
+        }, icon: Icon(Icons.arrow_back_ios,color: AppColor.backgroundWhite,)),
       ),
       backgroundColor: Colors.white,
       body: Padding(

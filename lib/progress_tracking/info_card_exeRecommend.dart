@@ -118,16 +118,22 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
     if (currentUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Exercise Summary"),
+          title: const Text("Exercise Summary",style: TextStyle(color: AppColor.backgroundWhite),),
           backgroundColor: AppColor.primary,
+          leading: IconButton(onPressed: (){
+            Navigator.pop(context);
+          }, icon: Icon(Icons.arrow_back_ios)),
         ),
         body: const Center(child: Text("User not logged in.")),
       );
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Exercise Summary"),
+        title: const Text("Exercise Summary",style: TextStyle(color: AppColor.backgroundWhite),),
         backgroundColor: AppColor.primary,
+        leading: IconButton(onPressed: (){
+          Navigator.pop(context);
+        }, icon: Icon(Icons.arrow_back_ios,color: AppColor.backgroundWhite,)),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(

@@ -1,6 +1,7 @@
 import 'package:exercai_mobile/components/my_drawer.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
 import 'package:exercai_mobile/main.dart';
+import 'package:exercai_mobile/month_log_exercise/month_note_exercise.dart';
 import 'package:exercai_mobile/predictive_graph/predictive_graph_analysis.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -206,6 +207,14 @@ class MyDrawer extends StatelessWidget {
                         const SnackBar(content: Text("No user email available.")),
                       );
                     }
+                  },
+                ),
+                _buildDrawerTile(
+                  icon: Icons.calendar_month_outlined,
+                  title: "Log Exercise Date",
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthExercisePage()));
                   },
                 ),
               ],

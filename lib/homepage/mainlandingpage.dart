@@ -56,24 +56,103 @@ class _MainLandingPageState extends State<MainLandingPage> {
       barrierDismissible: false, // Prevent closing by tapping outside.
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
-            "No Internet Connection",
-            style: TextStyle(color: Colors.red),
+          // Rounded shape for a modern look
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          content: const Text(
-            "Some features may not work properly and your progress may not be saved.\n\nPlease connect to the internet to continue.",
+          // White background for the main body
+          backgroundColor: Colors.white,
+          // We set zero padding so we can control spacing precisely in the content
+          titlePadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.zero,
+          actionsPadding: EdgeInsets.only(bottom: 8, right: 8),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Gradient header with a "no-wifi" icon
+              Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.blue.shade400,
+                      Colors.blueAccent.shade200,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.wifi_off_rounded,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
+              ),
+
+              // Title
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "No Internet Connection",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              // Message
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "Some features may not work properly and your progress may not be saved.\n\n"
+                      "Please connect to the internet to continue.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Colors.black87),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
           ),
+
+          // Action buttons at the bottom
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _checkInternetConnection(); // Retry connection.
-              },
-              child: const Text("Retry"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(), // Close dialog.
-              child: const Text("Continue Offline"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade500, // Retry button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Continue Offline",style: TextStyle(color: Colors.white),),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent, // Retry button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _checkInternetConnection(); // Retry connection. // Calls your custom retry function
+                  },
+                  child: const Text("Retry",style: TextStyle(color: Colors.white),),
+                ),
+              ],
             ),
           ],
         );
