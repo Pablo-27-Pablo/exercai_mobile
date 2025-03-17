@@ -196,6 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(builder: (context) => Trypage()),
           );
         } else if (Mode == "dayChallenge") {
+          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Trypage()),
@@ -893,6 +894,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         MaterialPageRoute(builder: (context) => Trypage()),
                       );
                     } else {
+                      raise = 0;
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

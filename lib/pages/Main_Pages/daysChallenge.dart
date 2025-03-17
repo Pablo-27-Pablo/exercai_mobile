@@ -59,6 +59,7 @@ class _ThirtyDaysChallengeState extends State<ThirtyDaysChallenge> {
             padding: const EdgeInsets.only(top: 35, bottom: 10, left: 20),
             child: IconButton(
               onPressed: () {
+                raise = 0;
                 seconds = 60;
                 Navigator.pushReplacement(
                   context,
@@ -128,7 +129,7 @@ class _ThirtyDaysChallengeState extends State<ThirtyDaysChallenge> {
                 width: 250,
               ),
             ),
-         
+
           // Container(
           //   decoration: BoxDecoration(
           //     borderRadius: BorderRadius.circular(5),
