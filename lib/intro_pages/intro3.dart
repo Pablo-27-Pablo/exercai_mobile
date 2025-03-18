@@ -1,11 +1,12 @@
 import 'package:exercai_mobile/auth/login_or_register.dart';
+import 'package:exercai_mobile/intro_pages/intro2.dart';
 import 'package:exercai_mobile/login_register_pages/createaccount.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/auth/login_or_register.dart';
 import 'package:google_fonts/google_fonts.dart'; // Ensure this dependency is added in pubspec.yaml
 import 'dart:ui';
-
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 class ThirdOnboarding extends StatefulWidget {
   const ThirdOnboarding({super.key});
 
@@ -42,6 +43,24 @@ class _ThirdOnboardingState extends State<ThirdOnboarding> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: TextButton(
+              onPressed: () {
+                navigateWithSlideTransition(context, SecondOnboarding(), slideRight: false);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                textStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.arrow_back_ios, size: 30),
+                ],
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/homepage/starter_page.dart';
+import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
 import 'package:exercai_mobile/login_register_pages/height_choose.dart';
 import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
@@ -8,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:hive/hive.dart';
 import 'createaccount.dart';
-import 'welcome.dart';
 import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -96,9 +96,9 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.black87),
+        icon: Icon(Icons.arrow_back_ios, color: Colors.black87),
         onPressed: () {
-          navigateWithSlideTransition(context, WelcomeUser(), slideRight: false);
+          navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: false);
         },
       ),
       centerTitle: true,
@@ -257,7 +257,7 @@ class _WhatGoalPageState extends State<WhatGoalPage> {
         if (selectedGoal != null) {
           saveGoalToFirebase();
           _saveSelectedGoal(selectedGoal!); // Save selection before navigation
-          navigateWithSlideTransition(context, HeightChoose(), slideRight: true);
+          navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Please select a goal before proceeding.")),

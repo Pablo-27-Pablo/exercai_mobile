@@ -80,7 +80,7 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: AppColor.moresolidPrimary),
+        icon: Icon(Icons.arrow_back_ios, color: AppColor.moresolidPrimary),
         onPressed: () {
           navigateWithSlideTransition(context, WhatGoalPage(), slideRight: false);
         },

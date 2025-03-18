@@ -1,5 +1,6 @@
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
+import 'package:exercai_mobile/login_register_pages/height_choose.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -176,6 +177,12 @@ class _WeightChooseState extends State<WeightChoose> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColor.backgroundWhite,
+          leading: IconButton(onPressed: (){
+            navigateWithSlideTransition(context, HeightChoose(), slideRight: false);
+          }, icon: Icon(Icons.arrow_back_ios,color: Colors.black,)),
+        ),
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Column(

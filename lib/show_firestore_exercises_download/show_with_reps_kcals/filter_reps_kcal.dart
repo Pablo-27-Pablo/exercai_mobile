@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'show_reps_kcal.dart';
-import 'list_map_exercises.dart';
+//import 'list_map_exercises.dart';
 import '../../homepage/mainlandingpage.dart';
 import 'dart:math';
+import 'package:exercai_mobile/recommendation_exercise/recommendation_list_map.dart';
 
 class FilterRepsKcal extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class FilterRepsKcal extends StatefulWidget {
 class _FilterRepsKcalState extends State<FilterRepsKcal> {
   late Stream<QuerySnapshot> _exercisesStream;
   bool isLoading = true;
-  String? selectedDifficulty;
+  String? selectedGoal;
   String? selectedBMI;
   User? _currentUser;
   Map<String, double> finalBurnCalMap = {};
@@ -132,7 +133,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
     try {
       setState(() => isLoading = true);
-
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('Users')
           .doc(_currentUser!.email)
@@ -141,23 +141,16 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
         setState(() {
+          selectedGoal = userData['goal'] ?? 'maintain'; // Changed from workoutLevel
           selectedBMI = userData['bmiCategory'] ?? 'normal';
-          selectedDifficulty = userData['workoutLevel'] ?? 'beginner';
-          // Fetch injury areas
-          // Fetch age from Firestore (assumed stored as an integer)
           userAge = userData['age'];
           String injuryArea = userData['injuryArea'] ?? '';
           _userInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
-          // Clear if "none of them" is selected
-          if (_userInjuries.contains('none of them')) {
-            _userInjuries.clear();
-          }
+          if (_userInjuries.contains('none of them')) _userInjuries.clear();
         });
-
         await _initializeExercisesStream();
         await fetchFinalBurnCalValues();
       }
-
       setState(() => isLoading = false);
     } catch (e) {
       print("Error fetching user data: $e");
@@ -223,14 +216,14 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
 
   Future<void> _initializeExercisesStream() async {
-    if (selectedDifficulty == null || selectedBMI == null || _currentUser == null) return;
+    if (selectedGoal == null || selectedBMI == null || _currentUser == null) return;
 
     setState(() {
       _exercisesStream = FirebaseFirestore.instance
           .collection('Users')
           .doc(_currentUser!.email)
           .collection('UserExercises')
-          .where('difficulty', isEqualTo: selectedDifficulty)
+          .where('goal', isEqualTo: selectedGoal) // Updated field
           .where('bmiCategory', isEqualTo: selectedBMI)
           .where('isActive', isEqualTo: true)
           .snapshots();
@@ -380,60 +373,49 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
   // Modified fetchExercisesFromFirestore to only create new exercises
 
   Future<void> fetchExercisesFromFirestore({bool isTest = false}) async {
-    if (selectedDifficulty == null || selectedBMI == null || _currentUser == null) return;
+    if (selectedGoal == null || selectedBMI == null || _currentUser == null) return;
 
     try {
-      final difficultyMap = exerciseData[selectedDifficulty!] ?? {};
-      final bmiMap = difficultyMap[selectedBMI!] ?? {};
+      final goalMap = exerciseRecommendationData[selectedGoal!] ?? {};
+      final bmiMap = goalMap[selectedBMI!] ?? {};
 
-      int exerciseLimit = selectedDifficulty == 'beginner' ? 1
-          : selectedDifficulty == 'intermediate' ? 2
-          : 3;
-
-      List<String> targetBodyParts = [
-        'back', 'chest', 'cardio', 'lower arms', 'lower legs', 'neck',
-        'shoulders', 'upper arms', 'upper legs', 'waist'
-      ];
-
+      List<String> sections = ['warmup', 'mainWorkout', 'cooldown'];
       final seed = isTest ? DateTime.now().millisecondsSinceEpoch : _getDailySeed();
       final random = Random(seed);
 
-      for (var bodyPart in targetBodyParts) {
-        QuerySnapshot snapshot = await FirebaseFirestore.instance
-            .collection('BodyweightExercises')
-            .where('bodyPart', isEqualTo: bodyPart)
-            .get();
 
-        List<Map<String, dynamic>> allExercises = List<Map<String, dynamic>>.from(bmiMap[bodyPart] ?? []);
+      for (String section in sections) {
+        List<dynamic> sectionExercises = bmiMap[section] ?? [];
+        for (var exerciseRecommendationData in sectionExercises) {
+          String exerciseName = exerciseRecommendationData['name'].toString();
+          QuerySnapshot snapshot = await FirebaseFirestore.instance
+              .collection('BodyweightExercises')
+              .where('name', isEqualTo: exerciseName)
+              .get();
 
-        if (allExercises.isNotEmpty) {
-          allExercises.shuffle(random);
-          final selectedExercises = allExercises.take(exerciseLimit).toList();
 
-          for (var doc in snapshot.docs) {
-            final data = doc.data() as Map<String, dynamic>;
-            final match = selectedExercises.firstWhere(
-                  (ex) => (ex['name']?.toLowerCase() ?? '') == (data['name']?.toString().toLowerCase() ?? ''),
-              orElse: () => <String, dynamic>{},
-            );
+          if (snapshot.docs.isNotEmpty) {
+            var doc = snapshot.docs.first;
+            var data = doc.data() as Map<String, dynamic>;
 
-            if (match.isNotEmpty) {
-              final mergedData = Map<String, dynamic>.from(data)
-                ..addAll({
-                  'baseSetsReps': match['baseSetsReps'],
-                  'baseReps': match['baseReps'],
-                  'baseSetsSecs': match['baseSetsSecs'],
-                  'baseSecs': match['baseSecs'],
-                  'baseCalories': match['baseCalories'],
-                  'burnCalperRep': match['burnCalperRep'],
-                  'burnCalperSec': match['burnCalperSec'],
-                  'gifPath': _getLocalGifPath(match['name']),
-                  'difficulty': selectedDifficulty,
-                  'bmiCategory': selectedBMI,
-                  'completed': false,
-                  'restTime': 30,
-                  'isActive': true,
-                });
+            var mergedData = Map<String, dynamic>.from(data)
+              ..addAll({
+                ...exerciseRecommendationData,
+                'baseSetsReps': exerciseRecommendationData['baseSetsReps'],
+                'baseReps': exerciseRecommendationData['baseReps'],
+                'baseSetsSecs': exerciseRecommendationData['baseSetsSecs'],
+                'baseSecs': exerciseRecommendationData['baseSecs'],
+                'baseCalories': exerciseRecommendationData['baseCalories'],
+                'burnCalperRep': exerciseRecommendationData['burnCalperRep'],
+                'burnCalperSec': exerciseRecommendationData['burnCalperSec'],
+                'gifPath': _getLocalGifPath(exerciseName),
+                'goal': selectedGoal,
+                'bmiCategory': selectedBMI,
+                'section': section, // Add section for grouping
+                'completed': false,
+                'restTime': 30,
+                'isActive': true,
+              });
 
               DocumentReference userExerciseRef = FirebaseFirestore.instance
                   .collection('Users')
@@ -442,7 +424,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                   .doc(mergedData['name'].toString());
 
               await userExerciseRef.set(mergedData, SetOptions(merge: true));
-            }
+
           }
         }
       }
@@ -452,16 +434,15 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
   }
 
   String _getLocalGifPath(String exerciseName) {
-    // Iterate over the entire exerciseData from list_map_exercises.dart
-    for (var difficultyMap in exerciseData.values) {
-      for (var bmiMap in difficultyMap.values) {
-        for (var exercisesList in bmiMap.values) {
-          for (var exercise in exercisesList) {
+    // Search all recommendation lists for the exercise
+    for (var goalMap in exerciseRecommendationData.values) {
+      for (var bmiMap in goalMap.values) {
+        for (var section in ['warmup', 'mainWorkout', 'cooldown']) {
+          List<dynamic> exercises = bmiMap[section] ?? [];
+          for (var exercise in exercises) {
             if (exercise['name'].toString().toLowerCase() == exerciseName.toLowerCase()) {
               String path = exercise['gifPath'].toString();
-              if (!path.endsWith('.gif')) {
-                path += '.gif';
-              }
+              if (!path.endsWith('.gif')) path += '.gif';
               return path;
             }
           }
@@ -525,6 +506,33 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     }
   };
 
+
+// New grouping function that groups exercises by their 'section' field.
+  Map<String, List<Map<String, dynamic>>> groupExercisesBySection(List<Map<String, dynamic>> exercises) {
+    Map<String, List<Map<String, dynamic>>> groupedExercises = {};
+    for (var exercise in exercises) {
+      String section = exercise['section'] ?? 'unknown';
+      if (!groupedExercises.containsKey(section)) {
+        groupedExercises[section] = [];
+      }
+      groupedExercises[section]!.add(exercise);
+    }
+    return groupedExercises;
+  }
+
+// Function to get the display text for each section.
+  String getSectionDisplayText(String section) {
+    switch (section) {
+      case 'warmup':
+        return "WARM-UP (5–10 minutes)";
+      case 'mainWorkout':
+        return "MAIN WORKOUT";
+      case 'cooldown':
+        return "COOL DOWN (5–10 minutes)";
+      default:
+        return section.toUpperCase();
+    }
+  }
 
 
   @override
@@ -638,7 +646,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
         ),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
-            : _currentUser == null || selectedDifficulty == null || selectedBMI == null
+            : _currentUser == null || selectedGoal == null || selectedBMI == null
             ? Center(child: Text("Please log in and select preferences"))
             : StreamBuilder<QuerySnapshot>(
           stream: _exercisesStream,
@@ -698,18 +706,17 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                 return exercises.isEmpty
                     ? Center(child: Text("Tap Reload Button if there's no Exercise Showing",style: TextStyle(color: Colors.black87),))
                     : ListView(
-                  children: groupExercisesByBodyPart(exercises).entries.map((entry) {
-                    String bodyPart = entry.key;
-                    List<Map<String, dynamic>> exercisesList = entry.value;
-
+                  children: groupExercisesBySection(exercises).entries.map((entry) {
+                    String section = entry.key;
+                    List<Map<String, dynamic>> sectionExercises = entry.value;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                           child: Text(
-                            bodyPart.toUpperCase(), // Display body part title
-                            style: TextStyle(
+                            getSectionDisplayText(section),
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -717,7 +724,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                           ),
                         ),
                         Column(
-                          children: exercisesList.map((exercise) {
+                          children: sectionExercises.map((exercise) {
                             final isCompleted = exercise['completed'] == true;
                             final exerciseId = exercise['id'].toString();
                             final exerciseName = exercise['name'].toString();
@@ -995,4 +1002,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
       ),
     );
   }
+
+
+
 }

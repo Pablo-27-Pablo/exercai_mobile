@@ -136,7 +136,7 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
         onPressed: () {
           navigateWithSlideTransition(context, InjurySelection(), slideRight: false);
         },
-        icon: const Icon(Icons.arrow_back, color: Colors.black87),
+        icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
       ),
       title: Text(
         'Workout Level',

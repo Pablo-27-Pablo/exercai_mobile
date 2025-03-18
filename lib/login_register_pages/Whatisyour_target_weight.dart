@@ -1,6 +1,8 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
+import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
 import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
 import 'package:exercai_mobile/login_register_pages/nutriActivitylevel.dart';
+import 'package:exercai_mobile/login_register_pages/weight_choose.dart';
 import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
@@ -233,14 +235,14 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
   // Custom AppBar with a back arrow
   PreferredSizeWidget _buildHeader(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColor.backgroundWhite,
       elevation: 0,
       centerTitle: false,
       leading: IconButton(
         onPressed: () {
-          navigateWithSlideTransition(context, WorkoutLevel(), slideRight: false);
+          navigateWithSlideTransition(context, WeightChoose(), slideRight: false);
         },
-        icon: Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back_ios, color: Colors.black),
       ),
     );
   }
@@ -406,7 +408,7 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
       onTap: () async {
         saveTargetWeightToFirebase();
         _saveTargetWeight();
-        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
+        navigateWithSlideTransition(context, WhatGoalPage(), slideRight: true);
       },
       child: Container(
         width: double.infinity,

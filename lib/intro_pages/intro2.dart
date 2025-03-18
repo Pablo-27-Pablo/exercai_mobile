@@ -1,3 +1,4 @@
+import 'package:exercai_mobile/intro_pages/intro1.dart';
 import 'package:exercai_mobile/intro_pages/intro3.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/main.dart';
@@ -44,10 +45,10 @@ class _SecondOnboardingState extends State<SecondOnboarding> {
           // Top Skip Button
           Positioned(
             top: 40,
-            right: 20,
+            left: 10,
             child: TextButton(
               onPressed: () {
-                // Add Skip functionality if desired (e.g., navigate to main screen)
+                navigateWithSlideTransition(context, OnboardingScreen(), slideRight: false);
               },
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
@@ -55,13 +56,12 @@ class _SecondOnboardingState extends State<SecondOnboarding> {
               ),
               child: Row(
                 children: const [
-                  Text('Skip'),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_ios, size: 14),
+                  Icon(Icons.arrow_back_ios, size: 30),
                 ],
               ),
             ),
           ),
+
           // Main Content Card
           Align(
             alignment: Alignment.center,

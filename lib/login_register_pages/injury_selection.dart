@@ -145,7 +145,7 @@ class _InjurySelectionState extends State<InjurySelection> {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: AppColor.supersolidPrimary),
+        icon: Icon(Icons.arrow_back_ios, color: AppColor.supersolidPrimary),
         onPressed: () {
           navigateWithSlideTransition(context, Nutriactivitylevel(),
               slideRight: false);

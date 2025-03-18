@@ -1,4 +1,5 @@
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
+import 'package:exercai_mobile/login_register_pages/gender_choose.dart';
 import 'package:exercai_mobile/login_register_pages/weight_choose.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -80,7 +81,13 @@ class _HeightChooseState extends State<HeightChoose> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(onPressed: (){
+            navigateWithSlideTransition(context, GenderChoose(), slideRight: false);
+          }, icon: Icon(Icons.arrow_back_ios,color: Colors.black87,)),
+        ),
+        backgroundColor: AppColor.backgroundWhite,
         body: SafeArea(
           child: Column(
             children: [

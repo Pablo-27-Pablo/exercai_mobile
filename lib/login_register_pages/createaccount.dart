@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/auth/login_or_register.dart';
 import 'package:exercai_mobile/login_register_pages/date_of_birth.dart';
-import 'package:exercai_mobile/login_register_pages/welcome.dart';
 import 'package:exercai_mobile/reset_password/forgot_pw_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/helper/helper_functions.dart';
@@ -38,13 +37,19 @@ void registerUser(BuildContext context) async {
   String lastName = lnameController.text.trim();
 
   // Check if fields are empty
-  if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+  if (firstName.isEmpty ||
+      lastName.isEmpty ||
+      email.isEmpty ||
+      password.isEmpty ||
+      confirmPassword.isEmpty) {
     displayMessagetoUser("Please fill in all fields.", context);
     return;
   }
 
   // Validate email format
-  bool emailValid = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(email);
+  bool emailValid = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+      .hasMatch(email);
   if (!emailValid) {
     displayMessagetoUser("Please enter a valid email address.", context);
     return;
@@ -63,24 +68,21 @@ void registerUser(BuildContext context) async {
     return;
   }
 
-  // Check if email is already registered in Firebase
-  bool isEmailAvailable = await checkIfEmailExists(email, context);
-  if (!isEmailAvailable) {
-    displayMessagetoUser("Email is already registered. Please use a different email.", context);
-    return;
-  }
+  // Remove pre-check for email existence.
+  // Instead, let Firebase handle it in createUserWithEmailAndPassword.
 
   // Show loading circle
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (context) => const Center(child: CircularProgressIndicator()),
+    builder: (context) =>
+    const Center(child: CircularProgressIndicator()),
   );
 
   try {
-    // Create user in Firebase Authentication
-    UserCredential userCredential =
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+    // Attempt to create user in Firebase Authentication
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
 
     // Create user document in Firestore
     await createUserDocument(userCredential);
@@ -90,24 +92,28 @@ void registerUser(BuildContext context) async {
 
     // Navigate to DateOfBirth page
     if (context.mounted) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DateOfBirth()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => DateOfBirth()));
     }
   } on FirebaseAuthException catch (e) {
     if (context.mounted) Navigator.pop(context); // Pop loading circle
 
     String errorMessage;
     if (e.code == 'email-already-in-use') {
-      errorMessage = "This email is already registered. Please use a different email.";
+      errorMessage =
+      "This email is already registered. Please use a different email.";
     } else if (e.code == 'weak-password') {
       errorMessage = "Password is too weak. Please use a stronger password.";
     } else if (e.code == 'invalid-email') {
       errorMessage = "Invalid email format.";
     } else {
-      errorMessage = "Registration failed: ${e.message ?? "Unknown error"}";
+      errorMessage =
+      "Registration failed: ${e.message ?? "Unknown error"}";
     }
     displayMessagetoUser(errorMessage, context);
   }
 }
+
 
 Future<bool> _isConnected() async {
   try {

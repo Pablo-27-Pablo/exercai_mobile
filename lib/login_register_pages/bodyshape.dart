@@ -10,6 +10,7 @@ import 'package:exercai_mobile/profile_pages/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Bodyshape extends StatefulWidget {
   const Bodyshape({super.key});
@@ -26,15 +27,46 @@ class _BodyshapeState extends State<Bodyshape> {
   void initState() {
     super.initState();
     _fetchGender();
+    _checkForNewUser();
+  }
+
+  /// Check if user has changed and reset data if needed
+  Future<void> _checkForNewUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    String? lastSavedUser = prefs.getString('lastSavedUser');
+    if (lastSavedUser != currentUser.email) {
+      // Clear previous user data and save the new user email
+      await prefs.clear();
+      await prefs.setString('lastSavedUser', currentUser.email!);
+      print("Cleared previous user data. Storing data for new user: ${currentUser.email}");
+    }
+    _loadSavedBodyShape();
+  }
+
+  /// Load saved body shape from SharedPreferences
+  Future<void> _loadSavedBodyShape() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedShape = prefs.getString('bodyShape');
+    if (savedShape != null && savedShape.isNotEmpty) {
+      setState(() {
+        selectedShape = savedShape;
+      });
+    }
   }
 
   /// Fetch the current user's gender from Firestore.
   Future<void> _fetchGender() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Users").doc(user.email).get();
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(user.email)
+          .get();
       setState(() {
-        gender = doc.get("gender")?.toString().toLowerCase() ?? "male"; // default to male if missing
+        gender = doc.get("gender")?.toString().toLowerCase() ?? "male";
       });
     } else {
       setState(() {
@@ -43,7 +75,10 @@ class _BodyshapeState extends State<Bodyshape> {
     }
   }
 
-  void selectBodyShape(String shape) {
+  /// Save selected body shape locally and update UI.
+  void selectBodyShape(String shape) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('bodyShape', shape);
     setState(() {
       selectedShape = shape;
     });
@@ -99,9 +134,7 @@ class _BodyshapeState extends State<Bodyshape> {
                 'You are at a normal level!\nTry our tailored plan to get fitter and healthier!',
                 selectedShape,
                 "slim",
-                imagePath: gender == "male"
-                    ? "assets/Slim.png"
-                    : "assets/slim_female.jpg",
+                imagePath: gender == "male" ? "assets/Slim.png" : "assets/slim_female.jpg",
               ),
               const SizedBox(height: 20),
               _buildFeatureCard(
@@ -109,9 +142,7 @@ class _BodyshapeState extends State<Bodyshape> {
                 'You may have a slower metabolism\nand face potential health risks.',
                 selectedShape,
                 "average",
-                imagePath: gender == "male"
-                    ? "assets/average.jpg"
-                    : "assets/average_female.jpg",
+                imagePath: gender == "male" ? "assets/average.jpg" : "assets/average_female.jpg",
               ),
               const SizedBox(height: 20),
               _buildFeatureCard(
@@ -119,9 +150,7 @@ class _BodyshapeState extends State<Bodyshape> {
                 'High risk for obesity-related diseases!\nWe can help you turn it around.',
                 selectedShape,
                 "heavy",
-                imagePath: gender == "male"
-                    ? "assets/heavy.jpg"
-                    : "assets/heavy_female.jpg",
+                imagePath: gender == "male" ? "assets/heavy.jpg" : "assets/heavy_female.jpg",
               ),
               const SizedBox(height: 20),
               Center(child: _buildNextButton()),
@@ -139,9 +168,9 @@ class _BodyshapeState extends State<Bodyshape> {
       elevation: 0,
       leading: IconButton(
         onPressed: () {
-          navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: false);
+          navigateWithSlideTransition(context, WorkoutLevel(), slideRight: false);
         },
-        icon: const Icon(Icons.arrow_back, color: AppColor.moresolidPrimary),
+        icon: const Icon(Icons.arrow_back_ios, color: AppColor.moresolidPrimary),
       ),
     );
   }
@@ -243,8 +272,8 @@ class _BodyshapeState extends State<Bodyshape> {
   Widget _buildNextButton() {
     return GestureDetector(
       onTap: () {
-          saveBodyShapeToFirebase();
-          navigateWithSlideTransition(context, SummaryBodyMetricsPage(), slideRight: true);
+        saveBodyShapeToFirebase();
+        navigateWithSlideTransition(context, SummaryBodyMetricsPage(), slideRight: true);
       },
       child: Container(
         height: 55,
@@ -273,84 +302,4 @@ class _BodyshapeState extends State<Bodyshape> {
       ),
     );
   }
-
-  /*void _showWarningDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.6),
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.yellow.withOpacity(0.8),
-                      Colors.orange.withOpacity(0.8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.yellow, width: 2),
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.info,
-                      size: 100,
-                      color: AppColor.yellowtext,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      "This app is not intended for individuals with medical conditions or physical limitations related to exercise. Please consult a healthcare professional before starting any exercise routine.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.lato(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: AppColor.textwhite,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WelcomeScreen(), // Navigate to the next page
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.solidPrimary,
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Proceed',
-                        style: GoogleFonts.lato(
-                          color: AppColor.textwhite,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }*/
 }
-

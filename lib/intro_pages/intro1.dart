@@ -1,8 +1,10 @@
 import 'package:exercai_mobile/intro_pages/intro2.dart';
+import 'package:exercai_mobile/intro_pages/openingpage.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 import 'package:google_fonts/google_fonts.dart'; // Add this dependency in your pubspec.yaml
+
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -41,13 +43,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-          // Top Skip Button
           Positioned(
             top: 40,
-            right: 20,
+            left: 10,
             child: TextButton(
               onPressed: () {
-                // Add Skip functionality here (e.g., navigate to main screen)
+                navigateWithSlideTransition(context, WelcomePage(), slideRight: false);
               },
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
@@ -55,13 +56,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               child: Row(
                 children: const [
-                  Text('Skip'),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_ios, size: 14),
+                  Icon(Icons.arrow_back_ios, size: 30),
                 ],
               ),
             ),
           ),
+          // Top Skip Button
           // Middle Content: Main Card with icon & message
           Align(
             alignment: Alignment.center,

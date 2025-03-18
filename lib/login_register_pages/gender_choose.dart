@@ -1,4 +1,5 @@
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
+import 'package:exercai_mobile/login_register_pages/date_of_birth.dart';
 import 'package:exercai_mobile/login_register_pages/height_choose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,12 @@ class _GenderChooseState extends State<GenderChoose> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColor.backgroundWhite,
+          leading: IconButton(onPressed: (){
+            navigateWithSlideTransition(context, DateOfBirth(), slideRight: false);
+          }, icon: Icon(Icons.arrow_back_ios,color: Colors.black87,)),
+        ),
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Center( // Centers content horizontally
@@ -195,7 +202,7 @@ class _GenderChooseState extends State<GenderChoose> {
                   .update({
                 'gender': dropdowngender,
               });
-              navigateWithSlideTransition(context, WhatGoalPage(), slideRight: true);
+              navigateWithSlideTransition(context, HeightChoose(), slideRight: true);
             } catch (e) {
               print("Error saving data: $e");
             }

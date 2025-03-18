@@ -1,10 +1,12 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
+import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:ui';
+import 'package:exercai_mobile/navigator_left_or_right/custom_navigation.dart';
 
 class SummaryBodyMetricsPage extends StatefulWidget {
   const SummaryBodyMetricsPage({Key? key}) : super(key: key);
@@ -81,7 +83,10 @@ class _SummaryBodyMetricsPageState extends State<SummaryBodyMetricsPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: BackButton(color: Colors.black87),
+        leading:
+        IconButton(onPressed: (){
+          navigateWithSlideTransition(context, Bodyshape(), slideRight: false);
+        }, icon: Icon(Icons.arrow_back_ios)),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
