@@ -22,7 +22,9 @@ Formula() {
     if (exercises2[i]["name"] == ExerciseName) {
       print("Exercise found: ${exercises2[i]}");
       double formula =
-          (((exercises2[i]["MET"] as num).toDouble() * weight * raise.toDouble()) /
+          (((exercises2[i]["MET"] as num).toDouble() *
+                  weight *
+                  raise.toDouble()) /
               1000);
       totalCaloriesBurn = totalCaloriesBurn + formula;
       totalCaloriesBurnDatabase =
@@ -102,8 +104,10 @@ void squatExercise(
             );
           }
           peopleBox.put(ExerciseName, TotalCount);
+          checkRepetitionSpeed();
           raise = peopleBox.get(ExerciseName) % 100;
         } else {
+          checkRepetitionSpeed();
           raise++;
         }
         print("Squat count: $raise");
@@ -173,8 +177,10 @@ void pushupExercise(
             );
           }
           peopleBox.put(ExerciseName, TotalCount);
+          checkRepetitionSpeed();
           raise = peopleBox.get(ExerciseName) % 100;
         } else {
+          checkRepetitionSpeed();
           raise++;
         }
         print("Push-up count: $raise");
@@ -362,8 +368,10 @@ void legRaiseExercise(
             );
           }
           peopleBox.put(ExerciseName, TotalCount);
+          checkRepetitionSpeed();
           raise = peopleBox.get(ExerciseName) % 100;
         } else {
+          checkRepetitionSpeed();
           raise++;
         }
         print("Leg raise count: $raise");
@@ -423,8 +431,10 @@ void sitUpExercise(
             );
           }
           peopleBox.put(ExerciseName, TotalCount);
+          checkRepetitionSpeed();
           raise = peopleBox.get(ExerciseName) % 100;
         } else {
+          checkRepetitionSpeed();
           raise++;
         }
         print("Sit-up count: $raise");
@@ -484,6 +494,7 @@ void jumpingJacksExercise(
         print(staticIsUp);
 
         // Count a completed jumping jack
+        checkRepetitionSpeed();
         raise++;
         print("Jumping jack count: $raise");
       }
@@ -767,4 +778,25 @@ void lungesExercise(
       }
     }
   }
+}
+
+int lastRepetitionTime = DateTime.now().millisecondsSinceEpoch;
+int repetitionThreshold = 1000; // 1 second threshold
+
+void checkRepetitionSpeed() {
+  int currentTime = DateTime.now().millisecondsSinceEpoch;
+  int timeDifference = currentTime - lastRepetitionTime;
+
+  if (currentTime - lastUpdateTime3 >= 2000) {
+    if (timeDifference < repetitionThreshold) {
+      errorSpeed = "You're moving too fast! Slow down.";
+      speak(errorSpeed);
+      warningIndicatorScreen = false;
+    } else {
+      errorSpeed = "";
+      warningIndicatorScreen = true;
+    }
+  }
+
+  lastRepetitionTime = currentTime;
 }

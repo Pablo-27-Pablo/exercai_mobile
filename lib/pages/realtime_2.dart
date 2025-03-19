@@ -32,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool buttonMusic = true;
   final musicPlayer = MusicPlayerService();
   late CameraController controller;
   bool isBusy = false;
@@ -69,8 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
       selectedInjuries = prefs.getStringList('selectedInjuries') ?? [];
     });
   }
-
-
 
   void SecondOutput() {
     if (ExerciseName == "plank" ||
@@ -196,7 +195,6 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(builder: (context) => Trypage()),
           );
         } else if (Mode == "dayChallenge") {
-          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Trypage()),
@@ -482,14 +480,14 @@ class _MyHomePageState extends State<MyHomePage> {
             rightShoulder.y,
           );
         }
-        Future.delayed(Duration(seconds: 3), () {
-          if (Mode == "postureCorrection" && raise == repsWants) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => CongratsApp()),
-            );
-          }
-        });
+
+        if (Mode == "postureCorrection" && raise == repsWants) {
+          //Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CongratsApp()),
+          );
+        }
       } else {
         if (ExerciseName != "") {
           if (currentTime4 - lastUpdateTime3 >= 3000) {
@@ -504,6 +502,8 @@ class _MyHomePageState extends State<MyHomePage> {
             speak(errorWholebody);
             warningIndicatorScreen = false;
             lastUpdateTime3 = currentTime4;
+            errorSpeed = "";
+            warningIndicatorText = "";
             // Update the last update time
           }
           //musicPlayer.resume();
@@ -738,7 +738,40 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                         ),
                                       ),
-                                      
+                                      errorSpeed == ""
+                                          ? Container()
+                                          : Container(
+                                            width: 180,
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(
+                                                255,
+                                                247,
+                                                247,
+                                                247,
+                                              ).withOpacity(0.7),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                width: 1,
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  255,
+                                                  255,
+                                                  255,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              errorSpeed,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: AppColor.solidtext,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+
                                       SizedBox(height: 10),
                                       errorWholebody == ""
                                           ? Container()
@@ -903,7 +936,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     }
                   },
-                  icon: Icon(Icons.arrow_back_ios, color: const Color.fromARGB(255, 255, 255, 255)),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
                 )
                 : IconButton(
                   onPressed: () {
@@ -912,7 +948,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => Trypage()),
                     );
                   },
-                  icon: Icon(Icons.arrow_back_ios, color: const Color.fromARGB(255, 255, 255, 255)),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
                 ),
         title: const Text(
           "Pose Estimation",
@@ -920,9 +959,33 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         backgroundColor: AppColor.primary,
         actions: [
-          IconButton(
-            icon: Icon(Icons.camera_alt_outlined, color: AppColor.primary),
-            onPressed: toggleCamera,
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.camera_alt_outlined,
+                  color: AppColor.backgroundWhite,
+                ),
+                onPressed: toggleCamera,
+              ),
+              Mode == "Arcade"
+                  ? IconButton(
+                    icon: Icon(
+                      buttonMusic? Icons.music_note_rounded : Icons.music_off_rounded,
+                      color: AppColor.backgroundWhite,
+                    ),
+                    onPressed: () {
+                      if(buttonMusic){
+                        musicPlayer.stop();
+                      }else{
+                        musicPlayer.play();
+                      }
+                      
+                      buttonMusic = !buttonMusic;
+                    },
+                  )
+                  : Container(),
+            ],
           ),
         ],
       ),
