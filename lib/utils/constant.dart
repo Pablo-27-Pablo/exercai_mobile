@@ -8,6 +8,7 @@ bool staticIsDown = false;
 bool warningIndicatorScreen = true;
 String warningIndicatorText = "";
 String warningIndicatorTextExercise = "";
+String errorSpeed = "";
 int raise = 0;
 int seconds = 60;
 int seconds2 = 30;
