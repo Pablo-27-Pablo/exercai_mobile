@@ -8,6 +8,100 @@ import '../../homepage/mainlandingpage.dart';
 import 'dart:math';
 import 'package:exercai_mobile/recommendation_exercise/recommendation_list_map.dart';
 
+// NEW: Compute BMR using the Mifflin-St Jeor Equation
+double computeBMR({
+  required double weight, // in kg
+  required double height, // in cm
+  required int age,
+  required String gender, // "Male" or "Female"
+}) {
+  if (gender.toLowerCase() == 'male') {
+    return 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    return 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+}
+
+// NEW: Mapping for computed burn values.
+// Keys are the exercise names in lowercase.
+// This mapping now includes all 43 unique exercises (from your 45-item list, where two names are duplicates).
+final Map<String, Map<String, dynamic>> computedExerciseData = {
+  // TIME-BASED Exercises (burn calories per second)
+  "neck side stretch": { "type": "time", "MET": 2.0 },
+  "side push neck stretch": { "type": "time", "MET": 2.0 },
+  "run": { "type": "time", "MET": 9.8 },
+  "mountain climber": { "type": "time", "MET": 8.0 },
+  "push to run": { "type": "time", "MET": 6.0 },
+  "skater hops": { "type": "time", "MET": 7.0 },
+  "seated lower back stretch": { "type": "time", "MET": 2.0 },
+  "hamstring stretch": { "type": "time", "MET": 1.5 },
+  "seated glute stretch": { "type": "time", "MET": 1.5 },
+  "calf stretch with hands against wall": { "type": "time", "MET": 1.5 },
+  "half knee bends (male)": { "type": "time", "MET": 6.0 },
+  "high knee against wall": { "type": "time", "MET": 8.0 },
+  "upper back stretch": { "type": "time", "MET": 2.0 },
+  "front plank with twist": { "type": "time", "MET": 2.0 },
+  "dynamic chest stretch (male)": { "type": "time", "MET": 2.0 },
+  "overhead triceps stretch": { "type": "time", "MET": 1.5 },
+  "rear deltoid stretch": { "type": "time", "MET": 1.5 },
+  "sphinx": { "type": "time", "MET": 1.5 }, // Newly added
+
+  // REP-BASED Exercises (burn calories per rep; repDuration in seconds)
+  "wrist circles": { "type": "rep", "MET": 1.5, "repDuration": 3.0 },
+  "ankle circles": { "type": "rep", "MET": 1.5, "repDuration": 3.0 },
+  "spine stretch": { "type": "rep", "MET": 1.5, "repDuration": 3.0 },
+  "standing lateral stretch": { "type": "rep", "MET": 1.5, "repDuration": 3.0 },
+  "burpee": { "type": "rep", "MET": 8.0, "repDuration": 3.0 },
+  "star jump (male)": { "type": "rep", "MET": 8.0, "repDuration": 3.0 },
+  "incline push-up": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "clock push-up": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "push-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "shoulder tap push-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "push-up (wall)": { "type": "rep", "MET": 4.0, "repDuration": 3.0 },
+  "close-grip push-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "triceps dips floor": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "lower back curl": { "type": "rep", "MET": 2.5, "repDuration": 3.0 },
+  "dead bug": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "curl-up": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "walking lunge": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "split squats": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "bodyweight standing calf raise": { "type": "rep", "MET": 3.5, "repDuration": 2.0 },
+  "modified push up to lower arms": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "bench dip (knees bent)": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "squat to overhead reach": { "type": "rep", "MET": 4.0, "repDuration": 3.0 },
+  "alternate heel touchers": { "type": "rep", "MET": 4.0, "repDuration": 3.0 },
+  "side hip abduction": { "type": "rep", "MET": 4.0, "repDuration": 3.0 },
+  "russian twist": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+};
+
+/// NEW: Compute the burn calories value for a given exercise.
+/// For time-based exercises: returns kcal per second.
+/// For rep-based exercises: returns kcal per rep.
+double computeBurnValue(String exerciseName, double weight, double height, int age, String gender) {
+  // Compute the user's BMR.
+  double userBMR = computeBMR(weight: weight, height: height, age: age, gender: gender);
+  // Define a reference BMR (adjust as needed)
+  double referenceBMR = (gender.toLowerCase() == 'male') ? 1700 : 1500;
+  double scalingFactor = userBMR / referenceBMR;
+
+  // Look up exercise parameters using the lowercase name.
+  final params = computedExerciseData[exerciseName.toLowerCase()];
+  if (params == null) return 0.0;
+
+  double met = params['MET'];
+  // Calculate calories per minute using the MET formula: (MET * weight * 3.5) / 200.
+  double caloriesPerMinute = (met * weight * 3.5) / 200;
+  double caloriesPerSecond = caloriesPerMinute / 60;
+
+  if (params['type'] == 'time') {
+    return caloriesPerSecond * scalingFactor;
+  } else if (params['type'] == 'rep') {
+    double repDuration = params['repDuration'] ?? 3.0;
+    return caloriesPerSecond * repDuration * scalingFactor;
+  }
+  return 0.0;
+}
+
 class FilterRepsKcal extends StatefulWidget {
   @override
   _FilterRepsKcalState createState() => _FilterRepsKcalState();
@@ -22,6 +116,10 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
   Map<String, double> finalBurnCalMap = {};
   int _currentDay = 1;
   int? userAge;
+  double? userWeight;
+  double? userHeight;
+  String? userGender;
+  List<String> _userInjuries = [];
 
 
   // Add this function for daily exercise rotation
@@ -46,31 +144,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
     return groupedExercises;
   }
-
-    //This is the latest that shows all infos in the card
-  /*String getRepsTimeDisplay(Map<String, dynamic> exercise) {
-    String repsTimeDisplay = 'N/A';
-    String burnCaloriesInfo = '';
-
-    if (exercise['baseSetsReps'] != null && exercise['baseReps'] != null) {
-      repsTimeDisplay = "${exercise['baseSetsReps']} sets × ${exercise['baseReps']} reps";
-      if (exercise['burnCalperRep'] != null) {
-        burnCaloriesInfo = "\nBurn Calories per Rep: ${exercise['burnCalperRep']} kcal/rep";
-      }
-    } else if (exercise['baseSetsSecs'] != null && exercise['baseSecs'] != null) {
-      repsTimeDisplay = _formatTimeDisplay(exercise['baseSetsSecs'], exercise['baseSecs']);
-      if (exercise['burnCalperSec'] != null) {
-        burnCaloriesInfo = "\nBurn Calories per Sec: ${exercise['burnCalperSec']} kcal/sec";
-      }
-    } else if (exercise['baseSecs'] != null) {
-      repsTimeDisplay = _formatSingleDuration(exercise['baseSecs']);
-      if (exercise['burnCalperSec'] != null) {
-        burnCaloriesInfo = "\nBurn Calories per Second: ${exercise['burnCalperSec']} kcal/sec";
-      }
-    }
-
-    return "$repsTimeDisplay$burnCaloriesInfo";
-  }*/
 
   //This is the experiment to only shows 3 infos in the card
   String getRepsTimeDisplay(Map<String, dynamic> exercise) {
@@ -124,8 +197,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
     fetchUserData();
 
   }
-  // Add this variable in _FilterRepsKcalState class
-  List<String> _userInjuries = [];
 
   // Modify fetchUserData to include injuryArea
   Future<void> fetchUserData() async {
@@ -144,6 +215,9 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
           selectedGoal = userData['goal'] ?? 'maintain'; // Changed from workoutLevel
           selectedBMI = userData['bmiCategory'] ?? 'normal';
           userAge = userData['age'];
+          userWeight = (userData['weight'] as num?)?.toDouble() ?? 70.0;
+          userHeight = double.tryParse(userData['height']?.toString() ?? "") ?? 175.0;
+          userGender = userData['gender'] ?? "Male";
           String injuryArea = userData['injuryArea'] ?? '';
           _userInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
           if (_userInjuries.contains('none of them')) _userInjuries.clear();
@@ -370,19 +444,16 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
 
 
-  // Modified fetchExercisesFromFirestore to only create new exercises
-
+  // NEW: Updated fetchExercisesFromFirestore to compute and overwrite the burn values.
   Future<void> fetchExercisesFromFirestore({bool isTest = false}) async {
     if (selectedGoal == null || selectedBMI == null || _currentUser == null) return;
-
+    if (userWeight == null || userHeight == null || userAge == null || userGender == null) return;
     try {
       final goalMap = exerciseRecommendationData[selectedGoal!] ?? {};
       final bmiMap = goalMap[selectedBMI!] ?? {};
-
       List<String> sections = ['warmup', 'mainWorkout', 'cooldown'];
       final seed = isTest ? DateTime.now().millisecondsSinceEpoch : _getDailySeed();
       final random = Random(seed);
-
 
       for (String section in sections) {
         List<dynamic> sectionExercises = bmiMap[section] ?? [];
@@ -393,7 +464,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
               .where('name', isEqualTo: exerciseName)
               .get();
 
-
           if (snapshot.docs.isNotEmpty) {
             var doc = snapshot.docs.first;
             var data = doc.data() as Map<String, dynamic>;
@@ -401,30 +471,39 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
             var mergedData = Map<String, dynamic>.from(data)
               ..addAll({
                 ...exerciseRecommendationData,
-                'baseSetsReps': exerciseRecommendationData['baseSetsReps'],
-                'baseReps': exerciseRecommendationData['baseReps'],
-                'baseSetsSecs': exerciseRecommendationData['baseSetsSecs'],
-                'baseSecs': exerciseRecommendationData['baseSecs'],
-                'baseCalories': exerciseRecommendationData['baseCalories'],
-                'burnCalperRep': exerciseRecommendationData['burnCalperRep'],
-                'burnCalperSec': exerciseRecommendationData['burnCalperSec'],
-                'gifPath': _getLocalGifPath(exerciseName),
                 'goal': selectedGoal,
                 'bmiCategory': selectedBMI,
-                'section': section, // Add section for grouping
+                'section': section,
                 'completed': false,
                 'restTime': 30,
                 'isActive': true,
               });
 
-              DocumentReference userExerciseRef = FirebaseFirestore.instance
-                  .collection('Users')
-                  .doc(_currentUser!.email)
-                  .collection('UserExercises')
-                  .doc(mergedData['name'].toString());
+            // NEW: Update the burn calories field using our computed value.
+            if (computedExerciseData.containsKey(exerciseName.toLowerCase())) {
+              double computedBurn = computeBurnValue(
+                  exerciseName,
+                  userWeight!,
+                  userHeight!,
+                  userAge!,
+                  userGender!
+              );
+              if (exerciseRecommendationData.containsKey('baseSetsSecs') &&
+                  exerciseRecommendationData['baseSetsSecs'] != null) {
+                mergedData['burnCalperSec'] = computedBurn;
+              } else if (exerciseRecommendationData.containsKey('baseSetsReps') &&
+                  exerciseRecommendationData['baseSetsReps'] != null) {
+                mergedData['burnCalperRep'] = computedBurn;
+              }
+            }
 
-              await userExerciseRef.set(mergedData, SetOptions(merge: true));
+            DocumentReference userExerciseRef = FirebaseFirestore.instance
+                .collection('Users')
+                .doc(_currentUser!.email)
+                .collection('UserExercises')
+                .doc(mergedData['name'].toString());
 
+            await userExerciseRef.set(mergedData, SetOptions(merge: true));
           }
         }
       }
@@ -524,11 +603,11 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
   String getSectionDisplayText(String section) {
     switch (section) {
       case 'warmup':
-        return "WARM-UP (5–10 minutes)";
+        return "Warm-Up Exercises";
       case 'mainWorkout':
-        return "MAIN WORKOUT";
+        return "Main Workout";
       case 'cooldown':
-        return "COOL DOWN (5–10 minutes)";
+        return "Cool Down Exercises";
       default:
         return section.toUpperCase();
     }
@@ -551,12 +630,19 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
               );
             },
           ),
-          title: Text(
-            /*selectedDifficulty == null || selectedBMI == null
+          title:
+          Text(
+            selectedGoal != null ? selectedGoal!.toUpperCase() : "Loading...",
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: AppColor.supersolidPrimary),
+          ),
+          //OLD TEXT
+          /*Text(
+            *//*selectedDifficulty == null || selectedBMI == null
                 ? "Loading..."
-                : "Exercises for $selectedDifficulty ($selectedBMI)",*/
+                : "Exercises for $selectedDifficulty ($selectedBMI)",*//*
             "Recommended Exercises",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: AppColor.supersolidPrimary),
-          ),backgroundColor: AppColor.backgroundWhite,
+          ),*/
+          backgroundColor: AppColor.backgroundWhite,
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColor.moresolidPrimary,
@@ -642,7 +728,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
             }
           },
           tooltip: 'Test Exercise Rotation',
-          child: const Icon(Icons.download_outlined),
+          child: const Icon(Icons.refresh),
         ),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
@@ -677,20 +763,17 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                 // Create a map of exerciseId to totalExerciseTime
                 final exerciseTimes = {
                   for (var doc in timesSnapshot.data!.docs)
-                    if (doc.data() != null && (doc.data() as Map<String, dynamic>).containsKey('exerciseId'))
-                      (doc['exerciseId'] ?? '').toString(): doc['totalExerciseTime'] ?? 0
+                    if (doc.data() != null && (doc.data() as Map<String, dynamic>).containsKey('exerciseName'))
+                      (doc['exerciseName'] ?? '').toString(): doc['totalExerciseTime'] ?? 0
                 };
-
-
 
                 final exercises = exercisesSnapshot.data!.docs.map((doc) {
                   final exercise = doc.data() as Map<String, dynamic>;
-                  final totalTime = exerciseTimes[exercise['id'].toString()] ?? 0;
+                  final totalTime = exerciseTimes[exercise['name'].toString()] ?? 0;
 
                   // DYNAMIC CALORIE UPDATE FOR TIME-BASED
                   if (exercise['baseSetsSecs'] != null) {
                     exercise['TotalCalBurnSec'] = totalTime * (exercise['burnCalperSec']?.toDouble() ?? 0.0);
-
                     // Save the calculated TotalCalBurnSec to Firebase
                     FirebaseFirestore.instance
                         .collection('Users')
@@ -703,10 +786,17 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                   return exercise;
                 }).toList();
 
+                final groupedExercises = groupExercisesBySection(exercises);
+                final order = ['warmup', 'mainWorkout', 'cooldown'];
+
+                final sortedEntries = groupedExercises.entries.toList()
+                  ..sort((a, b) => order.indexOf(a.key).compareTo(order.indexOf(b.key)));
+
+
                 return exercises.isEmpty
                     ? Center(child: Text("Tap Reload Button if there's no Exercise Showing",style: TextStyle(color: Colors.black87),))
                     : ListView(
-                  children: groupExercisesBySection(exercises).entries.map((entry) {
+                  children: sortedEntries.map((entry) {
                     String section = entry.key;
                     List<Map<String, dynamic>> sectionExercises = entry.value;
                     return Column(
@@ -728,7 +818,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                             final isCompleted = exercise['completed'] == true;
                             final exerciseId = exercise['id'].toString();
                             final exerciseName = exercise['name'].toString();
-                            final totalTime = exerciseTimes[exerciseId] ?? 0;
+                            final totalTime = exerciseTimes[exerciseName] ?? 0;
 
                             // Determine if exercise is Rep-Based or Time-Based
                             bool isRepBased = exercise['baseSetsReps'] != null && exercise['baseReps'] != null;

@@ -7,6 +7,65 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/different_exercises/list_all_exercises.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/list_allowed_exercise_age.dart';
 
+// Compute BMR using the Mifflin-St Jeor Equation.
+double computeBMR({
+  required double weight, // in kg
+  required double height, // in cm
+  required int age,
+  required String gender, // "Male" or "Female"
+}) {
+  if (gender.toLowerCase() == 'male') {
+    return 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    return 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+}
+
+// Mapping for computed burn values for the 13 chest exercises.
+// Keys are the exercise names in lowercase.
+final Map<String, Map<String, dynamic>> computedExerciseData = {
+  "clock push-up": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "decline push-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "incline push-up": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "isometric wipers": { "type": "time", "MET": 2.5 },
+  "push-up (wall)": { "type": "rep", "MET": 4.0, "repDuration": 3.0 },
+  "push-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "shoulder tap push-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "dynamic chest stretch (male)": { "type": "time", "MET": 2.0 },
+  "isometric chest squeeze": { "type": "time", "MET": 2.0 },
+  "wide hand push-up": { "type": "rep", "MET": 6.5, "repDuration": 3.0 },
+  "push and pull bodyweight": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "kneeling push-up (male)": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "archer push up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+};
+
+/// Compute the burn calories value for a given exercise.
+/// For time-based exercises: returns kcal per second.
+/// For rep-based exercises: returns kcal per rep.
+double computeBurnValue(String exerciseName, double weight, double height, int age, String gender) {
+  double userBMR = computeBMR(weight: weight, height: height, age: age, gender: gender);
+  // Set reference BMR (adjust as needed)
+  double referenceBMR = (gender.toLowerCase() == 'male') ? 1700 : 1500;
+  double scalingFactor = userBMR / referenceBMR;
+
+  final params = computedExerciseData[exerciseName.toLowerCase()];
+  if (params == null) return 0.0;
+
+  double met = params['MET'];
+  // Calories per minute = (MET * weight * 3.5) / 200.
+  double caloriesPerMinute = (met * weight * 3.5) / 200;
+  double caloriesPerSecond = caloriesPerMinute / 60;
+
+  if (params['type'] == 'time') {
+    return caloriesPerSecond * scalingFactor;
+  } else if (params['type'] == 'rep') {
+    double repDuration = params['repDuration'] ?? 3.0;
+    return caloriesPerSecond * repDuration * scalingFactor;
+  }
+  return 0.0;
+}
+
+
 class ChestAllexercises extends StatefulWidget {
   @override
   _ChestAllexercisesState createState() => _ChestAllexercisesState();
@@ -19,6 +78,9 @@ class _ChestAllexercisesState extends State<ChestAllexercises>
   User? _currentUser;
   Map<String, double> finalBurnCalMap = {};
   int? userAge;
+  double? userWeight;
+  double? userHeight;
+  String? userGender;
 
   int _getDailySeed() {
     final now = DateTime.now();
@@ -68,7 +130,6 @@ class _ChestAllexercisesState extends State<ChestAllexercises>
 
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
-
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('Users')
@@ -77,12 +138,12 @@ class _ChestAllexercisesState extends State<ChestAllexercises>
 
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
-        final updatedUserAge = userData['age'];
-
         setState(() {
-          userAge = updatedUserAge;
+          userAge = userData['age'];
+          userWeight = (userData['weight'] as num?)?.toDouble() ?? 70.0;
+          userHeight = double.tryParse(userData['height']?.toString() ?? "") ?? 175.0;
+          userGender = userData['gender'] ?? "Male";
         });
-
         _initializeExercisesStream();
         await fetchFinalBurnCalValues();
       }
@@ -152,10 +213,9 @@ class _ChestAllexercisesState extends State<ChestAllexercises>
   }
 
   // This function merges data from the "BodyweightExercises" collection
-  // and writes it to the "AllExercises" collection.
+  // Merges data from the "BodyweightExercises" collection into "AllExercises".
   Future<void> fetchExercisesFromFirestoreInBackground() async {
     if (_currentUser == null) return;
-
     try {
       print("Fetching exercises from BodyweightExercises...");
       QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -173,7 +233,6 @@ class _ChestAllexercisesState extends State<ChestAllexercises>
         print("Processing exercise: $exerciseName (ID: $exerciseId)");
 
         var localData = _getLocalExerciseData(exerciseName);
-
         if (localData == null) {
           print("⚠️ No local data found for: $exerciseName");
           continue;
@@ -195,7 +254,22 @@ class _ChestAllexercisesState extends State<ChestAllexercises>
             'isActive': true,
           });
 
-        // Update or merge the exercise data in Firestore
+        // Update the burn calories field using computed value if available.
+        if (computedExerciseData.containsKey(exerciseName.toLowerCase())) {
+          double computedBurn = computeBurnValue(
+              exerciseName,
+              userWeight!,
+              userHeight!,
+              userAge!,
+              userGender!
+          );
+          if (localData['baseSetsSecs'] != null) {
+            mergedData['burnCalperSec'] = computedBurn;
+          } else if (localData['baseSetsReps'] != null) {
+            mergedData['burnCalperRep'] = computedBurn;
+          }
+        }
+
         DocumentReference docRef = FirebaseFirestore.instance
             .collection('Users')
             .doc(_currentUser!.email)

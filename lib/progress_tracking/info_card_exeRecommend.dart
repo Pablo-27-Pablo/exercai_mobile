@@ -170,8 +170,10 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                         children: [
                           Icon(Icons.timer, color: Colors.white, size: 30),
                           const SizedBox(width: 16),
+
+                          //Today\'s Total Time:
                           Text(
-                            'Total Time: ${_formatTotalTime(totalExerciseTime)}',
+                            ' ${_formatTotalTime(totalExerciseTime)}',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -213,8 +215,9 @@ class _InfoCardExerecommendState extends State<InfoCardExerecommend> {
                         children: [
                           Icon(Icons.timer, color: Colors.white, size: 30),
                           const SizedBox(width: 16),
+                          // Recent Exercise Total TIme
                           Text(
-                            'Total Time: ${_formatTotalTime(recentTotalTime)}',
+                            '${_formatTotalTime(recentTotalTime)}',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,

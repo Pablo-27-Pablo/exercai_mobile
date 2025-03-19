@@ -1,21 +1,22 @@
 
 
+
 final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exerciseRecommendationData = {
   'lose weight': {
     'normal': {
       "warmup": [
         {"name": "neck side stretch", "baseSetsSecs": 1, "baseSecs": 15, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/neck side stretch.gif"},
-        {"name": "wrist circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
-        {"name": "ankle circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
+        {"name": "wrist circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
+        {"name": "ankle circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
         {"name": "spine stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/spine stretch.gif"},
         {"name": "standing lateral stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/standing lateral stretch.gif"}
       ],
       "mainWorkout": [
-        {"name": "run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
+        {"name": "run", "baseSetsSecs": 2, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
         {"name": "mountain climber", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/mountain climber.gif"},
         {"name": "burpee", "baseSetsReps": 3, "baseReps": 12, "burnCalperRep": 0.5, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/burpee.gif"},
         {"name": "star jump (male)", "baseSetsReps": 3, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/star jump (male).gif"},
-        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"},
+        {"name": "push to run", "baseSetsSecs": 2, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"},
         {"name": "skater hops", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/skater hops.gif"}
       ],
       "cooldown": [
@@ -29,17 +30,17 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
     'overweight': {
       "warmup": [
         {"name": "neck side stretch", "baseSetsSecs": 1, "baseSecs": 15, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/neck side stretch.gif"},
-        {"name": "wrist circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
-        {"name": "ankle circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
+        {"name": "wrist circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
+        {"name": "ankle circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
         {"name": "spine stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/spine stretch.gif"},
         {"name": "standing lateral stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/standing lateral stretch.gif"}
       ],
       "mainWorkout": [
-        {"name": "run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
+        {"name": "run", "baseSetsSecs": 3, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
         {"name": "mountain climber", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/mountain climber.gif"},
         {'name': 'high knee against wall', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/high knee against wall.gif'},
         {'name': 'half knee bends (male)', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/half knee bends (male).gif'},
-        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"}
+        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"}
 
       ],
       "cooldown": [
@@ -53,17 +54,17 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
     'obese': {
       "warmup": [
         {"name": "neck side stretch", "baseSetsSecs": 1, "baseSecs": 15, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/neck side stretch.gif"},
-        {"name": "wrist circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
-        {"name": "ankle circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
+        {"name": "wrist circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
+        {"name": "ankle circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
         {"name": "spine stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/spine stretch.gif"},
         {"name": "standing lateral stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/standing lateral stretch.gif"}
       ],
       "mainWorkout": [
-        {"name": "run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
+        {"name": "run", "baseSetsSecs": 3, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
         {"name": "mountain climber", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/mountain climber.gif"},
         {'name': 'high knee against wall', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/high knee against wall.gif'},
         {'name': 'half knee bends (male)', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/half knee bends (male).gif'},
-        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"}
+        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"}
 
       ],
       "cooldown": [
@@ -77,17 +78,17 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
     'extreme obese': {
       "warmup": [
         {"name": "neck side stretch", "baseSetsSecs": 1, "baseSecs": 15, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/neck side stretch.gif"},
-        {"name": "wrist circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
-        {"name": "ankle circles", "baseSetsReps": 3, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
+        {"name": "wrist circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/wrist circles.gif"},
+        {"name": "ankle circles", "baseSetsReps": 1, "baseReps": 20, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/ankle circles.gif"},
         {"name": "spine stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/spine stretch.gif"},
         {"name": "standing lateral stretch", "baseSetsReps": 1, "baseReps": 12, "burnCalperRep": 0.4, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/standing lateral stretch.gif"}
       ],
       "mainWorkout": [
-        {"name": "run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
+        {"name": "run", "baseSetsSecs": 3, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/run.gif"},
         {"name": "mountain climber", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/mountain climber.gif"},
         {'name': 'high knee against wall', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/high knee against wall.gif'},
         {'name': 'half knee bends (male)', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/half knee bends (male).gif'},
-        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 30, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"}
+        {"name": "push to run", "baseSetsSecs": 3, "baseSecs": 300, "burnCalperSec": 0.05, "baseCalories": 0.00, "gifPath": "assets/exercaiGif/push to run.gif"}
 
       ],
       "cooldown": [
@@ -106,8 +107,8 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
     'underweight': {
       "warmup":[
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
-        {'name': 'ankle circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/ankle circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'ankle circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/ankle circles.gif'},
         {'name': 'spine stretch', 'baseSetsReps': 1, 'baseReps': 12, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/spine stretch.gif'},
         {'name': 'standing lateral stretch', 'baseSetsReps': 1, 'baseReps': 12, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/standing lateral stretch.gif'}
 
@@ -140,12 +141,14 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
     },
 
     'normal': {
+
       "warmup":[
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
         {'name': 'standing lateral stretch', 'baseSetsReps': 1, 'baseReps': 12, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/standing lateral stretch.gif'}
 
       ],
+
       "mainWorkout":[
         {'name': 'clock push-up', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.3, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/clock push-up.gif'},
         {'name': 'push-up', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push-up.gif'},
@@ -174,8 +177,8 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
       "warmup":[
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
-        {'name': 'ankle circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/ankle circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'ankle circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/ankle circles.gif'},
         {'name': 'standing lateral stretch', 'baseSetsReps': 1, 'baseReps': 12, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/standing lateral stretch.gif'}
 
       ],
@@ -203,7 +206,7 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
     'obese': {
       "warmup":[
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
         {'name': 'standing lateral stretch', 'baseSetsReps': 1, 'baseReps': 12, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/standing lateral stretch.gif'}
 
       ],
@@ -232,8 +235,8 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
       "warmup":[
         {'name': 'seated lower back stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/seated lower back stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
-        {'name': 'ankle circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/ankle circles.gif'}
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'ankle circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/ankle circles.gif'}
 
       ],
       "mainWorkout":[
@@ -263,13 +266,13 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
       "warmup":[
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
 
       ],
       "mainWorkout":[
-        {'name': 'run', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
+        {'name': 'run', 'baseSetsSecs': 2, 'baseSecs': 300, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
         {'name': 'mountain climber', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/mountain climber.gif'},
-        {'name': 'push to run', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push to run.gif'},
+        {'name': 'push to run', 'baseSetsSecs': 2, 'baseSecs': 300, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push to run.gif'},
         {'name': 'sphinx', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/sphinx.gif'},
         {'name': 'upper back stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/upper back stretch.gif'},
         {'name': 'push-up', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push-up.gif'},
@@ -299,13 +302,13 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
       "warmup":[
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
 
       ],
       "mainWorkout":[
-        {'name': 'run', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
+        {'name': 'run', 'baseSetsSecs': 2, 'baseSecs': 300, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
         {'name': 'mountain climber', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/mountain climber.gif'},
-        {'name': 'push to run', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push to run.gif'},
+        {'name': 'push to run', 'baseSetsSecs': 2, 'baseSecs': 300, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push to run.gif'},
         {'name': 'sphinx', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/sphinx.gif'},
         {'name': 'upper back stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/upper back stretch.gif'},
         {'name': 'push-up (wall)', 'baseSetsReps': 1, 'baseReps': 10, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/push-up (wall).gif'},
@@ -334,11 +337,11 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
       "warmup":[
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
 
       ],
       "mainWorkout":[
-        {'name': 'run', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
+        {'name': 'run', 'baseSetsSecs': 2, 'baseSecs': 300, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
         {'name': 'mountain climber', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/mountain climber.gif'},
         {'name': 'sphinx', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/sphinx.gif'},
         {'name': 'upper back stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/upper back stretch.gif'},
@@ -367,11 +370,11 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
       "warmup":[
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
-        {'name': 'wrist circles', 'baseSetsReps': 3, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
+        {'name': 'wrist circles', 'baseSetsReps': 1, 'baseReps': 20, 'burnCalperRep': 0.4, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/wrist circles.gif'},
 
       ],
       "mainWorkout":[
-        {'name': 'run', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
+        {'name': 'run', 'baseSetsSecs': 2, 'baseSecs': 300, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/run.gif'},
         {'name': 'mountain climber', 'baseSetsSecs': 3, 'baseSecs': 30, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/mountain climber.gif'},
         {'name': 'sphinx', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/sphinx.gif'},
         {'name': 'upper back stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/upper back stretch.gif'},

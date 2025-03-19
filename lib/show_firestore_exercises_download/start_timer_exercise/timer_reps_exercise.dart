@@ -38,6 +38,9 @@ class TimerRepsExercise extends StatefulWidget {
 }
 
 class _TimerRepsExerciseState extends State<TimerRepsExercise> {
+  DateTime? _setStartTime; //Dinagdag para sa Time based Compute
+  List<int> _elapsedSetTimes = [];  // Stores elapsed seconds for each set //Dinagdag para sa Time based Compute
+
   late int _currentStepIndex;
   late int _secondsRemaining;
   late int _currentCount;
@@ -62,15 +65,47 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     _currentCount = 0;
     _baseRepsConcat = List.filled(widget.setValues.length, 0);
 
+    // Initialize _elapsedSetTimes with 0s for each set.
+    _elapsedSetTimes = List.filled(widget.setValues.length, 0);
+
     // 3. Set the AudioPlayer to loop the music.
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
 
-    _loadTotalExerciseTime().then((_) {
+    //OLD ONE DATI TO PAG GUSTO IBALIK SA DATI COMPUTATION
+    /*_loadTotalExerciseTime().then((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _startTimer();
       });
+    });*/
+
+    //Dinagdag para sa Time based Compute
+    _loadTotalExerciseTime().then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // If the first non-initial step is a set, record its start time.
+        if (_steps.length > 1 && _steps[1].type == StepType.set) {
+          _setStartTime = DateTime.now();
+        }
+        _startTimer();
+      });
     });
+
   }
+
+  //Dinagdag para sa Time based Compute
+  // When skipping forward (or confirming during a rest period),
+  // if the previous step was a time-based set, record the elapsed time.
+  void _recordElapsedTimeForSet() {
+    // Ensure we are not in the initial rest period.
+    if (_currentStepIndex > 0 && !widget.isRepBased) {
+      // Calculate the set index; both for set or rest step, it is (_currentStepIndex - 1) ~/ 2.
+      int setIndex = ((_currentStepIndex - 1) ~/ 2);
+      if (_setStartTime != null) {
+        int elapsed = DateTime.now().difference(_setStartTime!).inSeconds;
+        _elapsedSetTimes[setIndex] = elapsed;
+      }
+    }
+  }
+
 
   // 4. Toggle music playback.
   void _toggleMusic() async {
@@ -163,13 +198,14 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     });
   }
 
+  // Updated to use the correct collection name "UserExerciseTimes"
   Future<void> _loadTotalExerciseTime() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     DocumentSnapshot doc = await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.email)
-        .collection('UserExercisesTime')
+        .collection('UserExerciseTimes')
         .doc(_getDocKey())
         .get();
     if (doc.exists) {
@@ -180,6 +216,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     }
   }
 
+  // Updated to use the correct collection name "UserExerciseTimes"
   Future<void> _saveTotalExerciseTime() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -201,7 +238,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.email)
-        .collection('UserExercisesTime')
+        .collection('UserExerciseTimes')
         .doc(_getDocKey())
         .set({
       'exerciseId': widget.exercise['id'],
@@ -245,6 +282,12 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
   }
 
   void _handleStepCompletion() {
+    //Dinagdag para sa Time based Compute
+    // Before transitioning, if the current step was a time-based set, record its elapsed time.
+    if (_steps[_currentStepIndex].type == StepType.set && !widget.isRepBased) {
+      _recordElapsedTimeForSet();
+    }
+
     _stopTimer();
     if (_currentStepIndex < _steps.length - 1) {
       setState(() {
@@ -252,6 +295,13 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
         _secondsRemaining = _steps[_currentStepIndex].duration;
         _currentCount = 0;
       });
+
+      //Dinagdag para sa Time based Compute
+      // If the new step is a set, record its start time.
+      if (_steps[_currentStepIndex].type == StepType.set && !widget.isRepBased) {
+        _setStartTime = DateTime.now();
+      }
+
       _startTimer();
     } else {
       _saveTotalExerciseTime();
@@ -297,6 +347,12 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
   }
 
   void _skipForward() {
+    //Dinagdag para sa Time based Compute
+    // If skipping during a set and the exercise is time-based, record elapsed time.
+    if (_steps[_currentStepIndex].type == StepType.set && !widget.isRepBased) {
+      _recordElapsedTimeForSet();
+    }
+
     _stopTimer();
     _saveTotalExerciseTime();
     if (_currentStepIndex < _steps.length - 1) {
@@ -305,6 +361,13 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
         _secondsRemaining = _steps[_currentStepIndex].duration;
         _currentCount = 0;
       });
+
+      //Dinagdag para sa Time based Compute
+      // If the new step is a set and time-based, record its start time.
+      if (_steps[_currentStepIndex].type == StepType.set && !widget.isRepBased) {
+        _setStartTime = DateTime.now();
+      }
+
       _startTimer();
     } else {
       _markExerciseAsCompleted();
@@ -335,7 +398,8 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     return minutes > 0 ? '$minutes:${secs.toString().padLeft(2, '0')}' : '$secs';
   }
 
-  double _calculateCurrentSetCalories(int setIndex) {
+// OLD calculation function.
+  /*double _calculateCurrentSetCalories(int setIndex) {
     if (widget.isRepBased) {
       return (_baseRepsConcat[setIndex] *
           (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0))
@@ -344,6 +408,21 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
     return (widget.setValues[setIndex] *
         (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0))
         .toDouble();
+  }*/
+
+  //Dinagdag para sa Time based Compute
+  // Updated calculation function.
+  double _calculateCurrentSetCalories(int setIndex) {
+    if (widget.isRepBased) {
+      return (_baseRepsConcat[setIndex] *
+          (widget.exercise['burnCalperRep']?.toDouble() ?? 0.0)).toDouble();
+    } else {
+      // Use the elapsed time if available; if not, fallback to the full set duration.
+      int elapsedTime = _elapsedSetTimes[setIndex] > 0
+          ? _elapsedSetTimes[setIndex]
+          : widget.setValues[setIndex];
+      return (elapsedTime * (widget.exercise['burnCalperSec']?.toDouble() ?? 0.0)).toDouble();
+    }
   }
 
   @override
