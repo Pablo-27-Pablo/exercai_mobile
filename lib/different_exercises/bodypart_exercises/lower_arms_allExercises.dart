@@ -7,6 +7,54 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/different_exercises/list_all_exercises.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/list_allowed_exercise_age.dart';
 
+// Compute BMR using the Mifflin-St Jeor Equation.
+double computeBMR({
+  required double weight, // in kg
+  required double height, // in cm
+  required int age,
+  required String gender, // "Male" or "Female"
+}) {
+  if (gender.toLowerCase() == 'male') {
+    return 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    return 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+}
+
+// Mapping for computed burn values for the 3 lower-arms exercises.
+// Keys are the exercise names in lowercase.
+final Map<String, Map<String, dynamic>> computedExerciseData = {
+  "side wrist pull stretch": { "type": "time", "MET": 1.5 },
+  "modified push up to lower arms": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "wrist circles": { "type": "rep", "MET": 1.5, "repDuration": 3.0 },
+};
+
+/// Compute the burn calories value for a given exercise.
+/// - For time-based exercises: returns kcal per second.
+/// - For rep-based exercises: returns kcal per rep.
+double computeBurnValue(String exerciseName, double weight, double height, int age, String gender) {
+  double userBMR = computeBMR(weight: weight, height: height, age: age, gender: gender);
+  // Set reference BMR (adjust as needed)
+  double referenceBMR = (gender.toLowerCase() == 'male') ? 1700 : 1500;
+  double scalingFactor = userBMR / referenceBMR;
+
+  final params = computedExerciseData[exerciseName.toLowerCase()];
+  if (params == null) return 0.0;
+
+  double met = params['MET'];
+  // Calories per minute formula: (MET * weight * 3.5) / 200.
+  double caloriesPerMinute = (met * weight * 3.5) / 200;
+  double caloriesPerSecond = caloriesPerMinute / 60;
+
+  if (params['type'] == 'time') {
+    return caloriesPerSecond * scalingFactor;
+  } else if (params['type'] == 'rep') {
+    double repDuration = params['repDuration'] ?? 3.0;
+    return caloriesPerSecond * repDuration * scalingFactor;
+  }
+  return 0.0;
+}
+
 class LowerArmsAllexercises extends StatefulWidget {
   @override
   _LowerArmsAllexercisesState createState() => _LowerArmsAllexercisesState();
@@ -19,6 +67,9 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
   User? _currentUser;
   Map<String, double> finalBurnCalMap = {};
   int? userAge;
+  double? userWeight;
+  double? userHeight;
+  String? userGender;
 
   int _getDailySeed() {
     final now = DateTime.now();
@@ -68,21 +119,19 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
 
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
-
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('Users')
           .doc(_currentUser!.email)
           .get();
-
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
-        final updatedUserAge = userData['age'];
-
         setState(() {
-          userAge = updatedUserAge;
+          userAge = userData['age'];
+          userWeight = (userData['weight'] as num?)?.toDouble() ?? 70.0;
+          userHeight = double.tryParse(userData['height']?.toString() ?? "") ?? 175.0;
+          userGender = userData['gender'] ?? "Male";
         });
-
         _initializeExercisesStream();
         await fetchFinalBurnCalValues();
       }
@@ -92,6 +141,7 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
   }
 
 
+  // Initializes the stream from AllExercises for lower arms exercises.
   void _initializeExercisesStream() {
     if (_currentUser != null) {
       setState(() {
@@ -114,7 +164,6 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
           .doc(_currentUser!.email)
           .collection('AllExercises')
           .get();
-
       setState(() {
         finalBurnCalMap = {
           for (var doc in snapshot.docs)
@@ -141,7 +190,7 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
           .get();
 
       if (neckSnapshot.docs.isEmpty) {
-        print("No lwoer arms exercises found in AllExercises. Fetching from BodyweightExercises...");
+        print("No lower arms exercises found in AllExercises. Fetching from BodyweightExercises...");
         await fetchExercisesFromFirestoreInBackground();
       } else {
         print("lower arms exercises already exist. Using real-time stream.");
@@ -152,33 +201,26 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
   }
 
   // This function merges data from the "BodyweightExercises" collection
-  // and writes it to the "AllExercises" collection.
+  // Merges data from the "BodyweightExercises" collection into "AllExercises".
   Future<void> fetchExercisesFromFirestoreInBackground() async {
     if (_currentUser == null) return;
-
     try {
       print("Fetching exercises from BodyweightExercises...");
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('BodyweightExercises')
           .where('bodyPart', isEqualTo: 'lower arms')
           .get();
-
       print("Found ${snapshot.docs.length} exercises in BodyweightExercises");
-
       for (var doc in snapshot.docs) {
         final firestoreExercise = doc.data() as Map<String, dynamic>;
         final exerciseName = firestoreExercise['name']?.toString() ?? '';
         final exerciseId = doc.id;
-
         print("Processing exercise: $exerciseName (ID: $exerciseId)");
-
         var localData = _getLocalExerciseData(exerciseName);
-
         if (localData == null) {
           print("⚠️ No local data found for: $exerciseName");
           continue;
         }
-
         final mergedData = Map<String, dynamic>.from(firestoreExercise)
           ..addAll({
             'firestoreId': exerciseId,
@@ -194,8 +236,21 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
             'restTime': 30,
             'isActive': true,
           });
-
-        // Update or merge the exercise data in Firestore
+        // Update the burn calories field using computed value if available.
+        if (computedExerciseData.containsKey(exerciseName.toLowerCase())) {
+          double computedBurn = computeBurnValue(
+              exerciseName,
+              userWeight!,
+              userHeight!,
+              userAge!,
+              userGender!
+          );
+          if (localData['baseSetsSecs'] != null) {
+            mergedData['burnCalperSec'] = computedBurn;
+          } else if (localData['baseSetsReps'] != null) {
+            mergedData['burnCalperRep'] = computedBurn;
+          }
+        }
         DocumentReference docRef = FirebaseFirestore.instance
             .collection('Users')
             .doc(_currentUser!.email)
@@ -204,7 +259,6 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
         await docRef.set(mergedData, SetOptions(merge: true));
         print("✅ Merged exercise: $exerciseName");
       }
-
       print("Successfully merged lower arms exercises into AllExercises");
     } catch (e) {
       print('🚨 Error generating new exercises: $e');
@@ -294,7 +348,6 @@ class _LowerArmsAllexercisesState extends State<LowerArmsAllexercises>
 
   Future<void> _initializeData() async {
     await fetchUserData();
-
     await checkAndFetchNeckExercises();
     // Reinitialize the stream (in case new data was added)
     _initializeExercisesStream();

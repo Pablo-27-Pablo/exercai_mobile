@@ -7,6 +7,90 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/different_exercises/list_all_exercises.dart';
 import 'package:exercai_mobile/different_exercises/bodypart_exercises/list_allowed_exercise_age.dart';
 
+// Compute BMR using the Mifflin-St Jeor Equation.
+double computeBMR({
+  required double weight, // in kg
+  required double height, // in cm
+  required int age,
+  required String gender, // "Male" or "Female"
+}) {
+  if (gender.toLowerCase() == 'male') {
+    return 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    return 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+}
+
+// Mapping for computed burn values for the new Waist exercises.
+// All keys must be lowercase.
+final Map<String, Map<String, dynamic>> computedExerciseData = {
+  // Rep-based exercises:
+  "air bike": { "type": "rep", "MET": 8.0, "repDuration": 3.0 },
+  "alternate heel touchers": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "bottoms-up": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "cocoons": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "cross body crunch": { "type": "rep", "MET": 6.5, "repDuration": 3.0 },
+  "crunch (hands overhead)": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "crunch floor": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "dead bug": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "elbow-to-knee": { "type": "rep", "MET": 6.5, "repDuration": 3.0 },
+  "flexion leg sit up (bent knee)": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "flexion leg sit up (straight arm)": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "groin crunch": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "hip raise (bent knee)": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "jackknife sit-up": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "janda sit-up": { "type": "rep", "MET": 6.5, "repDuration": 3.0 },
+  "oblique crunches floor": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "push-up to side plank": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "russian twist": { "type": "rep", "MET": 6.5, "repDuration": 3.0 },
+  "seated side crunch (wall)": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "sit-up v. 2": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "butt-ups": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "tuck crunch": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "reverse crunch": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "crab twist toe touch": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "inchworm": { "type": "rep", "MET": 4.5, "repDuration": 3.0 },
+  "posterior step to overhead reach": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "lunge with twist": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "lying elbow to knee": { "type": "rep", "MET": 6.5, "repDuration": 3.0 },
+  "frog crunch": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "bridge - mountain climber (cross body)": { "type": "rep", "MET": 7.0, "repDuration": 3.0 },
+  "curl-up": { "type": "rep", "MET": 6.0, "repDuration": 3.0 },
+  "pelvic tilt": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+  "potty squat": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "quarter sit-up": { "type": "rep", "MET": 5.0, "repDuration": 3.0 },
+  "knee touch crunch": { "type": "rep", "MET": 5.5, "repDuration": 3.0 },
+
+  // Time-based exercises:
+  "front plank with twist": { "type": "time", "MET": 2.0 },
+  "side bridge v. 2": { "type": "time", "MET": 2.0 },
+  "spine twist": { "type": "time", "MET": 2.0 },
+};
+
+/// Compute the burn calories value for a given exercise.
+/// For time-based exercises, returns kcal per second.
+/// For rep-based exercises, returns kcal per rep.
+double computeBurnValue(String exerciseName, double weight, double height, int age, String gender) {
+  double userBMR = computeBMR(weight: weight, height: height, age: age, gender: gender);
+  double referenceBMR = (gender.toLowerCase() == 'male') ? 1700 : 1500;
+  double scalingFactor = userBMR / referenceBMR;
+
+  final params = computedExerciseData[exerciseName.toLowerCase()];
+  if (params == null) return 0.0;
+
+  double met = params['MET'];
+  double caloriesPerMinute = (met * weight * 3.5) / 200;
+  double caloriesPerSecond = caloriesPerMinute / 60;
+
+  if (params['type'] == 'time') {
+    return caloriesPerSecond * scalingFactor;
+  } else if (params['type'] == 'rep') {
+    double repDuration = params['repDuration'] ?? 3.0;
+    return caloriesPerSecond * repDuration * scalingFactor;
+  }
+  return 0.0;
+}
+
 class WaistAllexercises extends StatefulWidget {
   @override
   _WaistAllexercisesState createState() => _WaistAllexercisesState();
@@ -19,6 +103,9 @@ class _WaistAllexercisesState extends State<WaistAllexercises>
   User? _currentUser;
   Map<String, double> finalBurnCalMap = {};
   int? userAge;
+  double? userWeight;
+  double? userHeight;
+  String? userGender;
 
   int _getDailySeed() {
     final now = DateTime.now();
@@ -68,21 +155,19 @@ class _WaistAllexercisesState extends State<WaistAllexercises>
 
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
-
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('Users')
           .doc(_currentUser!.email)
           .get();
-
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
-        final updatedUserAge = userData['age'];
-
         setState(() {
-          userAge = updatedUserAge;
+          userAge = userData['age'];
+          userWeight = (userData['weight'] as num?)?.toDouble() ?? 70.0;
+          userHeight = double.tryParse(userData['height']?.toString() ?? "") ?? 175.0;
+          userGender = userData['gender'] ?? "Male";
         });
-
         _initializeExercisesStream();
         await fetchFinalBurnCalValues();
       }
@@ -152,39 +237,31 @@ class _WaistAllexercisesState extends State<WaistAllexercises>
   }
 
   // This function merges data from the "BodyweightExercises" collection
-  // and writes it to the "AllExercises" collection.
+  // Merges data from the "BodyweightExercises" collection into "AllExercises".
   Future<void> fetchExercisesFromFirestoreInBackground() async {
     if (_currentUser == null) return;
-
     try {
       print("Fetching exercises from BodyweightExercises...");
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('BodyweightExercises')
           .where('bodyPart', isEqualTo: 'waist')
           .get();
-
       print("Found ${snapshot.docs.length} exercises in BodyweightExercises");
-
       for (var doc in snapshot.docs) {
         final firestoreExercise = doc.data() as Map<String, dynamic>;
         final exerciseName = firestoreExercise['name']?.toString() ?? '';
         final exerciseId = doc.id;
-
-        // Skip exercises with slashes in their names
+        // Skip any exercise names that are invalid (optional)
         if (exerciseName.contains('/')) {
           print("⏭ Skipping invalid exercise name: $exerciseName");
           continue;
         }
-
         print("Processing exercise: $exerciseName (ID: $exerciseId)");
-
         var localData = _getLocalExerciseData(exerciseName);
-
         if (localData == null) {
           print("⚠️ No local data found for: $exerciseName");
           continue;
         }
-
         final mergedData = Map<String, dynamic>.from(firestoreExercise)
           ..addAll({
             'firestoreId': exerciseId,
@@ -200,8 +277,21 @@ class _WaistAllexercisesState extends State<WaistAllexercises>
             'restTime': 30,
             'isActive': true,
           });
-
-        // Update or merge the exercise data in Firestore
+        // Update the burn calories field using computed value if available.
+        if (computedExerciseData.containsKey(exerciseName.toLowerCase())) {
+          double computedBurn = computeBurnValue(
+              exerciseName,
+              userWeight ?? 70.0,
+              userHeight ?? 175.0,
+              userAge!,
+              userGender ?? "Male"
+          );
+          if (computedExerciseData[exerciseName.toLowerCase()]!['type'] == 'time') {
+            mergedData['burnCalperSec'] = computedBurn;
+          } else if (computedExerciseData[exerciseName.toLowerCase()]!['type'] == 'rep') {
+            mergedData['burnCalperRep'] = computedBurn;
+          }
+        }
         DocumentReference docRef = FirebaseFirestore.instance
             .collection('Users')
             .doc(_currentUser!.email)
@@ -210,7 +300,6 @@ class _WaistAllexercisesState extends State<WaistAllexercises>
         await docRef.set(mergedData, SetOptions(merge: true));
         print("✅ Merged exercise: $exerciseName");
       }
-
       print("Successfully merged waist exercises into AllExercises");
     } catch (e) {
       print('🚨 Error generating new exercises: $e');
@@ -300,7 +389,6 @@ class _WaistAllexercisesState extends State<WaistAllexercises>
 
   Future<void> _initializeData() async {
     await fetchUserData();
-
     await checkAndFetchNeckExercises();
     // Reinitialize the stream (in case new data was added)
     _initializeExercisesStream();
