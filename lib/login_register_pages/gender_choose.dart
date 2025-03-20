@@ -50,10 +50,12 @@ class _GenderChooseState extends State<GenderChoose> {
   // 🔹 Load saved user data from SharedPreferences
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedGender = prefs.getString('gender');
     setState(() {
-      dropdowngender = prefs.getString('gender');
+      dropdowngender = (savedGender != null && savedGender.isNotEmpty) ? savedGender : null;
     });
   }
+
 
   // 🔹 Save user input when clicking "Next"
   Future<void> _saveUserData() async {
@@ -68,7 +70,9 @@ class _GenderChooseState extends State<GenderChoose> {
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: AppColor.backgroundWhite,
+          title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
           leading: IconButton(onPressed: (){
             navigateWithSlideTransition(context, DateOfBirth(), slideRight: false);
           }, icon: Icon(Icons.arrow_back_ios,color: Colors.black87,)),
@@ -185,28 +189,29 @@ class _GenderChooseState extends State<GenderChoose> {
         width: 170,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColor.moresolidPrimary,
+            backgroundColor: (dropdowngender != null && dropdowngender!.isNotEmpty)
+                ? AppColor.moresolidPrimary
+                : Colors.grey,
             padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             elevation: 4,
           ),
-          onPressed: () async {
-            await _saveUserData(); // Save input data before navigating
+          onPressed: (dropdowngender != null && dropdowngender!.isNotEmpty)
+              ? () async {
+            await _saveUserData();
             try {
               final user = FirebaseAuth.instance.currentUser;
               if (user == null) return;
-              // Save data to Firestore
               await FirebaseFirestore.instance
                   .collection("Users")
                   .doc(user.email)
-                  .update({
-                'gender': dropdowngender,
-              });
+                  .update({'gender': dropdowngender});
               navigateWithSlideTransition(context, HeightChoose(), slideRight: true);
             } catch (e) {
               print("Error saving data: $e");
             }
-          },
+          }
+              : null,
           child: Text(
             "Next",
             style: TextStyle(
@@ -219,5 +224,4 @@ class _GenderChooseState extends State<GenderChoose> {
       ),
     );
   }
-
 }

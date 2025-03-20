@@ -82,7 +82,9 @@ class _HeightChooseState extends State<HeightChoose> {
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.white,
+          title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
           leading: IconButton(onPressed: (){
             navigateWithSlideTransition(context, GenderChoose(), slideRight: false);
           }, icon: Icon(Icons.arrow_back_ios,color: Colors.black87,)),

@@ -37,16 +37,22 @@ class UserData {
     required this.workoutLevel,
   });
 
+
   // Helper factory for reading from Firestore
   factory UserData.fromMap(Map<String, dynamic> data) {
+    final weight = parseToDouble(data['weight'] ?? 0);
+    // If 'targetWeight' is not provided or null, default it to current weight.
+    final targetWeight = (data['targetWeight'] == null)
+        ? weight
+        : parseToDouble(data['targetWeight']);
     return UserData(
       age: data['age'] ?? 0,
       gender: data['gender'] ?? '',
       goal: data['goal'] ?? '',
       height: parseToDouble(data['height'] ?? 0),
       nutriActivityLevel: data['nutriActivitylevel'] ?? '',
-      targetWeight: parseToDouble(data['targetWeight'] ?? 0),
-      weight: parseToDouble(data['weight'] ?? 0),
+      targetWeight: targetWeight,
+      weight: weight,
       workoutLevel: data['workoutLevel'] ?? '',
     );
   }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
 import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
+import 'package:exercai_mobile/login_register_pages/summary_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/main.dart';
@@ -138,13 +139,7 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
         },
         icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
       ),
-      title: Text(
-        'Workout Level',
-        style: GoogleFonts.roboto(
-          color: Colors.black87,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
     );
   }
 
@@ -270,7 +265,7 @@ class _WorkoutLevelState extends State<WorkoutLevel> {
         if (selectedArea != null) {
           saveWorkoutLevelToFirebase();
           _saveSelectedWorkoutLevel(selectedArea!);
-          navigateWithSlideTransition(context, Bodyshape(), slideRight: true);
+          navigateWithSlideTransition(context, SummaryBodyMetricsPage(), slideRight: true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Please select a workout level before proceeding.")),

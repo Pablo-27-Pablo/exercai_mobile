@@ -909,7 +909,7 @@ class _BMIEditProfilePageState extends State<BMIEditProfilePage> {
                     const SizedBox(height: 16),
                     WeightChart(
                       targetWeight: parseWeight(
-                        userData['targetWeight'] ?? '72.1',
+                        userData['targetWeight'] ?? userData['weight'],
                       ),
                       weightEntries: weightEntries,
                     ),

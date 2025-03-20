@@ -19,9 +19,13 @@ class _NutritionCalculatorFirebaseState
   String? weight;
   String? gender;
   String? activityLevel;
+  String? goal; // NEW: store the user’s goal from Firebase
   Map<String, dynamic>? nutritionData;
   String errorMessage = '';
   bool isLoading = false;
+
+  // Store our calorie calculation results here
+  Map<String, double>? _calorieResults;
 
   @override
   void initState() {
@@ -50,7 +54,12 @@ class _NutritionCalculatorFirebaseState
             weight = userDoc["weight"].toString();
             gender = userDoc["gender"];
             activityLevel = userDoc["nutriActivitylevel"];
+            goal = userDoc["goal"]; // NEW: read the "goal" field
           });
+
+          // Once we have the user's data, calculate our custom calorie estimates
+          _calorieResults = _calculateCalories();
+
           await fetchNutritionData();
         }
       } catch (e) {
@@ -64,7 +73,7 @@ class _NutritionCalculatorFirebaseState
     });
   }
 
-  /// Fetch nutrition data from API using Firebase values
+  /// Fetch nutrition data from the external API using Firebase values
   Future<void> fetchNutritionData() async {
     if (age == null ||
         height == null ||
@@ -93,9 +102,7 @@ class _NutritionCalculatorFirebaseState
       final response = await http.get(
         url,
         headers: {
-          'X-Rapidapi-Key':
-          //'81efa21332mshc3d43597ee9e475p14e998jsn7776838f3ddd', //Api key for animeneko email
-          'dc1bad7b61msh8f8c3cb4e545871p10b76djsnedc2c2ff9c22',// Replace with your key: api key for main email
+          'X-Rapidapi-Key': 'dc1bad7b61msh8f8c3cb4e545871p10b76djsnedc2c2ff9c22',
           'X-Rapidapi-Host': 'nutrition-calculator.p.rapidapi.com',
         },
       );
@@ -118,6 +125,166 @@ class _NutritionCalculatorFirebaseState
       });
     }
   }
+
+  // Calculate calories using Mifflin-St Jeor + activity factor.
+  // NEW: Also return BMR and activityFactor in the map for computation details.
+  Map<String, double> _calculateCalories() {
+    double parseDouble(String? val) {
+      if (val == null) return 0;
+      return double.tryParse(val) ?? 0;
+    }
+
+    double w = parseDouble(weight); // kg
+    double h = parseDouble(height); // cm
+    double a = parseDouble(age);    // years
+
+    // Default factor if not recognized
+    double factor = 1.2;
+    if (activityLevel == 'Inactive') {
+      factor = 1.2;
+    } else if (activityLevel == 'Low Active') {
+      factor = 1.375;
+    } else if (activityLevel == 'Active') {
+      factor = 1.55;
+    } else if (activityLevel == 'Very Active') {
+      factor = 1.725;
+    }
+
+    double bmr;
+    if ((gender ?? '').toLowerCase() == 'male') {
+      // Mifflin-St Jeor (Men)
+      bmr = 10 * w + 6.25 * h - 5 * a + 5;
+    } else {
+      // Mifflin-St Jeor (Women)
+      bmr = 10 * w + 6.25 * h - 5 * a - 161;
+    }
+
+    double tdee = bmr * factor;
+
+    // Example deficits/surpluses
+    double maintain = tdee;
+    double mildLoss = tdee - 250;
+    double loss = tdee - 500;
+    double extremeLoss = tdee - 1000;
+    double mildGain = tdee + 250;
+    double moderateGain = tdee + 500; // ~0.5 kg/week
+    double fastGain = tdee + 1000;
+
+    // Compute percentages
+    int tdeePct = 100; // "Maintain weight" is always 100%
+    int mildLossPct = ((mildLoss / tdee) * 100).round();
+    int lossPct = ((loss / tdee) * 100).round();
+    int extremeLossPct = ((extremeLoss / tdee) * 100).round();
+    int mildGainPct = ((mildGain / tdee) * 100).round();
+    int moderateGainPct = ((moderateGain / tdee) * 100).round();
+    int fastGainPct = ((fastGain / tdee) * 100).round();
+
+    // Return all as a map including BMR and activityFactor for detailed display.
+    return {
+      'bmr': bmr,
+      'activityFactor': factor,
+      'tdee': tdee,
+      'maintain': maintain,
+      'mildLoss': mildLoss,
+      'loss': loss,
+      'extremeLoss': extremeLoss,
+      'mildGain': mildGain,
+      'moderateGain': moderateGain,
+      'fastGain': fastGain,
+      'tdeePct': tdeePct.toDouble(),
+      'mildLossPct': mildLossPct.toDouble(),
+      'lossPct': lossPct.toDouble(),
+      'extremeLossPct': extremeLossPct.toDouble(),
+      'mildGainPct': mildGainPct.toDouble(),
+      'moderateGainPct': moderateGainPct.toDouble(),
+      'fastGainPct': fastGainPct.toDouble(),
+    };
+  }
+
+
+  // Build a Card to display the calorie suggestions (as before)
+  Widget _buildCalorieCard(Map<String, double> cals) {
+    return _buildTable(
+      "Calorie Suggestions",
+      [
+        [
+          "Maintain weight",
+          "${cals['tdee']?.toStringAsFixed(0)} Calories/day",
+          "${cals['tdeePct']?.toStringAsFixed(0)}%"
+        ],
+        /*[
+          "Mild weight loss (0.25 kg/week)",
+          "${cals['mildLoss']?.toStringAsFixed(0)} Calories/day",
+          "${cals['mildLossPct']?.toStringAsFixed(0)}%"
+        ],*/
+        [
+          "Weight loss\n(0.5 kg/week)",
+          "${cals['loss']?.toStringAsFixed(0)} Calories/day",
+          "${cals['lossPct']?.toStringAsFixed(0)}%"
+        ],
+        /*[
+          "Extreme weight loss\n(1 kg/week)",
+          "${cals['extremeLoss']?.toStringAsFixed(0)} Calories/day",
+          "${cals['extremeLossPct']?.toStringAsFixed(0)}%"
+        ],*/
+        /*[
+          "Mild weight gain (0.25 kg/week)",
+          "${cals['mildGain']?.toStringAsFixed(0)} Calories/day",
+          "${cals['mildGainPct']?.toStringAsFixed(0)}%"
+        ],*/
+        [
+          "Weight gain\n(0.5 kg/week)",
+          "${cals['moderateGain']?.toStringAsFixed(0)} Calories/day",
+          "${cals['moderateGainPct']?.toStringAsFixed(0)}%"
+        ],
+        /*[
+          "Fast weight gain (1 kg/week)",
+          "${cals['fastGain']?.toStringAsFixed(0)} Calories/day",
+          "${cals['fastGainPct']?.toStringAsFixed(0)}%"
+        ],*/
+      ],
+    );
+  }
+
+  /// NEW: Return the chosen calorie suggestion based on the user's goal
+  String _getGoalBasedCalories() {
+    if (_calorieResults == null) {
+      // If for some reason we haven't computed or there's an error,
+      // fall back to the original API data
+      return _getData("BMI_EER", "Estimated Daily Caloric Needs");
+    }
+
+    // Switch on the user’s "goal"
+    switch (goal?.toLowerCase()) {
+      case "maintain":
+        return "${_calorieResults!['tdee']?.toStringAsFixed(0) ?? 'N/A'} Calories/day";
+      case "lose weight":
+        return "${_calorieResults!['loss']?.toStringAsFixed(0) ?? 'N/A'} Calories/day";
+      case "muscle mass gain":
+        return "${_calorieResults!['moderateGain']?.toStringAsFixed(0) ?? 'N/A'} Calories/day";
+      default:
+      // If the goal isn't recognized, just return the original API data
+        return _getData("BMI_EER", "Estimated Daily Caloric Needs");
+    }
+  }
+
+  // Build a Card to display detailed calorie computation
+  /*Widget _buildCalorieComputationCard(Map<String, double> cals) {
+    return _buildTable(
+      "Calorie Computation Details",
+      [
+        ["BMR", "${cals['bmr']?.toStringAsFixed(0)} Calories"],
+        ["Activity Factor", "${cals['activityFactor']?.toStringAsFixed(2)}"],
+        ["TDEE (BMR x Factor)", "${cals['tdee']?.toStringAsFixed(0)} Calories/day"],
+        ["Mild Weight Loss (0.25 kg/week)", "${cals['mildLoss']?.toStringAsFixed(0)} Calories/day"],
+        ["Weight Loss (0.5 kg/week)", "${cals['loss']?.toStringAsFixed(0)} Calories/day"],
+        ["Extreme Weight Loss (1 kg/week)", "${cals['extremeLoss']?.toStringAsFixed(0)} Calories/day"],
+        ["Mild Weight Gain (0.25 kg/week)", "${cals['mildGain']?.toStringAsFixed(0)} Calories/day"],
+        ["Weight Gain (0.5 kg/week)", "${cals['moderateGain']?.toStringAsFixed(0)} Calories/day"],
+        ["Fast Weight Gain (1 kg/week)", "${cals['fastGain']?.toStringAsFixed(0)} Calories/day"],
+      ],
+    );
+  }*/
 
   /// Build a table wrapped in a card with a gradient header.
   Widget _buildTable(String title, List<List<String>> data) {
@@ -155,25 +322,25 @@ class _NutritionCalculatorFirebaseState
             padding: const EdgeInsets.all(16.0),
             child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: {0: FlexColumnWidth(2), 1: FlexColumnWidth(3)},
+              // Use 3 columns if data has 3 entries per row
+              columnWidths: {
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(2),
+                if (data.isNotEmpty && data[0].length == 3) 2: FlexColumnWidth(1),
+              },
               children: data.asMap().entries.map((entry) {
                 final row = entry.value;
                 final index = entry.key;
                 return TableRow(
                   decoration: BoxDecoration(
-                    color: index % 2 == 0
-                        ? Colors.grey.shade50
-                        : Colors.white,
+                    color: index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
                   ),
                   children: row.map((cell) {
                     return Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
                         cell,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
                       ),
                     );
                   }).toList(),
@@ -202,25 +369,67 @@ class _NutritionCalculatorFirebaseState
       ["Height", "$height cm"],
       ["Weight", "$weight kg"],
       ["Activity Level", activityLevel ?? "N/A"],
+      ["Goal", goal ?? "N/A"], // Show user’s goal if you like
     ]);
   }
 
+  /// Overwrite the second row's "Estimated Daily Caloric Needs" with the user’s goal-based result
   Widget _buildResultsTable() {
     return _buildTable("Your Calculated Results", [
       ["Body Mass Index (BMI)", _getData("BMI_EER", "BMI")],
       [
         "Estimated Daily Caloric Needs",
-        _getData("BMI_EER", "Estimated Daily Caloric Needs"),
+        _getGoalBasedCalories(), // Overwrite with the chosen calorie
       ],
     ]);
   }
 
-  Widget _buildMacronutrientsTable() {
+
+  /*Widget _buildMacronutrientsTable() {
     return _buildTableFromJson(
       "Daily Recommended Macronutrient Intake",
       nutritionData?['macronutrients_table']?['macronutrients-table'],
     );
+  }*/
+
+  Widget _buildMacronutrientsTable() {
+    // 1. Get the JSON data for macronutrients table.
+    final data = nutritionData?['macronutrients_table']?['macronutrients-table'];
+    if (data == null || data is! List) return SizedBox();
+
+    // 2. Convert the JSON list into a List<List<String>>.
+    List<List<String>> tableData = data.map<List<String>>((row) {
+      return row.map<String>((cell) => cell.toString()).toList();
+    }).toList();
+
+    // 3. If the user's goal is one of the ones we handle, overwrite the "Protein" row.
+    String userGoal = (goal ?? '').toLowerCase();
+    if (userGoal == 'muscle mass gain' || userGoal == 'lose weight' || userGoal == 'maintain') {
+      double weightKg = double.tryParse(weight ?? '0') ?? 0;
+      for (var row in tableData) {
+        if (row.isNotEmpty && row[0].toLowerCase().contains('protein')) {
+          if (userGoal == 'muscle mass gain') {
+            double lowerProtein = weightKg * 1.6;
+            double upperProtein = weightKg * 2.2;
+            row[1] = '${lowerProtein.toStringAsFixed(0)}–${upperProtein.toStringAsFixed(0)} g/day (muscle gain)';
+          } else if (userGoal == 'lose weight') {
+            double lowerProtein = weightKg * 2.0;
+            double upperProtein = weightKg * 2.5;
+            row[1] = '${lowerProtein.toStringAsFixed(0)}–${upperProtein.toStringAsFixed(0)} g/day (weight loss)';
+          } else if (userGoal == 'maintain') {
+            double lowerProtein = weightKg * 1.2;
+            double upperProtein = weightKg * 1.6;
+            row[1] = '${lowerProtein.toStringAsFixed(0)}–${upperProtein.toStringAsFixed(0)} g/day (maintain)';
+          }
+        }
+      }
+    }
+
+    // 4. Build the table using your existing _buildTable() function.
+    return _buildTable("Daily Recommended Macronutrient Intake", tableData);
   }
+
+
 
   Widget _buildVitaminsTable() {
     return _buildTableFromJson(
@@ -236,8 +445,7 @@ class _NutritionCalculatorFirebaseState
     );
   }
 
-  /// NEW: Definitions Section
-  /// A visually appealing card with a gradient header and expansion tiles for each definition.
+  /// Definitions Section
   Widget _buildDefinitionsSection() {
     final List<Map<String, String>> definitions = [
       {
@@ -403,6 +611,125 @@ class _NutritionCalculatorFirebaseState
     return nutritionData?[category]?[key]?.toString() ?? "N/A";
   }
 
+  /// A Card that shows "How It Works" explanation
+  Widget _buildHowItWorksCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Gradient header for "How It Works"
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColor.supersolidPrimary,
+                  AppColor.superlightPrimary,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Text(
+              "How It Works",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          // Explanation content
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. User Inputs
+                Text(
+                  "1. User Inputs:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text("• Age (years)\n• Height (cm)\n• Weight (kg)\n• Gender (Male/Female)\n• Activity Level (Inactive, Low Active, Active, Very Active)"),
+                SizedBox(height: 12),
+
+                // 2. BMR Calculation
+                Text(
+                  "2. BMR Calculation:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text("Using the Mifflin-St Jeor Equation:\n"),
+                Text("Men:   BMR = 10 × W + 6.25 × H − 5 × A + 5\nWomen: BMR = 10 × W + 6.25 × H − 5 × A − 161",
+                    style: TextStyle(fontStyle: FontStyle.italic)),
+                SizedBox(height: 12),
+
+                // 3. Activity Factor
+                Text(
+                  "3. Activity Factor:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text("• Inactive: 1.2\n• Low Active: 1.375\n• Active: 1.55\n• Very Active: 1.725"),
+                SizedBox(height: 4),
+                Text("We multiply BMR by the chosen factor to get TDEE (Total Daily Energy Expenditure)."),
+                SizedBox(height: 12),
+
+                // 4. Calorie Targets
+                Text(
+                  "4. Calorie Targets:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text("• Maintenance ≈ TDEE\n• Mild weight loss ≈ TDEE − 250\n• Weight loss ≈ TDEE − 500\n• Extreme weight loss ≈ TDEE − 1000\n• Mild weight gain ≈ TDEE + 250\n• Weight gain ≈ TDEE + 500\n• Fast weight gain ≈ TDEE + 1000"),
+                SizedBox(height: 4),
+                Text("(1 kg/week loss or gain is not recommended without medical supervision.)",
+                    style: TextStyle(fontStyle: FontStyle.italic)),
+                SizedBox(height: 12),
+
+                // 5. Protein Intake Recommendations
+                Text(
+                  "5. Protein Intake Recommendations:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "For muscle mass gain, it's recommended to consume approximately 1.6–2.2 g of protein per kg of body weight per day.\n"
+                      "For example, if you weigh 70 kg:\n"
+                      "• Lower end: 70 × 1.6 = 112 g/day\n"
+                      "• Upper end: 70 × 2.2 = 154 g/day",
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  "For weight loss, a higher protein intake helps preserve lean muscle mass, so it's recommended to consume around 2.0–2.5 g per kg of body weight per day.\n"
+                      "For example, if you weigh 70 kg:\n"
+                      "• Lower end: 70 × 2.0 = 140 g/day\n"
+                      "• Upper end: 70 × 2.5 = 175 g/day",
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  "For maintenance, a typical recommendation is about 1.2–1.6 g per kg of body weight per day.\n"
+                      "For example, if you weigh 70 kg:\n"
+                      "• Lower end: 70 × 1.2 = 84 g/day\n"
+                      "• Upper end: 70 × 1.6 = 112 g/day",
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -480,15 +807,28 @@ class _NutritionCalculatorFirebaseState
                         gender != null &&
                         activityLevel != null) ...[
                       _buildEnteredValues(),
-                      SizedBox(height: 20),
+
+
+
+                      // Show our custom calorie suggestions card
+                      if (_calorieResults != null)
+                        _buildCalorieCard(_calorieResults!),
+
+
+                      // NEW: Show detailed computation of the calorie suggestion
+                      /*if (_calorieResults != null)
+                        _buildCalorieComputationCard(_calorieResults!),*/
+
                       if (nutritionData != null) ...[
                         _buildResultsTable(),
                         _buildMacronutrientsTable(),
                         _buildVitaminsTable(),
                         _buildMineralsTable(),
-                        // Insert the new definitions section here
                         _buildDefinitionsSection(),
                       ],
+                      // Show our custom "How It Works" card
+                      _buildHowItWorksCard(),
+                      SizedBox(height: 20),
                     ],
                   ],
                 ),

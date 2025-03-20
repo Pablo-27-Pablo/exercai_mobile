@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/auth/auth.dart';
 import 'package:exercai_mobile/fetch_exercisedb_api.dart';
+import 'package:exercai_mobile/food_nutrition/calorie_calculator.dart';
 import 'package:exercai_mobile/food_nutrition/nutrition_calculator_firebase.dart';
 import 'package:exercai_mobile/local_notification/reminder_settings.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
@@ -144,8 +145,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         bool isLoggedIn = snapshot.data ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          //home: AuthPage(),
           home: AuthPage(),
+          //home: CalorieCalculatorPage(),
           //home: ButtonDownloadExercises(),
           //home :DownloadGifsScreen(),
 

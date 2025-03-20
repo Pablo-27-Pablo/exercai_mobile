@@ -152,11 +152,7 @@ class _InjurySelectionState extends State<InjurySelection> {
         },
       ),
       centerTitle: true,
-      title: Text(
-        "Select Injury Areas",
-        style: TextStyle(
-            color: AppColor.buttonPrimary, fontWeight: FontWeight.bold),
-      ),
+      title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
     );
   }
 
@@ -291,8 +287,13 @@ class _InjurySelectionState extends State<InjurySelection> {
   }
 
   Widget _buildNextButton() {
+    // Disable button if no injury is selected.
+    final bool isDisabled = selectedInjuries.isEmpty;
+
     return GestureDetector(
-      onTap: () {
+      onTap: isDisabled
+          ? null
+          : () {
         _saveSelectedInjuries(); // Save selections before navigation
         saveInjuryAreaToFirebase();
         navigateWithSlideTransition(context, WorkoutLevel(), slideRight: true);
@@ -302,13 +303,21 @@ class _InjurySelectionState extends State<InjurySelection> {
         height: 55,
         width: MediaQuery.of(context).size.width * 0.6,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: isDisabled
+              ? LinearGradient(
+            colors: [Colors.grey, Colors.grey],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+              : LinearGradient(
             colors: [AppColor.supersolidPrimary, AppColor.primary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(30),
-          boxShadow: [
+          boxShadow: isDisabled
+              ? []
+              : [
             BoxShadow(
               color: AppColor.buttonSecondary.withOpacity(0.5),
               blurRadius: 10,
@@ -329,4 +338,5 @@ class _InjurySelectionState extends State<InjurySelection> {
       ),
     );
   }
+
 }

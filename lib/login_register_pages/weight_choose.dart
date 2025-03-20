@@ -36,14 +36,23 @@ class _WeightChooseState extends State<WeightChoose> {
 
   // For calculating the number of wheel items
   late int _itemCount;
+  late FixedExtentScrollController _wheelController;
+
 
   @override
   void initState() {
     super.initState();
     _itemCount = ((_maxWeight - _minWeight) / _step).round() + 1;
+    _currentWeight = 70.0; // default
+    // Initialize the wheel controller with the default weight
+    _wheelController = FixedExtentScrollController(initialItem: _weightToIndex(_currentWeight));
+
     _checkForNewUser();       // Ensure data resets for new users
     _getHeightFromFirebase(); // Retrieve the stored height from Firestore
   }
+
+
+
 
   // Check if user has changed and reset data if needed
   Future<void> _checkForNewUser() async {
@@ -72,9 +81,12 @@ class _WeightChooseState extends State<WeightChoose> {
       setState(() {
         _currentWeight = savedWeight;
       });
+      // Jump to the saved weight on the wheel
+      _wheelController.jumpToItem(_weightToIndex(_currentWeight));
     }
     _updateBMI(); // Recompute BMI if possible
   }
+
 
   // Save user input when clicking "Next"
   Future<void> _saveUserData() async {
@@ -179,6 +191,8 @@ class _WeightChooseState extends State<WeightChoose> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: AppColor.backgroundWhite,
+          centerTitle: true,
+          title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
           leading: IconButton(onPressed: (){
             navigateWithSlideTransition(context, HeightChoose(), slideRight: false);
           }, icon: Icon(Icons.arrow_back_ios,color: Colors.black,)),
@@ -264,7 +278,8 @@ class _WeightChooseState extends State<WeightChoose> {
       child: RotatedBox(
         quarterTurns: -1, // rotate to make it horizontal
         child: ListWheelScrollView.useDelegate(
-          controller: FixedExtentScrollController(initialItem: currentIndex),
+          //controller: FixedExtentScrollController(initialItem: currentIndex),
+          controller: _wheelController,
           itemExtent: 25,
           perspective: 0.002,
           physics: FixedExtentScrollPhysics(),
@@ -279,12 +294,12 @@ class _WeightChooseState extends State<WeightChoose> {
             builder: (context, index) {
               if (index < 0 || index >= _itemCount) return null;
               double val = _indexToWeight(index);
-
               // Check if it's a whole number
               bool isWholeNumber = ((val * 10) % 10) == 0;
-
               // Is this item the selected item?
-              bool isSelected = index == currentIndex;
+              //bool isSelected = index == currentIndex;
+              // Is this item the selected item?
+              bool isSelected = index == _weightToIndex(_currentWeight);
               return RotatedBox(
                 quarterTurns: 1, // rotate upright
                 child: _buildVerticalTickLine(val, isWholeNumber, isSelected),
@@ -409,7 +424,7 @@ class _WeightChooseState extends State<WeightChoose> {
           });
 
           print("User profile data saved with BMI: $bmi, category: $bmiCategory.");
-          navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: true);
+          navigateWithSlideTransition(context, WhatGoalPage(), slideRight: true);
         } catch (e) {
           print("Error saving data: $e");
         }

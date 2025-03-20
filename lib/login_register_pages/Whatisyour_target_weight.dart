@@ -19,31 +19,51 @@ class WhatisyourTargetWeight extends StatefulWidget {
 }
 
 class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
-  // Local controller for target weight
+  // Controller for target weight text display
   late TextEditingController _targetWeightController;
 
-  // Fetched from Firestore
+  // Scroll controller for the ListWheelScrollView
+  late FixedExtentScrollController _scrollController;
+
+  // Track whether user data has loaded.
+  bool _isDataLoaded = false;
+
+  // Fetched user data from Firestore (stored as strings)
   double? currentWeight;
+  double? userHeight; // in centimeters
+  String? userGoal;   // e.g. "lose_weight" or "muscle_gain"
+
+  // Allowed target weight range
+  double? targetMin;
+  double? targetMax;
+
+  // Allowed indices (in the full wheel range)
+  int? allowedMinIndex;
+  int? allowedMaxIndex;
 
   // Real-time motivational message
   String displayedMessage = '';
 
-  // Range for target weight in kg
-  final double _minWeight = 20.0;
-  final double _maxWeight = 300.0;
+  // Full visible range slider parameters
+  final double _defaultMinWeight = 20.0;
+  final double _defaultMaxWeight = 300.0;
   final double _step = 0.1;
   late int _itemCount;
+
+  // This flag ensures we only jump to the wheel’s initial position once
+  bool _hasSetInitialPosition = false;
 
   @override
   void initState() {
     super.initState();
     _targetWeightController = TextEditingController();
+    _itemCount = (((_defaultMaxWeight - _defaultMinWeight) / _step).round() + 1);
 
-    // Number of possible values
-    _itemCount = ((_maxWeight - _minWeight) / _step).round() + 1;
+    // Initialize the wheel controller once
+    //_scrollController = FixedExtentScrollController(initialItem: 0);
 
-    _fetchCurrentWeight();
     _loadTargetWeight();
+    _fetchUserData();
     _targetWeightController.addListener(_calculatePercentage);
   }
 
@@ -51,14 +71,30 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
   void dispose() {
     _targetWeightController.removeListener(_calculatePercentage);
     _targetWeightController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
+
+  void _initializeScrollController() {
+    double fallbackWeight = currentWeight ?? 70.0;
+    if (_targetWeightController.text.isEmpty) {
+      _targetWeightController.text = fallbackWeight.toStringAsFixed(1);
+    }
+    double? targetVal = double.tryParse(_targetWeightController.text) ?? fallbackWeight;
+    if (targetVal < _defaultMinWeight) targetVal = _defaultMinWeight;
+    if (targetVal > _defaultMaxWeight) targetVal = _defaultMaxWeight;
+    int targetIndex = ((targetVal - _defaultMinWeight) / _step).round().clamp(0, _itemCount - 1);
+    _currentSelectedIndex = targetIndex;
+    _scrollController = FixedExtentScrollController(initialItem: targetIndex);
+  }
+
 
   // Load saved target weight from SharedPreferences
   Future<void> _loadTargetWeight() async {
     final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('targetWeight') ?? '';
     setState(() {
-      _targetWeightController.text = prefs.getString('targetWeight') ?? '';
+      _targetWeightController.text = saved;
     });
   }
 
@@ -68,8 +104,28 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     await prefs.setString('targetWeight', _targetWeightController.text.trim());
   }
 
-  // Fetch the user’s current weight from Firestore
-  void _fetchCurrentWeight() async {
+  // ---------------------------------------------------------------------------
+  //  1) BMI Category Helpers
+  // ---------------------------------------------------------------------------
+  // Get BMI Category from a numeric BMI
+  String _getBmiCategory(double bmi) {
+    if (bmi < 18.5) {
+      return "Underweight";
+    } else if (bmi < 25) {
+      return "Normal";
+    } else if (bmi < 30) {
+      return "Overweight";
+    } else if (bmi < 35) {
+      return "Obese";
+    } else {
+      return "Extremely Obese";
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  //  2) Fetch user data, set allowed target range
+  // ---------------------------------------------------------------------------
+  void _fetchUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -78,17 +134,137 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
         .doc(user.email)
         .get();
 
-    if (doc.exists) {
-      var data = doc.data() as Map<String, dynamic>?;
-      if (data != null && data.containsKey('weight')) {
-        setState(() {
-          currentWeight = double.parse(data['weight'].toString());
-        });
-      }
+    if (!doc.exists) return;
+
+    var data = doc.data() as Map<String, dynamic>?;
+    if (data == null) return;
+
+    // 2.1) Retrieve user's current weight, height, and goal
+    if (data.containsKey('weight')) {
+      currentWeight = double.parse(data['weight'].toString());
     }
+    if (data.containsKey('height')) {
+      userHeight = double.parse(data['height'].toString());
+    }
+    if (data.containsKey('goal')) {
+      userGoal = data['goal'].toString(); // e.g. "lose_weight" or "muscle_gain"
+    }
+
+    // 2.2) If userHeight and currentWeight exist, compute allowed range
+    if (userHeight != null && currentWeight != null) {
+      double heightInM = userHeight! / 100.0;
+      double userBmi = currentWeight! / (heightInM * heightInM);
+      String userBmiCategory = _getBmiCategory(userBmi);
+
+      if (userGoal == "lose weight") {
+        // If height and current weight are available, compute targetMin using BMI 18.5.
+        if (userHeight != null && currentWeight != null) {
+          targetMin = 18.5 * heightInM * heightInM;
+          targetMax = currentWeight;
+        } else {
+          // Fallback to default minimum if data is not available.
+          targetMin = _defaultMinWeight;
+          targetMax = currentWeight;
+        }
+      }
+      else if (userGoal == "muscle mass gain") {
+        double lowerBound = currentWeight!;
+        double upperBound = lowerBound; // Start by assuming no increase
+        // Overweight: up to BMI 29.9
+        if (userBmiCategory.toLowerCase() == "overweight") {
+          double candidate = 29.9 * heightInM * heightInM;
+          if (candidate > currentWeight!) {
+            upperBound = candidate;
+          }
+        }
+        else if (userBmiCategory.toLowerCase() == "obese") {
+          double candidate = 34.9 * heightInM * heightInM;
+          if (candidate > currentWeight!) {
+            upperBound = candidate;
+          }
+        }
+        else if (userBmiCategory.toLowerCase() == "normal") {
+          double candidate = 24.9 * heightInM * heightInM;
+          if (candidate > currentWeight!) {
+            upperBound = candidate;
+          }
+        }
+        // Fallback
+        else {
+          double candidate = 24.9 * heightInM * heightInM;
+          if (candidate > currentWeight!) {
+            upperBound = candidate;
+          }
+        }
+
+        targetMin = lowerBound;
+        targetMax = upperBound;
+      }
+
+      else {
+        // Fallback to lose_weight logic
+        targetMin = 18.5 * heightInM * heightInM;
+        targetMax = currentWeight;
+      }
+
+      // 2.3) Compute allowed indices for the wheel selector
+      allowedMinIndex = (((targetMin!) - _defaultMinWeight) / _step).round();
+      allowedMaxIndex = (((targetMax!) - _defaultMinWeight) / _step).round();
+    }
+
+    // Always set the wheel to the correct position after we have user data
+
+    //_setWheelToCorrectPosition();
+    _initializeScrollController();
+
+    setState(() {
+      _isDataLoaded = true;
+    });
+
+
+    setState(() {}); // Refresh UI
   }
 
-  // Calculate the percentage difference between currentWeight and targetWeight
+  /// Sets the wheel to the correct position based on:
+  /// 1) The saved target weight (if any), else
+  /// 2) The user’s current weight
+  void _setWheelToCorrectPosition() {
+    // If we've already jumped once, don't do it again
+    if (_hasSetInitialPosition) return;
+
+    double fallbackWeight = (currentWeight ?? 70.0);
+
+    // If the text controller is empty, use current weight as fallback
+    if (_targetWeightController.text.isEmpty) {
+      _targetWeightController.text = fallbackWeight.toStringAsFixed(1);
+    }
+
+    // Parse whatever is in the text controller
+    double? targetVal = double.tryParse(_targetWeightController.text);
+    if (targetVal == null) {
+      targetVal = fallbackWeight;
+      _targetWeightController.text = targetVal.toStringAsFixed(1);
+    }
+
+    // Clamp to [defaultMinWeight, defaultMaxWeight]
+    if (targetVal < _defaultMinWeight) targetVal = _defaultMinWeight;
+    if (targetVal > _defaultMaxWeight) targetVal = _defaultMaxWeight;
+    int targetIndex = ((targetVal - _defaultMinWeight) / _step).round();
+    targetIndex = targetIndex.clamp(0, _itemCount - 1);
+
+    // Jump after the first frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpToItem(targetIndex);
+    });
+
+    _hasSetInitialPosition = true;
+  }
+
+  // ---------------------------------------------------------------------------
+  //  3) The rest of your existing code remains mostly unchanged
+  // ---------------------------------------------------------------------------
+
+  // Calculate the difference between currentWeight and targetWeight
   void _calculatePercentage() {
     if (currentWeight == null || currentWeight == 0) {
       setState(() {
@@ -131,7 +307,6 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
-  // Return the appropriate color for the first line of the displayed message
   Color _getMessageColor(String messagePart) {
     switch (messagePart) {
       case '👌A piece of cake:':
@@ -146,7 +321,6 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
-  // Save target weight to Firestore
   void saveTargetWeightToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && _targetWeightController.text.isNotEmpty) {
@@ -164,19 +338,16 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     }
   }
 
-  // Build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // White background to match the screenshot
       backgroundColor: Colors.white,
       appBar: _buildHeader(context),
-      body: Column(
+      body:!_isDataLoaded
+          ? Center(child: CircularProgressIndicator())
+          : Column(
         children: [
-          // Large spacing at the top for the question
-          SizedBox(height: 24),
-
-          // Title: "What's your target weight?" in bold black
+          const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
@@ -185,134 +356,179 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
                   child: Text(
                     "What's your target weight?",
                     style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87),
                   ),
                 ),
-                // The green pill that says "kg" (no lbs)
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColor.supersolidPrimary,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(
+                  child: const Text(
                     "kg",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
           ),
-
-          // Some spacing
-          SizedBox(height: 16),
-
-          // The big number in the center
+          const SizedBox(height: 16),
           _buildWeightDisplay(),
-
-          // The horizontal scale
           _buildWheelSelector(),
-
-          // The motivational message
           _buildMotivationalCard(),
-
-          Spacer(),
-
-          // Next button at the bottom
+          const Spacer(),
           _buildNextButton(context),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  // Custom AppBar with a back arrow
   PreferredSizeWidget _buildHeader(BuildContext context) {
     return AppBar(
       backgroundColor: AppColor.backgroundWhite,
       elevation: 0,
       centerTitle: false,
       leading: IconButton(
-        onPressed: () {
-          navigateWithSlideTransition(context, WeightChoose(), slideRight: false);
+        onPressed: () async {
+          // Delete the "targetWeight" from SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove("targetWeight");
+
+          // Delete the "targetWeight" field from Firebase for the current user
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await FirebaseFirestore.instance
+                .collection("Users")
+                .doc(user.email)
+                .update({"targetWeight": FieldValue.delete()});
+          }
+
+          // Navigate back to the previous page (e.g. WhatGoalPage)
+          navigateWithSlideTransition(context, WhatGoalPage(), slideRight: false);
         },
-        icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+        icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
       ),
     );
+
   }
 
-  // The large numeric display in the center
+
   Widget _buildWeightDisplay() {
+    // If text is empty or invalid, default to 70
     double weightVal = double.tryParse(_targetWeightController.text) ?? 70.0;
+
+    String bmiString = "";
+    String bmiCategory = "";
+    if (userHeight != null && userHeight! > 0) {
+      double heightInM = userHeight! / 100.0;
+      double bmi = weightVal / (heightInM * heightInM);
+      bmiString = bmi.toStringAsFixed(1);
+      bmiCategory = _getBmiCategory(bmi);
+    }
+
     return Column(
       children: [
         Text(
           weightVal.toStringAsFixed(1),
-          style: TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+          style: const TextStyle(
+              fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
+        if (bmiString.isNotEmpty)
+          Text(
+            "Target BMI: $bmiString",
+            style: const TextStyle(fontSize: 16, color: Colors.black54),
           ),
-        ),
-        SizedBox(height: 4),
-        // Thin green line under the big number
-        Container(
-          height: 2,
-          width: 100,
-          color: AppColor.supersolidPrimary,
-        ),
-        SizedBox(height: 8),
+        if (bmiCategory.isNotEmpty)
+          Text(
+            "TARGET BMI LEVEL: $bmiCategory",
+            style: const TextStyle(
+                fontSize: 16, color: Colors.black54, fontWeight: FontWeight.w600),
+          ),
+        const SizedBox(height: 4),
+        Container(height: 2, width: 100, color: AppColor.supersolidPrimary),
+        const SizedBox(height: 8),
       ],
     );
   }
 
-  // The horizontal wheel for selecting target weight (20–300 kg in 0.1 increments)
+  // 1) Add a field to track the currently selected index
+  int _currentSelectedIndex = 0;
+
+
   Widget _buildWheelSelector() {
-    // Convert current target weight from text controller
-    double currentTarget = double.tryParse(_targetWeightController.text) ?? 70.0;
-    if (currentTarget < _minWeight || currentTarget > _maxWeight) {
-      currentTarget = 70.0;
-    }
-
-    int currentIndex = ((currentTarget - _minWeight) / _step).round();
-    currentIndex = currentIndex.clamp(0, _itemCount - 1);
-
-    // Keep the text controller in sync
-    _targetWeightController.text = currentTarget.toStringAsFixed(1);
-
-    return Container(
+    return SizedBox(
       height: 100,
       child: RotatedBox(
-        quarterTurns: -1, // rotate to make it horizontal
+        quarterTurns: -1,
         child: ListWheelScrollView.useDelegate(
-          controller: FixedExtentScrollController(initialItem: currentIndex),
+          controller: _scrollController,
           itemExtent: 25,
           perspective: 0.002,
-          physics: FixedExtentScrollPhysics(),
+          physics: const FixedExtentScrollPhysics(),
+          // 2) Update _currentSelectedIndex in onSelectedItemChanged
           onSelectedItemChanged: (index) {
-            double newWeight = _minWeight + index * _step;
             setState(() {
-              _targetWeightController.text = newWeight.toStringAsFixed(1);
+              _currentSelectedIndex = index;
             });
+
+            double newWeight = _defaultMinWeight + index * _step;
+
+            // Restrict selection to the allowed range
+            if (targetMin != null && targetMax != null) {
+              if (newWeight < targetMin!) {
+                _scrollController.animateToItem(
+                  allowedMinIndex!,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+                return;
+              }
+              if (newWeight > targetMax!) {
+                _scrollController.animateToItem(
+                  allowedMaxIndex!,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+                return;
+              }
+            }
+
+            _targetWeightController.text = newWeight.toStringAsFixed(1);
             _calculatePercentage();
             _saveTargetWeight();
           },
           childDelegate: ListWheelChildBuilderDelegate(
             builder: (context, index) {
               if (index < 0 || index >= _itemCount) return null;
-              double val = _minWeight + index * _step;
+
+              double val = _defaultMinWeight + index * _step;
               bool isWholeNumber = ((val * 10) % 10) == 0;
-              bool isSelected = index == currentIndex;
+
+              // Mark values outside the allowed range as disabled
+              bool isSelectable = true;
+              if (targetMin != null && targetMax != null) {
+                if (val < targetMin! || val > targetMax!) {
+                  isSelectable = false;
+                }
+              }
+
+              // 3) Check if this line is currently selected
+              bool isSelected = (index == _currentSelectedIndex);
 
               return RotatedBox(
-                quarterTurns: 1, // rotate upright
-                child: _buildVerticalTick(val, isWholeNumber, isSelected),
+                quarterTurns: 1,
+                child: _buildVerticalTick(
+                  val,
+                  isWholeNumber,
+                  isSelectable,
+                  isSelected, // Pass this flag
+                ),
               );
             },
             childCount: _itemCount,
@@ -322,32 +538,33 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     );
   }
 
-  // Build a vertical tick line:
-  // - Longer line + label for whole number
-  // - Shorter line for decimals
-  Widget _buildVerticalTick(double value, bool isWholeNumber, bool isSelected) {
+  // Modify the signature to accept isSelected
+  Widget _buildVerticalTick(double value, bool isWholeNumber, bool isSelectable, bool isSelected) {
     double lineHeight = isWholeNumber ? 30 : 15;
-    bool showLabel = isWholeNumber;
 
-    return Container(
+    // Decide the color based on selectable + selected
+    Color tickColor;
+    if (!isSelectable) {
+      tickColor = Colors.red; // outside allowed range
+    } else if (isSelected) {
+      tickColor = Colors.lightGreenAccent; // highlight the selected line in green
+    } else {
+      tickColor = Colors.black; // normal line
+    }
+
+    return SizedBox(
       width: 40,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // The vertical line
-          Container(
-            width: 2,
-            height: lineHeight,
-            color: isSelected ? AppColor.supersolidPrimary : Colors.black54,
-          ),
-          if (showLabel) ...[
-            SizedBox(height: 6),
+          Container(width: 2, height: lineHeight, color: tickColor),
+          if (isWholeNumber) ...[
+            const SizedBox(height: 6),
             Text(
               value.toStringAsFixed(0),
               style: TextStyle(
                 fontSize: 12,
-                color: isSelected ? AppColor.supersolidPrimary : Colors.black54,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: tickColor,
               ),
             ),
           ],
@@ -356,21 +573,16 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     );
   }
 
-  // Container for the motivational message
   Widget _buildMotivationalCard() {
-    if (displayedMessage.isEmpty) {
-      return SizedBox.shrink();
-    }
-
-    // The message has two lines separated by \n
+    if (displayedMessage.isEmpty) return const SizedBox.shrink();
     final lines = displayedMessage.split('\n');
     final firstLine = lines[0];
-    final secondLine = lines.length > 1 ? lines[1] : "";
+    final secondLine = (lines.length > 1) ? lines[1] : "";
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
@@ -387,14 +599,11 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
             ),
           ),
           if (secondLine.isNotEmpty) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               secondLine,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black87,
-                fontWeight: FontWeight.bold
-              ),
+              style: const TextStyle(
+                  fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold),
             ),
           ],
         ],
@@ -402,30 +611,26 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     );
   }
 
-  // "Next" button (black background, white text)
   Widget _buildNextButton(BuildContext context) {
     return GestureDetector(
       onTap: () async {
         saveTargetWeightToFirebase();
         _saveTargetWeight();
-        navigateWithSlideTransition(context, WhatGoalPage(), slideRight: true);
+        navigateWithSlideTransition(context, Nutriactivitylevel(), slideRight: true);
       },
       child: Container(
         width: double.infinity,
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: const EdgeInsets.symmetric(horizontal: 24),
         height: 50,
         decoration: BoxDecoration(
           color: AppColor.moresolidPrimary,
           borderRadius: BorderRadius.circular(25),
         ),
-        child: Center(
+        child: const Center(
           child: Text(
             "Next",
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
       ),

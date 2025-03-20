@@ -24,6 +24,10 @@ class _DateOfBirthState extends State<DateOfBirth> {
   @override
   void initState() {
     super.initState();
+    // Listen for changes so that the widget rebuilds
+    dobController.addListener(() {
+      setState(() {});
+    });
     _checkForNewUser(); // Ensure data resets for new users
   }
 
@@ -57,12 +61,14 @@ class _DateOfBirthState extends State<DateOfBirth> {
 
   // Redesigned date picker: Uses a sliding CupertinoDatePicker in a modal bottom sheet.
   Future<void> _selectDate(BuildContext context) async {
-    DateTime initialDate = DateTime.now();
+    DateTime now = DateTime.now();
+    DateTime fiveYearsAgo = DateTime(now.year - 5, now.month, now.day);
+    DateTime initialDate = fiveYearsAgo;
     if (dobController.text.isNotEmpty) {
       try {
         initialDate = DateFormat('MM-dd-yyyy').parse(dobController.text);
       } catch (e) {
-        // Fallback to today if parsing fails.
+        initialDate = fiveYearsAgo;
       }
     }
     DateTime selectedDate = initialDate;
@@ -109,13 +115,13 @@ class _DateOfBirthState extends State<DateOfBirth> {
                 ],
               ),
               Divider(color: Colors.grey[300], height: 1),
-              // The CupertinoDatePicker provides a smooth sliding interface.
+              // CupertinoDatePicker with maximumDate set to fiveYearsAgo
               Expanded(
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.date,
                   initialDateTime: initialDate,
                   minimumDate: DateTime(1900),
-                  maximumDate: DateTime.now(),
+                  maximumDate: fiveYearsAgo,
                   onDateTimeChanged: (DateTime newDate) {
                     selectedDate = newDate;
                   },
@@ -143,6 +149,12 @@ class _DateOfBirthState extends State<DateOfBirth> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          automaticallyImplyLeading: false, // Ensures no space is reserved
+          title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
+        ),
         backgroundColor: Colors.white, // Overall white background
         body: Center(
           child: Column(
@@ -159,7 +171,6 @@ class _DateOfBirthState extends State<DateOfBirth> {
         ),
       ),
     );
-
   }
 
   // Modern, clean header section.
@@ -167,7 +178,7 @@ class _DateOfBirthState extends State<DateOfBirth> {
     return Column(
       children: [
         SizedBox(height: 12),
-          Image.asset('assets/balloon.png',width: 200,)
+        Image.asset('assets/balloon.png', width: 200),
       ],
     );
   }
@@ -201,7 +212,11 @@ class _DateOfBirthState extends State<DateOfBirth> {
                   child: Row(
                     children: [
                       SizedBox(width: 16), // Left padding for alignment
-                      Icon(Icons.calendar_month_rounded, color: AppColor.supersolidPrimary,size: 35,),
+                      Icon(
+                        Icons.calendar_month_rounded,
+                        color: AppColor.supersolidPrimary,
+                        size: 35,
+                      ),
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -237,7 +252,10 @@ class _DateOfBirthState extends State<DateOfBirth> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             elevation: 4,
           ),
-          onPressed: () async {
+          // Disable the button if no date is selected
+          onPressed: dobController.text.isEmpty
+              ? null
+              : () async {
             await _saveUserData(); // Save input data before navigating
             try {
               final user = FirebaseAuth.instance.currentUser;
@@ -281,3 +299,4 @@ class _DateOfBirthState extends State<DateOfBirth> {
     );
   }
 }
+

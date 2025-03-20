@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exercai_mobile/login_register_pages/Whatisyour_Goal_page.dart';
+import 'package:exercai_mobile/login_register_pages/Whatisyour_target_weight.dart';
 import 'package:exercai_mobile/login_register_pages/injury_selection.dart';
+import 'package:exercai_mobile/login_register_pages/weight_choose.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exercai_mobile/main.dart';
@@ -82,19 +84,25 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios, color: AppColor.moresolidPrimary),
         onPressed: () {
-          navigateWithSlideTransition(context, WhatGoalPage(), slideRight: false);
+          // Retrieve the selected goal from SharedPreferences
+          SharedPreferences.getInstance().then((prefs) {
+            String? selectedGoal = prefs.getString('selectedGoal');
+            if (selectedGoal == "maintain") {
+              navigateWithSlideTransition(context, WhatGoalPage(), slideRight: false);
+            } else if (selectedGoal == "lose weight" || selectedGoal == "muscle mass gain") {
+              navigateWithSlideTransition(context, WhatisyourTargetWeight(), slideRight: false);
+            } else {
+              // Fallback navigation if no goal is stored
+              navigateWithSlideTransition(context, WeightChoose(), slideRight: false);
+            }
+          });
         },
       ),
       centerTitle: true,
-      title: Text(
-        'Activity Level',
-        style: GoogleFonts.roboto(
-          color: Colors.black87,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      title: Image.asset('assets/exercai-front.png', height: 60, width: 100),
     );
   }
+
 
   Widget _buildHeaderText() {
     return Container(
@@ -251,30 +259,37 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
   }
 
   Widget _buildNextButton(BuildContext context) {
+    // Determine if the button should be disabled
+    final bool isDisabled = selectedActivtyLevel == null;
+
     return GestureDetector(
-      onTap: () {
-        if (selectedActivtyLevel != null) {
-          saveNutriactivitylevelToFirebase();
-          _saveSelectedActivityLevel(selectedActivtyLevel!); // Save selection before navigation
-          navigateWithSlideTransition(context, InjurySelection(), slideRight: true);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Please select an activity level before proceeding.")),
-          );
-        }
+      onTap: isDisabled
+          ? null
+          : () {
+        saveNutriactivitylevelToFirebase();
+        _saveSelectedActivityLevel(selectedActivtyLevel!); // Save selection before navigation
+        navigateWithSlideTransition(context, InjurySelection(), slideRight: true);
       },
       child: Container(
         height: 55,
         width: 180,
         margin: const EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: isDisabled
+              ? LinearGradient(
+            colors: [Colors.grey, Colors.grey],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          )
+              : LinearGradient(
             colors: [AppColor.supersolidPrimary, AppColor.moresolidPrimary],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           borderRadius: BorderRadius.circular(50),
-          boxShadow: [
+          boxShadow: isDisabled
+              ? []
+              : [
             BoxShadow(
               color: AppColor.superlightPrimary.withOpacity(0.4),
               blurRadius: 20,
@@ -295,4 +310,5 @@ class _NutriactivitylevelState extends State<Nutriactivitylevel> {
       ),
     );
   }
+
 }

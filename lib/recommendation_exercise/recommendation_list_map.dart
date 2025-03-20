@@ -229,9 +229,9 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
         {'name': 'calf stretch with hands against wall', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/calf stretch with hands against wall.gif'}
       ]
 
-    },
+    }
 
-    'extreme_obese': {
+    /*'extreme_obese': {
       "warmup":[
         {'name': 'seated lower back stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/seated lower back stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
@@ -255,7 +255,7 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
         {'name': 'calf stretch with hands against wall', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/calf stretch with hands against wall.gif'}
       ]
 
-    },
+    },*/
 
   },
 
@@ -362,11 +362,11 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
         {'name': 'seated glute stretch', 'baseSetsSecs': 1, 'baseSecs': 20, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/seated glute stretch.gif'}
       ]
 
-    },
+    }
 
 
 
-    'extreme_obese': {
+    /*'extreme_obese': {
       "warmup":[
         {'name': 'side push neck stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/side push neck stretch.gif'},
         {'name': 'neck side stretch', 'baseSetsSecs': 1, 'baseSecs': 15, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/neck side stretch.gif'},
@@ -395,6 +395,6 @@ final Map<String, Map<String, Map<String, List<Map<String, dynamic>>>>> exercise
         {'name': 'seated glute stretch', 'baseSetsSecs': 1, 'baseSecs': 20, 'burnCalperSec': 0.05, 'baseCalories': 0.00, 'gifPath': 'assets/exercaiGif/seated glute stretch.gif'}
       ]
 
-    },
+    },*/
   },
 };

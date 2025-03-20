@@ -1,5 +1,6 @@
 import 'package:exercai_mobile/homepage/starter_page.dart';
 import 'package:exercai_mobile/login_register_pages/bodyshape.dart';
+import 'package:exercai_mobile/login_register_pages/workout_level.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -82,10 +83,11 @@ class _SummaryBodyMetricsPageState extends State<SummaryBodyMetricsPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        title: Image.asset('assets/exercai-front.png', height: 60,width: 100,),
         centerTitle: true,
         leading:
         IconButton(onPressed: (){
-          navigateWithSlideTransition(context, Bodyshape(), slideRight: false);
+          navigateWithSlideTransition(context, WorkoutLevel(), slideRight: false);
         }, icon: Icon(Icons.arrow_back_ios)),
       ),
       body: isLoading
@@ -103,20 +105,24 @@ class _SummaryBodyMetricsPageState extends State<SummaryBodyMetricsPage> {
     final age = userData?['age']?.toString() ?? '-';
     final double userBmi = double.tryParse('${userData?['bmi']}') ?? 0.0;
     final bmiCategory = userData?['bmiCategory']?.toString() ?? '-';
-    final bodyShape = toTitleCase(userData?['bodyShape']?.toString() ?? '-');
+    //final bodyShape = toTitleCase(userData?['bodyShape']?.toString() ?? '-');
     final gender = userData?['gender']?.toString() ?? 'male';
     final double userHeight = double.tryParse('${userData?['height']}') ?? 0.0;
     final double userWeight = double.tryParse('${userData?['weight']}') ?? 0.0;
-    final double userTarget =
-        double.tryParse('${userData?['targetWeight']}') ?? 0.0;
+    // Check if a target weight is provided
+    final bool hasTargetWeight = userData != null &&
+        userData!['targetWeight'] != null &&
+        userData!['targetWeight'].toString().isNotEmpty;
+    final double userTarget = hasTargetWeight
+        ? double.tryParse('${userData?['targetWeight']}') ?? 0.0
+        : 0.0;
+    final double weightGoalDiff = userTarget - userWeight;
     final nutriActivitylevel =
         userData?['nutriActivitylevel']?.toString() ?? '-';
     final injuryArea = toTitleCase(userData?['injuryArea']?.toString() ?? '-');
     final goal = toTitleCase(userData?['goal']?.toString() ?? '-');
     final workoutLevel = toTitleCase(userData?['workoutLevel']?.toString() ?? '-');
 
-    // Weight goal difference
-    double weightGoalDiff = userTarget - userWeight;
 
     return SingleChildScrollView(
       child: Padding(
@@ -150,13 +156,15 @@ class _SummaryBodyMetricsPageState extends State<SummaryBodyMetricsPage> {
                       const SizedBox(height: 8),
                       _buildStatCard("Current Weight", "${userWeight.toStringAsFixed(1)} kg"),
                       const SizedBox(height: 8),
-                      _buildStatCard(
-                        "Weight Goal",
-                        "${weightGoalDiff >= 0 ? "+" : ""}${weightGoalDiff.toStringAsFixed(1)} kg",
-                        highlightColor: weightGoalDiff < 0 ? Colors.red : Colors.green,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildStatCard("Body Shape", bodyShape),
+                      // Show Weight Goal only if targetWeight is provided
+                      if (hasTargetWeight)
+                        _buildStatCard(
+                          "Weight Goal",
+                          "${weightGoalDiff >= 0 ? "+" : ""}${weightGoalDiff.toStringAsFixed(1)} kg",
+                          highlightColor: weightGoalDiff < 0 ? Colors.red : Colors.green,
+                        ),
+                      /*const SizedBox(height: 8),
+                      _buildStatCard("Body Shape", bodyShape),*/
                       const SizedBox(height: 8),
                       _buildStatCard("Height", "${userHeight.toStringAsFixed(1)} cm"),
                       const SizedBox(height: 8),
