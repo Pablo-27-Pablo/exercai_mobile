@@ -417,7 +417,7 @@ class _WeightChooseState extends State<WeightChoose> {
 
           // Save weight, height, BMI, and BMI category to Firestore
           await FirebaseFirestore.instance.collection("Users").doc(user.email).update({
-            'weight': _currentWeight.toStringAsFixed(1),
+            'weight': _currentWeight,
             'height': _firebaseHeight.toStringAsFixed(1),
             'bmi': bmi.toStringAsFixed(1),
             'bmiCategory': bmiCategory,

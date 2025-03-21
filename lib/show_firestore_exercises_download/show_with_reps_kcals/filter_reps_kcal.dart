@@ -198,7 +198,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
   }
 
-  // Modify fetchUserData to include injuryArea
+  /* //Dating Code Na wala muna lilitaw agad tapos pag pindut ng reload dun lang mag rereload
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
 
@@ -230,7 +230,56 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
       print("Error fetching user data: $e");
       setState(() => isLoading = false);
     }
+  }*/
+
+  // Bagong Code Eto buburahin pag nag error
+  Future<void> fetchUserData() async {
+    if (_currentUser == null) return;
+
+    try {
+      setState(() => isLoading = true);
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(_currentUser!.email)
+          .get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        setState(() {
+          selectedGoal = userData['goal'] ?? 'maintain';
+          selectedBMI = userData['bmiCategory'] ?? 'normal';
+          userAge = userData['age'];
+          userWeight = (userData['weight'] as num?)?.toDouble() ?? 70.0;
+          userHeight = double.tryParse(userData['height']?.toString() ?? "") ?? 175.0;
+          userGender = userData['gender'] ?? "Male";
+          String injuryArea = userData['injuryArea'] ?? '';
+          _userInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
+          if (_userInjuries.contains('none of them')) _userInjuries.clear();
+        });
+        // Initialize the exercise stream.
+        await _initializeExercisesStream();
+        // Fetch any previously computed burn values.
+        await fetchFinalBurnCalValues();
+
+        // Check if there are any active exercises before fetching new ones.
+        QuerySnapshot activeExercisesSnapshot = await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(_currentUser!.email)
+            .collection('UserExercises')
+            .where('isActive', isEqualTo: true)
+            .get();
+
+        if (activeExercisesSnapshot.docs.isEmpty) {
+          await fetchExercisesFromFirestore();
+        }
+      }
+      setState(() => isLoading = false);
+    } catch (e) {
+      print("Error fetching user data: $e");
+      setState(() => isLoading = false);
+    }
   }
+
 
   Future<String> _fetchExerciseGifUrl(String exerciseId) async {
     // Return the local asset path based on the exercise id/name.
