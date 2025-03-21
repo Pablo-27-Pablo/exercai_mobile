@@ -41,14 +41,23 @@ class _AgeSelectorScreenState extends State<AgeSelectorScreen> {
             Center(
               child: Column(
                 children: [
-                  Text(
-                    'How many reps?',
-                    style: TextStyle(
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
+                  ExerciseName == "plank" || ExerciseName == "rightplank" || ExerciseName == "leftplank"
+                      ? Text(
+                        'How many second/s?',
+                        style: TextStyle(
+                          fontSize: 35,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      )
+                      : Text(
+                        'How many reps?',
+                        style: TextStyle(
+                          fontSize: 35,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                   SizedBox(height: 10),
                   Text(
                     'This helps shape your workout.',

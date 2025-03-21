@@ -612,6 +612,14 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                         ),
                         SizedBox(height: 4),
                         Text(
+                          'Pose Correction: ${(peopleBox.get("posecorrectionburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
                           'Total: ${(peopleBox.get("finalcoloriesburn", defaultValue: 0)).toStringAsFixed(2)} Kcal',
                           style: TextStyle(
                             color: Colors.grey.shade600,

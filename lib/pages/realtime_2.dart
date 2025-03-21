@@ -115,28 +115,36 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
 
   Formula() {
-    for (int i = 0; i < exercises2.length; i++) {
-      if (exercises2[i]["name"] == ExerciseName) {
-        print("Exercise found: ${exercises2[i]}");
+    for (int i = 0; i < exercises.length; i++) {
+      if (exercises[i]["name"] == ExerciseName) {
+        print("Exercise found: ${exercises[i]}");
         double formula =
-            (((exercises2[i]["MET"] as num).toDouble() *
+            (((exercises[i]["MET"] as num).toDouble() *
                     weight *
                     raise.toDouble()) /
                 1000);
         totalCaloriesBurn = totalCaloriesBurn + formula;
         totalCaloriesBurnDatabase =
             (peopleBox.get("finalcoloriesburn", defaultValue: 0)).toDouble();
-        setState(() {});
         double ArcadeCaloriesDatabase =
             (peopleBox.get("arcadecoloriesburn", defaultValue: 0)).toDouble();
-        double total = totalCaloriesBurnDatabase + totalCaloriesBurn;
-        double totalArcade = ArcadeCaloriesDatabase + totalCaloriesBurn;
-
-        peopleBox.put("arcadecoloriesburn", totalArcade);
-
+        double total = totalCaloriesBurnDatabase + totalCaloriesBurn.toDouble();
+        double totalArcade =
+            ArcadeCaloriesDatabase + totalCaloriesBurn.toDouble();
+        double PoseCaloriesDatabase =
+            (peopleBox.get("posecorrectionburn", defaultValue: 0)).toDouble();
+        double totalPoseCorrection =
+            PoseCaloriesDatabase + totalCaloriesBurn.toDouble();
         peopleBox.put("finalcoloriesburn", total);
+        if (Mode == "Arcade") {
+          peopleBox.put("arcadecoloriesburn", totalArcade);
+        } else {
+          peopleBox.put("posecorrectionburn", totalPoseCorrection);
+        }
 
-        print(peopleBox.get("arcadecoloriesburn"));
+        print(
+          "                " + peopleBox.get("posecorrectionburn").toString(),
+        );
 
         print(
           "         $ExerciseName                " +
@@ -165,20 +173,23 @@ class _MyHomePageState extends State<MyHomePage> {
         warningIndicatorText = "";
 
         if (Mode == "Arcade") {
+          Formula();
           if (arcadeNumber == 11) {
             musicPlayer.stop();
-            setState(() {
+            
               arcadeNumber = 1;
               ExerciseName = "";
               image = "";
-            });
-
+            
+            dispose();
+              musicPlayer1.playCongrats();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => CongratsApp()),
             );
           } else {
-            Formula();
+            
+          //Formula();
 
             Navigator.pushReplacement(
               context,
@@ -487,9 +498,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
         if (Mode == "postureCorrection" && raise == repsWants) {
           //Navigator.pop(context);
+          dispose();
+          fixingcamera = false;
+          Formula();
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => CongratsApp()),
+            MaterialPageRoute(
+              builder: (context) => CongratsApp(),
+              fullscreenDialog: true,
+            ),
           );
         }
       } else {
@@ -742,6 +759,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                         ),
                                       ),
+                                      SizedBox(height: 10),
                                       errorSpeed == ""
                                           ? Container()
                                           : Container(
