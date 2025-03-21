@@ -80,10 +80,15 @@ void squatExercise(
       speak(warningIndicatorTextExercise);
       warningIndicatorScreen = false;
     }
+    if (!staticIsUp) {
+      StandStraight(averageShoulder, averageHips);
+    }
 
     // Detect "down" position
     if (kneeAngle < 130 && !staticIsDown) {
-      warningIndicatorTextExercise = "";
+      warningIndicatorScreen = true;
+      // warningIndicatorText = "";
+      // warningIndicatorTextExercise = "";
       if (!staticIsDown) {
         staticIsDown = true;
         staticIsUp = false;
