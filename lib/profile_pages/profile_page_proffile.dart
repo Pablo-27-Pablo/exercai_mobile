@@ -53,7 +53,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
 
   // New sliding date picker using a bottom sheet and CupertinoDatePicker
   Future<void> _showSlidingDatePicker(BuildContext context) async {
-    DateTime tempPickedDate = DateTime.now();
+    DateTime tempPickedDate = DateTime.now().subtract(Duration(days: 5 * 365));
     await showModalBottomSheet(
       context: context,
       builder: (BuildContext builder) {
@@ -65,9 +65,11 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
               Expanded(
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.date,
-                  initialDateTime: DateTime.now(),
+                  // Set the initial date to 5 years ago
+                  initialDateTime: DateTime.now().subtract(Duration(days: 5 * 365)),
+                  // Allow selection from 1900 up to 5 years ago (i.e. disable dates in the last 5 years)
                   minimumDate: DateTime(1900),
-                  maximumDate: DateTime.now(),
+                  maximumDate: DateTime.now().subtract(Duration(days: 5 * 365)),
                   onDateTimeChanged: (DateTime newDate) {
                     tempPickedDate = newDate;
                   },
@@ -90,13 +92,13 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
         );
       },
     );
-    int calculatedAge =
-    int.parse(computeAge(Timestamp.fromDate(tempPickedDate)));
+    int calculatedAge = int.parse(computeAge(Timestamp.fromDate(tempPickedDate)));
     setState(() {
       dobController.text = DateFormat('MM-dd-yyyy').format(tempPickedDate);
       ageController.text = calculatedAge.toString();
     });
   }
+
 
   String _capitalize(String text) {
     if (text.isEmpty) return text;
