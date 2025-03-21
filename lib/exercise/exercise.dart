@@ -14,7 +14,11 @@ FlutterTts _flutterTts = FlutterTts();
 speak(text) async {
   _flutterTts.setLanguage("en-US");
   _flutterTts.setPitch(1.5);
-  _flutterTts.speak(text);
+  await _flutterTts.setVoice({
+    "name": "en-us-x-sfg#female_1-local",
+    "locale": "en-US",
+  });
+  await _flutterTts.speak(text);
 }
 
 Formula() {
@@ -59,12 +63,17 @@ void squatExercise(
   averageHips,
   averageShoulderY,
   averageHipsY,
+  rightKneeY,
+  leftKneeY,
+  rightAnkleY,
+  leftAnkleY,
 ) {
   double kneeAngle = calculateKneeAngle(leftHip, leftKnee, leftAnkle);
 
   // Ensure proper posture
 
-  if (averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) {
+  if ((averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) &&
+      (rightKneeY + 10 < rightAnkleY && leftKneeY + 10 < leftAnkleY)) {
     // print(leftAnkle.y);
     if (kneeAngle < 3) {
       warningIndicatorTextExercise = "Too low, raise squat position!";
@@ -106,9 +115,12 @@ void squatExercise(
           peopleBox.put(ExerciseName, TotalCount);
           checkRepetitionSpeed();
           raise = peopleBox.get(ExerciseName) % 100;
+          speak(raise);
         } else {
           checkRepetitionSpeed();
           raise++;
+          String repsCount = raise.toString();
+          speak(repsCount);
         }
         print("Squat count: $raise");
       }

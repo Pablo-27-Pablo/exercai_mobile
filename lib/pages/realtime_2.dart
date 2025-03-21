@@ -374,6 +374,10 @@ class _MyHomePageState extends State<MyHomePage> {
             averageHipsX,
             averageShoulderY,
             averageHipsY,
+            rightKnee.y,
+            leftKnee.y,
+            rightAnkle.y,
+            leftAnkle.y,
           );
         } else if (ExerciseName == "pushup") {
           pushupExercise(
@@ -971,16 +975,18 @@ class _MyHomePageState extends State<MyHomePage> {
               Mode == "Arcade"
                   ? IconButton(
                     icon: Icon(
-                      buttonMusic? Icons.music_note_rounded : Icons.music_off_rounded,
+                      buttonMusic
+                          ? Icons.music_note_rounded
+                          : Icons.music_off_rounded,
                       color: AppColor.backgroundWhite,
                     ),
                     onPressed: () {
-                      if(buttonMusic){
+                      if (buttonMusic) {
                         musicPlayer.stop();
-                      }else{
+                      } else {
                         musicPlayer.play();
                       }
-                      
+
                       buttonMusic = !buttonMusic;
                     },
                   )
