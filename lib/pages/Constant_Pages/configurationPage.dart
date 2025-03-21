@@ -13,11 +13,11 @@ class ConfigurationPage extends StatefulWidget {
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
   Formula() {
-    for (int i = 0; i < exercises2.length; i++) {
-      if (exercises2[i]["name"] == ExerciseName) {
-        print("Exercise found: ${exercises2[i]}");
+    for (int i = 0; i < exercises.length; i++) {
+      if (exercises[i]["name"] == ExerciseName) {
+        print("Exercise found: ${exercises[i]}");
         double formula =
-            (((exercises2[i]["MET"]).toDouble() * 85 * raise.toDouble()) /
+            (((exercises[i]["MET"]).toDouble() * weight * raise.toDouble()) /
                 1000);
         totalCaloriesBurn = totalCaloriesBurn + formula;
         totalCaloriesBurnDatabase =
@@ -44,11 +44,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            raise = 50;
             //print("calories: " + peopleBox.get('finalcoloriesburn').toString());
-            peopleBox.put('squat', 97);
-
-            Formula();
+            peopleBox.get('camera', defaultValue: true);
+            peopleBox.put('camera', true);
+            print(peopleBox.get('camera', defaultValue: true));
           },
           icon: Icon(Icons.abc_rounded),
         ),

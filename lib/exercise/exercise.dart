@@ -22,11 +22,11 @@ speak(text) async {
 }
 
 Formula() {
-  for (int i = 0; i < exercises2.length; i++) {
-    if (exercises2[i]["name"] == ExerciseName) {
-      print("Exercise found: ${exercises2[i]}");
+  for (int i = 0; i < exercises.length; i++) {
+    if (exercises[i]["name"] == ExerciseName) {
+      print("Exercise found: ${exercises[i]}");
       double formula =
-          (((exercises2[i]["MET"] as num).toDouble() *
+          (((exercises[i]["MET"]).toDouble() *
                   weight *
                   raise.toDouble()) /
               1000);
@@ -80,7 +80,7 @@ void squatExercise(
       speak(warningIndicatorTextExercise);
       warningIndicatorScreen = false;
     }
-    if (!staticIsUp) {
+    if (!staticIsDown) {
       StandStraight(averageShoulder, averageHips);
     }
 
@@ -120,12 +120,12 @@ void squatExercise(
           peopleBox.put(ExerciseName, TotalCount);
           checkRepetitionSpeed();
           raise = peopleBox.get(ExerciseName) % 100;
-          speak(raise);
+          //speak(raise);
         } else {
           checkRepetitionSpeed();
           raise++;
-          String repsCount = raise.toString();
-          speak(repsCount);
+          //String repsCount = raise.toString();
+          //speak(repsCount);
         }
         print("Squat count: $raise");
       }
@@ -511,7 +511,7 @@ void jumpingJacksExercise(
         print(staticIsUp);
 
         // Count a completed jumping jack
-        checkRepetitionSpeed();
+        //checkRepetitionSpeed();
         raise++;
         print("Jumping jack count: $raise");
       }
@@ -595,7 +595,7 @@ void highKneeExercise(
 
   if (avgHipY > avgShoulderY + 20 && avgHipY + 20 < averageAnkleY) {}
   // Detect "raised knee" position (knee above hip level)
-  if (rightKneeY < avgHipY + 25 && avgHipY < leftKneeY - 100) {
+  if (rightKneeY < avgHipY + 35 && avgHipY < leftKneeY - 100) {
     // print(" true ");
     // print("   $avgHipY          $rightKneeY         ");
 
@@ -608,7 +608,7 @@ void highKneeExercise(
   }
 
   // Detect "lowered knee" position (knee below hip level)
-  if (leftKneeY < avgHipY + 25 && avgHipY < rightKneeY - 100 && !staticIsUp) {
+  if (leftKneeY < avgHipY + 35 && avgHipY < rightKneeY - 100 && !staticIsUp) {
     // print("Lowered knee position detected");
     warningIndicatorScreen = true;
     warningIndicatorTextExercise = "";
@@ -757,8 +757,10 @@ void lungesExercise(
   avgShoulderX,
   avgShoulderY,
 ) {
-  StandStraight(avgShoulderX, averageHipsX);
-  // Detect "down" position (knee close to the ground)
+  if (averageHipsY < leftKneeY - 50 || averageHipsY < rightKneeY - 50) {
+    StandStraight(avgShoulderX, averageHipsX);
+  }
+
   if (avgShoulderY + 50 < averageHipsY &&
       averageHipsY < leftAnkleY &&
       averageHipsY < rightAnkleY) {
@@ -804,7 +806,7 @@ void checkRepetitionSpeed() {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
   int timeDifference = currentTime - lastRepetitionTime;
 
-  if (currentTime - lastUpdateTime3 >= 2000) {
+  if (currentTime - lastUpdateTime3 >= 4000) {
     if (timeDifference < repetitionThreshold) {
       errorSpeed = "You're moving too fast! Slow down.";
       speak(errorSpeed);

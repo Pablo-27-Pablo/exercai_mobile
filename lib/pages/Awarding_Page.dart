@@ -9,7 +9,9 @@ import 'package:exercai_mobile/utils/constant.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/utils/constant.dart';
 import 'package:audioplayers/audioplayers.dart';
+
 final musicPlayer1 = MusicPlayerService();
+
 class CongratsApp extends StatelessWidget {
   const CongratsApp({super.key});
 
@@ -39,7 +41,6 @@ class _CongratulationsCardState extends State<CongratulationsCard> {
   void initState() {
     super.initState();
     musicPlayer1.playCongrats();
-    
   }
 
   @override
@@ -47,8 +48,6 @@ class _CongratulationsCardState extends State<CongratulationsCard> {
     _player.dispose();
     super.dispose();
   }
-
-
 
   void onFinishTap() {
     setState(() {
@@ -128,7 +127,7 @@ class _CongratulationsCardState extends State<CongratulationsCard> {
                   )
                 else if (Mode == "postureCorrection")
                   Text(
-                    "You have Completed the Pose Estimation Exercise.",
+                    "You have Completed the Pose Estimation Exercise.Your calories burned: ${totalCaloriesBurn.toStringAsFixed(2)}.",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColor.textwhite),
                   ),

@@ -10,8 +10,8 @@ String warningIndicatorText = "";
 String warningIndicatorTextExercise = "";
 String errorSpeed = "";
 int raise = 0;
-int seconds = 60;
-int seconds2 = 30;
+int seconds = 30;
+int seconds2 = 20;
 double weight = 80.0;
 Timer? timer;
 String ExerciseName = "";
@@ -22,7 +22,7 @@ String errorWholebody = "";
 int lastUpdateTime = 0;
 int lastUpdateTime2 = 0;
 int lastUpdateTime3 = 0;
-int arcadeNumber = 1;
+int arcadeNumber = 6;
 String Mode = "daysChallenge";
 bool youNear = true;
 int days = 0;
@@ -64,64 +64,73 @@ extension ShowSnackBar on BuildContext {
 }*/
 //exercises
 
-final List<Map<String, String>> exercises = [
+final List<Map<String, dynamic>> exercises = [
   {
     "name": "squat",
     "image": "squat.gif",
     "bodyparts": "upper legs, lower legs, waist",
+    "MET": 6,
   },
   {
     "name": "jumpingjacks",
     "image": "jumpingjacks.gif",
     "bodyparts": "upper legs, lower legs, shoulders",
+    "MET": 8,
   },
-  {"name": "legraises", "image": "legraises.gif", "bodyparts": "waist"},
-  {"name": "situp", "image": "situp.gif", "bodyparts": "waist"},
+  {
+    "name": "legraises",
+    "image": "legraises.gif",
+    "bodyparts": "waist",
+    "MET": 3,
+  },
+  {
+    "name": "situp",
+    "image": "situp.gif",
+    "bodyparts": "waist",
+    "MET": 6,
+  },
   {
     "name": "mountainclimbers",
     "image": "mountainclimbers.gif",
     "bodyparts": "upper legs, lower legs, waist, shoulders",
+    "MET": 8,
   },
   {
     "name": "highknee",
     "image": "highknee.gif",
     "bodyparts": "upper legs, lower legs, waist",
+    "MET": 9,
   },
   {
     "name": "lunges",
     "image": "lunges.gif",
     "bodyparts": "upper legs, lower legs, waist",
+    "MET": 6,
   },
-  {"name": "plank", "image": "plank.jpg", "bodyparts": "waist, shoulders"},
+  {
+    "name": "plank",
+    "image": "plank.jpg",
+    "bodyparts": "waist, shoulders",
+    "MET": 4,
+  },
   {
     "name": "rightplank",
     "image": "sideplank.gif",
     "bodyparts": "waist, shoulders",
+    "MET": 4,
   },
   {
     "name": "leftplank",
-    "image": "sideplank.gif",
+    "image": "sideplank.jpg",
     "bodyparts": "waist, shoulders",
+    "MET": 4,
   },
   {
     "name": "pushup",
     "image": "pushup.gif",
     "bodyparts": "chest, shoulders, upper arms",
+    "MET": 7,
   },
-];
-
-final List<Map<String, dynamic>> exercises2 = [
-  {"name": "squat", "MET": 6},
-  {"name": "jumpingjacks", "MET": 8},
-  {"name": "legraises", "MET": 3},
-  {"name": "situp", "MET": 6},
-  {"name": "lunges", "MET": 6},
-  {"name": "plank", "MET": 4},
-  {"name": "rightplank", "MET": 4},
-  {"name": "leftplank", "MET": 4},
-  {"name": "pushup", "MET": 7},
-  {"name": "highknee", "MET": 9},
-  {"name": "mountainclimbers", "MET": 8},
 ];
 
 class Utils extends StatefulWidget {
