@@ -403,131 +403,135 @@ class _TrypageState extends State<Trypage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   leading: IconButton(
-      //     onPressed: () {
-      //       seconds = 60;
-      //       Navigator.pushReplacement(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => MainLandingPage()),
-      //       );
-      //     },
-      //     icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
-      //   ),
+    //Dinagdag ng Popscope
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        // appBar: AppBar(
+        //   leading: IconButton(
+        //     onPressed: () {
+        //       seconds = 60;
+        //       Navigator.pushReplacement(
+        //         context,
+        //         MaterialPageRoute(builder: (context) => MainLandingPage()),
+        //       );
+        //     },
+        //     icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
+        //   ),
 
-      // ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 30, bottom: 30),
-              child: IconButton(
-                onPressed: () {
-                  seconds = 60;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainLandingPage()),
-                  );
-                },
-                icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 20),
-              child: Container(
-                padding: EdgeInsets.only(right: 30),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Pick an exercise that suits your goal.",
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    largeGap,
-                    Row(
-                      children: [
-                        Text(
-                          "Click exercise to proceed",
-                          style: TextStyle(
-                            color: AppColor.bottonPrimary,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+        // ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 30, bottom: 30),
+                child: IconButton(
+                  onPressed: () {
+                    seconds = 60;
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainLandingPage()),
+                    );
+                  },
+                  icon: Icon(Icons.arrow_back_ios, color: AppColor.primary),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-
-            SizedBox(height: 10),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 1.2,
-                ),
-                itemCount: exercises0.length,
-                itemBuilder: (context, index) {
-                  final exercise = exercises0[index];
-                  return GestureDetector(
-                    onTap:
-                        () => _startExercise(
-                          exercise["name"]!,
-                          exercise["image"]!,
-                          exercise["PrimaryName"]!,
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 20),
+                child: Container(
+                  padding: EdgeInsets.only(right: 30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Pick an exercise that suits your goal.",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
                         ),
-                    child: Card(
-                      
-                      color: Colors.white,
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                            side: BorderSide(color: AppColor.primary, width: 0.1),
-                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      largeGap,
+                      Row(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              'assets/image/${exercise["image"]}',
-                              height: 70,
-                              width: 70,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(height: 10),
                           Text(
-                            exercise["PrimaryName"]!,
+                            "Click exercise to proceed",
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColor.buttonPrimary,
+                              color: AppColor.bottonPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
-                    ),
-                  );
-                },
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 20),
+
+              SizedBox(height: 10),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 1.2,
+                  ),
+                  itemCount: exercises0.length,
+                  itemBuilder: (context, index) {
+                    final exercise = exercises0[index];
+                    return GestureDetector(
+                      onTap:
+                          () => _startExercise(
+                            exercise["name"]!,
+                            exercise["image"]!,
+                            exercise["PrimaryName"]!,
+                          ),
+                      child: Card(
+
+                        color: Colors.white,
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                              side: BorderSide(color: AppColor.primary, width: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                'assets/image/${exercise["image"]}',
+                                height: 70,
+                                width: 70,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              exercise["PrimaryName"]!,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColor.buttonPrimary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

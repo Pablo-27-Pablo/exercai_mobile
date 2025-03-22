@@ -14,7 +14,7 @@ class ProfilePageProfile extends StatefulWidget {
 class _ProfilePageProfileState extends State<ProfilePageProfile> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  //TextEditingController emailController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   bool _isDataLoaded = false;
@@ -25,7 +25,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
-    emailController.dispose();
+    //emailController.dispose();
     dobController.dispose();
     ageController.dispose();
     super.dispose();
@@ -137,7 +137,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
             if (!_isDataLoaded) {
               firstNameController.text = user?['firstname'] ?? '';
               lastNameController.text = user?['lastname'] ?? '';
-              emailController.text = user?['email'] ?? '';
+              //emailController.text = user?['email'] ?? '';
               if (user?['dateOfBirth'] != null) {
                 DateTime dob = (user!['dateOfBirth'] as Timestamp).toDate();
                 dobController.text = DateFormat('MM-dd-yyyy').format(dob);
@@ -223,7 +223,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
                                 'First Name', firstNameController),
                             _buildTextField(
                                 'Last Name', lastNameController),
-                            _buildTextField('Email', emailController),
+                            //_buildTextField('Email', emailController),
                             _buildDateOfBirthField(context),
                             SizedBox(height: 20),
                             ElevatedButton(
@@ -253,7 +253,7 @@ class _ProfilePageProfileState extends State<ProfilePageProfile> {
                                       .update({
                                     'firstname': firstNameController.text,
                                     'lastname': lastNameController.text,
-                                    'email': emailController.text,
+                                    //'email': emailController.text,
                                     'dateOfBirth': Timestamp.fromDate(dob),
                                     'age': calculatedAge,
                                   }).then((_) {

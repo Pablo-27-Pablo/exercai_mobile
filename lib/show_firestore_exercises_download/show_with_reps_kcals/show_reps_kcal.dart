@@ -46,6 +46,46 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
     return "$safeSecs second${safeSecs != 1 ? 's' : ''}";
   }
 
+  double computeEstimatedBurnCalories(Map<String, dynamic> exercise) {
+    // Retrieve values
+    final num? baseCalories = exercise['baseCalories'];
+    final double burnCalPerSec = exercise['burnCalperSec']?.toDouble() ?? 0.0;
+    final double burnCalPerRep = exercise['burnCalperRep']?.toDouble() ?? 0.0;
+    final List<dynamic>? baseRepsConcat = exercise['baseRepsConcat'] as List<dynamic>?;
+    final List<dynamic>? baseSecConcat = exercise['baseSecConcat'] as List<dynamic>?;
+
+    final bool isRepBased = (exercise['baseSetsReps'] != null && exercise['baseReps'] != null);
+    final bool isTimeBased = (exercise['baseSetsSecs'] != null && exercise['baseSecs'] != null);
+
+    // For time-based exercises
+    if (isTimeBased) {
+      if (baseSecConcat != null && baseSecConcat.isNotEmpty) {
+        // Follow the old method: return baseCalories if present
+        return (baseCalories is num) ? baseCalories.toDouble() : 0.0;
+      } else {
+        // Compute: average seconds per set * number of sets * burnCalperSec
+        int baseSecs = exercise['baseSecs'] ?? 0;
+        int sets = exercise['baseSetsSecs'] ?? 0;
+        return baseSecs * sets * burnCalPerSec;
+      }
+    }
+
+    // For rep-based exercises
+    if (isRepBased) {
+      if (baseRepsConcat != null && baseRepsConcat.isNotEmpty) {
+        // Follow the old method: return baseCalories if present
+        return (baseCalories is num) ? baseCalories.toDouble() : 0.0;
+      } else {
+        // Compute: base reps * number of sets * burnCalperRep
+        int baseReps = exercise['baseReps'] ?? 0;
+        int sets = exercise['baseSetsReps'] ?? 0;
+        return baseReps * sets * burnCalPerRep;
+      }
+    }
+
+    return 0.0;
+  }
+
   TextStyle _headerStyle() =>
       const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black);
 
@@ -242,10 +282,12 @@ class _ShowRepsKcalState extends State<ShowRepsKcal> {
                           backgroundColor: AppColor.primary.withOpacity(0.1),
                           label: Text(
                                 () {
-                              final exerciseData = snapshot.data!.data() as Map<String, dynamic>;
+                                  //Dating Value Palitan yung ilalim pag error
+                              /*final exerciseData = snapshot.data!.data() as Map<String, dynamic>;
                               final dynamicCalories = exerciseData['baseCalories'] ?? widget.exercise['baseCalories'];
-                              return '${(dynamicCalories is num) ? dynamicCalories.toStringAsFixed(2) : 'N/A'} kcal';
-                            }(),
+                              return '${(dynamicCalories is num) ? dynamicCalories.toStringAsFixed(2) : 'N/A'} kcal';*/
+                                  return '${(computeEstimatedBurnCalories(exercise) ?? 0.0).toStringAsFixed(2)} kcal';
+                                }(),
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

@@ -74,150 +74,154 @@ class _ChooseBodypartsState extends State<ChooseBodyparts> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // White background for a fresh look
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Different Body Parts',
-          style: TextStyle(
-              color: AppColor.supersolidPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColor.moresolidPrimary,
+
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.white, // White background for a fresh look
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: const Text(
+            'Different Body Parts',
+            style: TextStyle(
+                color: AppColor.supersolidPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MainLandingPage()));
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Exercises',
-              style: TextStyle(
-                color: AppColor.backgroundgrey,
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: AppColor.moresolidPrimary,
             ),
-            const SizedBox(height: 20),
-            // Grid of body part cards
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-                children: _bodyParts.map((item) {
-                  return GestureDetector(
-                    onTap: () async {
-                      // Convert the tapped body part to lowercase for comparison
-                      String tappedBodyPart = item.title.toLowerCase();
-                      if (_userInjuries.contains(tappedBodyPart)) {
-                        bool? proceedInjury = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => Dialog(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            elevation: 10,
-                            backgroundColor: Colors.white,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.85,
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Header with Icon and Title
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.warning, color: Colors.red, size: 30),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          "Injury Warning",
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.red[700],
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainLandingPage()));
+            },
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              const Text(
+                'Exercises',
+                style: TextStyle(
+                  color: AppColor.backgroundgrey,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Grid of body part cards
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  children: _bodyParts.map((item) {
+                    return GestureDetector(
+                      onTap: () async {
+                        // Convert the tapped body part to lowercase for comparison
+                        String tappedBodyPart = item.title.toLowerCase();
+                        if (_userInjuries.contains(tappedBodyPart)) {
+                          bool? proceedInjury = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => Dialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              elevation: 10,
+                              backgroundColor: Colors.white,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.85,
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Header with Icon and Title
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.warning, color: Colors.red, size: 30),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            "Injury Warning",
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red[700],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  // Content message
-                                  Text(
-                                    "You have an injury in your $tappedBodyPart. Exercising this area might aggravate your injury.\nDo you want to proceed?",
-                                    style: const TextStyle(
-                                        fontSize: 18, color: Colors.black87),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 30),
-                                  // Action Buttons
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.grey[300],
-                                          foregroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    // Content message
+                                    Text(
+                                      "You have an injury in your $tappedBodyPart. Exercising this area might aggravate your injury.\nDo you want to proceed?",
+                                      style: const TextStyle(
+                                          fontSize: 18, color: Colors.black87),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 30),
+                                    // Action Buttons
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.grey[300],
+                                            foregroundColor: Colors.black,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
                                           ),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: Text("Cancel", style: TextStyle(fontSize: 16)),
                                         ),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(false),
-                                        child: Text("Cancel", style: TextStyle(fontSize: 16)),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
+                                        const SizedBox(width: 10),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
                                           ),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                          child: Text("Proceed", style: TextStyle(fontSize: 16)),
                                         ),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(true),
-                                        child: Text("Proceed", style: TextStyle(fontSize: 16)),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ) ?? false;
-                        if (!proceedInjury) return;
-                      }
-                      // Navigate to the selected body part screen if no injury or user proceeds
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => item.screen));
-                    },
-                    child: _buildGridCard(item.title, item.assetPath),
-                  );
-                }).toList(),
+                          ) ?? false;
+                          if (!proceedInjury) return;
+                        }
+                        // Navigate to the selected body part screen if no injury or user proceeds
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => item.screen));
+                      },
+                      child: _buildGridCard(item.title, item.assetPath),
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

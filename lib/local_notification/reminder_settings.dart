@@ -98,7 +98,7 @@ class _ReminderSettingsState extends State<ReminderSettings> {
   Future<void> _scheduleNotifications(Map<DateTime, List<TimeOfDay>> reminders, String title, String body) async {
     if (reminders.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select at least one date and time for $title!')),
+        SnackBar(content: Text('Please select at least one date and time for $title!'),backgroundColor: Colors.orange,),
       );
       return;
     }

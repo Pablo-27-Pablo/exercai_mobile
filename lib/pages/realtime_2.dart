@@ -933,91 +933,95 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        leading:
-            Mode == "dayChallenge" ||
-                    Mode == "Arcade" ||
-                    Mode == "postureCorrection"
-                ? IconButton(
-                  onPressed: () {
-                    if (Mode == "postureCorrection") {
-                      musicPlayer2.stop();
-                      raise = 0;
+    return PopScope(
+      //Binigyan para di mag back sa cp, alisin nalang kung sakali
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          leading:
+              Mode == "dayChallenge" ||
+                      Mode == "Arcade" ||
+                      Mode == "postureCorrection"
+                  ? IconButton(
+                    onPressed: () {
+                      if (Mode == "postureCorrection") {
+                        musicPlayer2.stop();
+                        raise = 0;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => Trypage()),
+                        );
+                      } else {
+                        raise = 0;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArcadeModePage(),
+                          ),
+                        );
+                      }
+                    },
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  )
+                  : IconButton(
+                    onPressed: () {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => Trypage()),
                       );
-                    } else {
-                      raise = 0;
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ArcadeModePage(),
-                        ),
-                      );
-                    }
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                  ),
-                )
-                : IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => Trypage()),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                  ),
-                ),
-        title: const Text(
-          "Pose Estimation",
-          style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
-        ),
-        backgroundColor: AppColor.primary,
-        actions: [
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.camera_alt_outlined,
-                  color: AppColor.backgroundWhite,
-                ),
-                onPressed: toggleCamera,
-              ),
-              Mode == "Arcade"
-                  ? IconButton(
-                    icon: Icon(
-                      buttonMusic
-                          ? Icons.music_note_rounded
-                          : Icons.music_off_rounded,
-                      color: AppColor.backgroundWhite,
-                    ),
-                    onPressed: () {
-                      if (buttonMusic) {
-                        musicPlayer.stop();
-                      } else {
-                        musicPlayer.play();
-                      }
-
-                      buttonMusic = !buttonMusic;
                     },
-                  )
-                  : Container(),
-            ],
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+          title: const Text(
+            "Pose Estimation",
+            style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
           ),
-        ],
-      ),
-      backgroundColor: Colors.black,
-      body: Container(
-        margin: const EdgeInsets.only(top: 0),
-        color: Colors.black,
-        child: Stack(children: stackChildren),
+          backgroundColor: AppColor.primary,
+          actions: [
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.camera_alt_outlined,
+                    color: AppColor.backgroundWhite,
+                  ),
+                  onPressed: toggleCamera,
+                ),
+                Mode == "Arcade"
+                    ? IconButton(
+                      icon: Icon(
+                        buttonMusic
+                            ? Icons.music_note_rounded
+                            : Icons.music_off_rounded,
+                        color: AppColor.backgroundWhite,
+                      ),
+                      onPressed: () {
+                        if (buttonMusic) {
+                          musicPlayer.stop();
+                        } else {
+                          musicPlayer.play();
+                        }
+
+                        buttonMusic = !buttonMusic;
+                      },
+                    )
+                    : Container(),
+              ],
+            ),
+          ],
+        ),
+        backgroundColor: Colors.black,
+        body: Container(
+          margin: const EdgeInsets.only(top: 0),
+          color: Colors.black,
+          child: Stack(children: stackChildren),
+        ),
       ),
     );
   }
