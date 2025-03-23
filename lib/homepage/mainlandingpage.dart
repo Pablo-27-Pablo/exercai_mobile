@@ -13,6 +13,7 @@ import 'package:exercai_mobile/progress_tracking/progress_tracking..dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/show_with_reps_kcals/filter_reps_kcal.dart';
 import 'package:exercai_mobile/pages/Main_Pages/Exercises_Page.dart';
 import 'package:exercai_mobile/pages/arcade_mode_page.dart';
+import 'package:exercai_mobile/utils/music_background.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -26,8 +27,11 @@ class MainLandingPage extends StatefulWidget {
   State<MainLandingPage> createState() => _MainLandingPageState();
 }
 
+
 class _MainLandingPageState extends State<MainLandingPage> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
+  
+  get musicPlayer => MusicPlayerService();
 
   @override
   void initState() {
@@ -35,6 +39,7 @@ class _MainLandingPageState extends State<MainLandingPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkInternetConnection();
     });
+    musicPlayer.stop();
   }
 
   /// Check internet connection and show a warning if not connected.

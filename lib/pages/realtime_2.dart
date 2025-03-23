@@ -33,10 +33,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool buttonMusic = true;
+
   final musicPlayer = MusicPlayerService();
   late CameraController controller;
   bool isBusy = false;
-
+  bool poseIndicator = false;
   CameraImage? img;
   dynamic poseDetector;
   late Size size;
@@ -44,6 +45,12 @@ class _MyHomePageState extends State<MyHomePage> {
   int selectedCameraIndex = 1;
   bool fixingcamera = true;
   List<String> selectedInjuries = [];
+  bool isMusicOn = true;
+  bool isPostureIndicatorOn = true;
+  bool isCameraOn = true;
+  int stackRaise = 0;
+  int stackCount = 0;
+  bool isModalSettingOpen = false;
 
   final Map<DeviceOrientation, int> _orientations = {
     DeviceOrientation.portraitUp: 0,
@@ -55,13 +62,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    buttonMusic = peopleBox.get("musicOnOf", defaultValue: false);
+    cameraSwitch = peopleBox.get("cameraSwitch", defaultValue: 1);
+    selectedCameraIndex = cameraSwitch;
+    fronfixposition();
     initializeCamera();
     _loadSelectedInjuries();
+
     //CheckInjurys();
 
     if (Mode == "dayChallenge") {
       raise = peopleBox.get(ExerciseName) % 100;
     }
+    isMusicOn = buttonMusic;
+    poseIndicator = peopleBox.get("poseIndicator", defaultValue: true);
+    isPostureIndicatorOn = poseIndicator;
   }
 
   Future<void> _loadSelectedInjuries() async {
@@ -114,6 +130,101 @@ class _MyHomePageState extends State<MyHomePage> {
   //   }
   // }
 
+  void _showSettingsModal(BuildContext context) {
+    setState(() {
+      isModalSettingOpen = true; // Set the flag to true when modal is opened
+    });
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (context) => StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Mode == "Arcade"
+                        ? ListTile(
+                          leading: const Icon(Icons.music_note),
+                          title: const Text('Music'),
+                          trailing: Switch(
+                            value: isMusicOn,
+                            onChanged: (bool value) {
+                              setState(() {
+                                isMusicOn = value;
+                                if (!isMusicOn) {
+                                  musicOnOf = peopleBox.get(
+                                    "musicOnOf",
+                                    defaultValue: false,
+                                  );
+                                  musicPlayer.stop();
+                                  peopleBox.put("musicOnOf", false);
+                                } else {
+                                  musicPlayer.play();
+                                  peopleBox.put("musicOnOf", true);
+                                }
+                              });
+                            },
+                          ),
+                        )
+                        : Container(),
+                    ListTile(
+                      leading: const Icon(Icons.accessibility_new),
+                      title: const Text('Posture Indicator'),
+                      trailing: Switch(
+                        value: isPostureIndicatorOn,
+                        onChanged: (bool value) {
+                          setState(() {
+                            setState(() {
+                              isPostureIndicatorOn = value;
+                              poseIndicator = !poseIndicator;
+                            });
+
+                            peopleBox.put("poseIndicator", poseIndicator);
+                            print(poseIndicator);
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.camera_alt),
+                      title: const Text('Camera Switch to Back'),
+                      trailing: Switch(
+                        value: isCameraOn,
+                        onChanged: (bool value) {
+                          setState(() {
+                            isCameraOn = value;
+                            toggleCamera();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+    ).whenComplete(() {
+      setState(() {
+        isModalSettingOpen = false;
+      });
+
+      print("Modal is closed");
+    });
+  }
+
   Formula() {
     for (int i = 0; i < exercises.length; i++) {
       if (exercises[i]["name"] == ExerciseName) {
@@ -163,58 +274,60 @@ class _MyHomePageState extends State<MyHomePage> {
       print("Timer has finished.");
       print("Timer has finished.");
       print("Timer has finished.");
-      if (seconds > 0) {
-        seconds--;
-      } else {
-        timer?.cancel(); // Stop the timer
-        print("Timer has finished.");
+      if (!isModalSettingOpen) {
+        if (seconds > 0) {
+          seconds--;
+        } else {
+          timer?.cancel(); // Stop the timer
+          print("Timer has finished.");
 
-        warningIndicatorScreen = true;
-        warningIndicatorText = "";
+          warningIndicatorScreen = true;
+          warningIndicatorText = "";
 
-        if (Mode == "Arcade") {
-          Formula();
-          if (arcadeNumber == 11) {
-            musicPlayer.stop();
-            
+          if (Mode == "Arcade") {
+            Formula();
+            if (arcadeNumber == 11) {
+              musicPlayer.stop();
+
               arcadeNumber = 1;
               ExerciseName = "";
               image = "";
-            
-            dispose();
+
+              dispose();
               musicPlayer1.playCongrats();
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => CongratsApp()),
-            );
-          } else {
-            
-          //Formula();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => CongratsApp()),
+              );
+            } else {
+              //Formula();
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => RestimeTutorial()),
+              );
+
+              arcadeNumber = arcadeNumber + 1;
+            }
+          } else if (Mode == "postureCorrection") {
+            timer?.cancel();
 
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => RestimeTutorial()),
+              MaterialPageRoute(builder: (context) => Trypage()),
             );
-
-            arcadeNumber = arcadeNumber + 1;
+          } else if (Mode == "dayChallenge") {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Trypage()),
+            );
           }
-        } else if (Mode == "postureCorrection") {
-          timer?.cancel();
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Trypage()),
-          );
-        } else if (Mode == "dayChallenge") {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Trypage()),
-          );
+          ExerciseName = "";
+          raise = 0;
         }
-
-        ExerciseName = "";
-        raise = 0;
-      }
+      } // Only decrement if modal is not open
+      print("Timer has finished.");
 
       print("timer reduced" + seconds.toString());
     });
@@ -370,130 +483,142 @@ class _MyHomePageState extends State<MyHomePage> {
           (rightShoulder.x > 50 && rightShoulder.x < 650) &&
           (leftAnkle.x > 50 && leftAnkle.x < 650) &&
           (rightAnkle.x > 50 && rightAnkle.x < 650)) {
-        Mode == "dayChallenge" || Mode == "postureCorrection"
-            ? Container()
-            : countingTimer();
-        errorWholebody = "";
+        if (!isModalSettingOpen) {
+          Mode == "dayChallenge" || Mode == "postureCorrection"
+              ? Container()
+              : countingTimer();
+          errorWholebody = "";
 
-        if (ExerciseName == "squat") {
-          squatExercise(
-            context,
-            leftHip,
-            leftKnee,
-            leftAnkle,
-            averageShoulderX,
-            averageHipsX,
-            averageShoulderY,
-            averageHipsY,
-            rightKnee.y,
-            leftKnee.y,
-            rightAnkle.y,
-            leftAnkle.y,
-          );
-        } else if (ExerciseName == "pushup") {
-          pushupExercise(
-            context,
-            averageWristY,
-            averageShoulderY,
-            averageElbowY,
-            averageHipsY,
-            averageKneeY,
-            averageAnkleY,
-          );
-        } else if (ExerciseName == "jumpingjacks") {
-          jumpingJacksExercise(
-            averageWristY,
-            averageShoulderY,
-            leftAnkle.x,
-            rightAnkle.x,
-            leftShoulder.x,
-            rightShoulder.x,
-            averageHipsY,
-            averageShoulderX,
-            averageHipsX,
-            averageAnkleY,
-          );
-        } else if (ExerciseName == "legraises") {
-          legRaiseExercise(
-            context,
-            averageHipsY,
-            averageKneeY,
-            averageAnkleY,
-            averageShoulderY,
-            averageEarsY,
-          );
-        } else if (ExerciseName == "situp") {
-          sitUpExercise(
-            context,
-            nose.y,
-            averageShoulderY,
-            averageHipsY,
-            averageKneeY,
-            averageAnkleY,
-          );
-        } else if (ExerciseName == "mountainclimbers") {
-          mountainClimbersExercise(
-            averageKneeY,
-            averageHipsX,
-            leftKnee.x,
-            leftKnee.y,
-            rightKnee.x,
-            rightKnee.y,
-            averageWristY,
-            averageShoulderY,
-            averageHipsY,
-          );
-        } else if (ExerciseName == "highknee") {
-          highKneeExercise(
-            leftKnee.y,
-            rightKnee.y,
-            averageHipsY,
-            averageHipsX,
-            averageShoulderX,
-            averageShoulderY,
-            averageAnkleY,
-          );
-        } else if (ExerciseName == "lunges") {
-          lungesExercise(
-            averageHipsY,
-            averageHipsX,
-            leftKnee.y,
-            rightKnee.y,
-            leftAnkle.y,
-            rightAnkle.y,
-            averageShoulderX,
-            averageShoulderY,
-          );
-        } else if (ExerciseName == "plank") {
-          normalPlankExercise(
-            averageShoulderY,
-            averageHipsY,
-            averageAnkleY,
-            leftElbow.y,
-            leftKnee.y,
-            rightKnee.y,
-            rightShoulder.y,
-          );
-        } else if (ExerciseName == "rightplank") {
-          sidePlankRightExercise(
-            averageShoulderY,
-            averageHipsY,
-            averageAnkleY,
-            rightElbow.y,
-            rightKnee.y,
-            leftElbow.y,
-            leftShoulder.y,
-          );
-        } else if (ExerciseName == "leftplank") {
-          sidePlankLeftExercise(
-            averageShoulderY,
-            averageHipsY,
-            averageAnkleY,
-            leftElbow.y,
-            leftKnee.y,
-            rightElbow.y,
-            rightShoulder.y,
-          );
+          if (ExerciseName == "squat") {
+            squatExercise(
+              context,
+              leftHip,
+              leftKnee,
+              leftAnkle,
+              averageShoulderX,
+              averageHipsX,
+              averageShoulderY,
+              averageHipsY,
+              rightKnee.y,
+              leftKnee.y,
+              rightAnkle.y,
+              leftAnkle.y,
+              leftHip.x,
+              rightHip.x,
+              leftShoulder.x,
+              rightShoulder.x,
+              averageKneeY,
+              rightKnee.x,
+              leftKnee.x,
+            );
+          } else if (ExerciseName == "pushup") {
+            pushupExercise(
+              context,
+              averageWristY,
+              averageShoulderY,
+              averageElbowY,
+              averageHipsY,
+              averageKneeY,
+              averageAnkleY,
+            );
+          } else if (ExerciseName == "jumpingjacks") {
+            jumpingJacksExercise(
+              averageWristY,
+              averageShoulderY,
+              leftAnkle.x,
+              rightAnkle.x,
+              leftShoulder.x,
+              rightShoulder.x,
+              averageHipsY,
+              averageShoulderX,
+              averageHipsX,
+              averageAnkleY,
+            );
+          } else if (ExerciseName == "legraises") {
+            legRaiseExercise(
+              context,
+              averageHipsY,
+              averageKneeY,
+              averageAnkleY,
+              averageShoulderY,
+              averageEarsY,
+            );
+          } else if (ExerciseName == "situp") {
+            sitUpExercise(
+              context,
+              nose.y,
+              averageShoulderY,
+              averageHipsY,
+              averageKneeY,
+              averageAnkleY,
+            );
+          } else if (ExerciseName == "mountainclimbers") {
+            mountainClimbersExercise(
+              averageKneeY,
+              averageHipsX,
+              leftKnee.x,
+              leftKnee.y,
+              rightKnee.x,
+              rightKnee.y,
+              averageWristY,
+              averageShoulderY,
+              averageHipsY,
+            );
+          } else if (ExerciseName == "highknee") {
+            highKneeExercise(
+              leftKnee.y,
+              rightKnee.y,
+              averageHipsY,
+              averageHipsX,
+              averageShoulderX,
+              averageShoulderY,
+              averageAnkleY,
+            );
+          } else if (ExerciseName == "lunges") {
+            lungesExercise(
+              averageHipsY,
+              averageHipsX,
+              leftKnee.y,
+              rightKnee.y,
+              leftAnkle.y,
+              rightAnkle.y,
+              averageShoulderX,
+              averageShoulderY,
+            );
+          } else if (ExerciseName == "plank") {
+            normalPlankExercise(
+              averageShoulderY,
+              averageHipsY,
+              averageAnkleY,
+              leftElbow.y,
+              leftKnee.y,
+              rightKnee.y,
+              rightShoulder.y,
+              leftWrist.y,
+              rightWrist.y,
+              rightElbow.y,
+            );
+          } else if (ExerciseName == "rightplank") {
+            sidePlankRightExercise(
+              averageShoulderY,
+              averageHipsY,
+              averageAnkleY,
+              rightElbow.y,
+              rightKnee.y,
+              leftElbow.y,
+              leftShoulder.y,
+            );
+          } else if (ExerciseName == "leftplank") {
+            sidePlankLeftExercise(
+              averageShoulderY,
+              averageHipsY,
+              averageAnkleY,
+              leftElbow.y,
+              leftKnee.y,
+              rightElbow.y,
+              rightShoulder.y,
+            );
+          }
         }
 
         if (Mode == "postureCorrection" && raise == repsWants) {
@@ -573,8 +698,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void fronfixposition() {
     if (selectedCameraIndex == 0) {
       fixingcamera = false;
+      isCameraOn = !fixingcamera;
+      peopleBox.put("cameraSwitch", 0);
     } else if (selectedCameraIndex == 1) {
       fixingcamera = true;
+      isCameraOn = !fixingcamera;
+      peopleBox.put("cameraSwitch", 1);
     }
   }
 
@@ -614,7 +743,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         .center, // Ensure the flip happens around the center
                 transform:
                     Matrix4.identity()..scale(-1.0, 1.0), // Horizontal flip
-                child: buildResult(),
+                child: poseIndicator ? buildResult() : Container(),
               ),
             ),
           )
@@ -624,7 +753,7 @@ class _MyHomePageState extends State<MyHomePage> {
               left: 0.0,
               width: size.width,
               height: size.height,
-              child: buildResult(),
+              child: poseIndicator ? buildResult() : Container(),
             ),
           );
 
@@ -946,19 +1075,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       if (Mode == "postureCorrection") {
                         musicPlayer2.stop();
-                        raise = 0;
+
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => Trypage()),
                         );
-                      } else {
                         raise = 0;
+                      } else {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ArcadeModePage(),
                           ),
                         );
+                        raise = 0;
                       }
                     },
                     icon: Icon(
@@ -987,31 +1117,19 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [
                 IconButton(
-                  icon: Icon(
-                    Icons.camera_alt_outlined,
-                    color: AppColor.backgroundWhite,
-                  ),
-                  onPressed: toggleCamera,
-                ),
-                Mode == "Arcade"
-                    ? IconButton(
-                      icon: Icon(
-                        buttonMusic
-                            ? Icons.music_note_rounded
-                            : Icons.music_off_rounded,
-                        color: AppColor.backgroundWhite,
-                      ),
-                      onPressed: () {
-                        if (buttonMusic) {
-                          musicPlayer.stop();
-                        } else {
-                          musicPlayer.play();
-                        }
+                  icon: Icon(Icons.more_vert, color: AppColor.backgroundWhite),
+                  onPressed: () {
+                    setState(() {
+                      stackRaise = raise;
+                      stackCount = seconds;
+                      raise = stackRaise;
+                      seconds = stackCount;
+                      print(isModalSettingOpen);
 
-                        buttonMusic = !buttonMusic;
-                      },
-                    )
-                    : Container(),
+                      _showSettingsModal(context);
+                    });
+                  },
+                ),
               ],
             ),
           ],

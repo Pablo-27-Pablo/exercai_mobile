@@ -251,12 +251,12 @@ class _TrypageState extends State<Trypage> {
     {"name": "plank", "image": "plank.jpg", "PrimaryName": "Plank"},
     {
       "name": "rightplank",
-      "image": "sideplank.gif",
+      "image": "rightplank.png",
       "PrimaryName": "Right Plank",
     },
     {
       "name": "leftplank",
-      "image": "sideplank.gif",
+      "image": "leftplank.png",
       "PrimaryName": "Left Plank",
     },
     {
