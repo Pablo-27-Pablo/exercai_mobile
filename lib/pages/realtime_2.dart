@@ -33,10 +33,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool buttonMusic = true;
+
   final musicPlayer = MusicPlayerService();
   late CameraController controller;
   bool isBusy = false;
-
+  bool poseIndicator = false;
   CameraImage? img;
   dynamic poseDetector;
   late Size size;
@@ -55,13 +56,20 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    buttonMusic = peopleBox.get("musicOnOf", defaultValue: false);
+    cameraSwitch = peopleBox.get("cameraSwitch", defaultValue: 1);
+    selectedCameraIndex = cameraSwitch;
+    fronfixposition();
     initializeCamera();
     _loadSelectedInjuries();
+
     //CheckInjurys();
 
     if (Mode == "dayChallenge") {
       raise = peopleBox.get(ExerciseName) % 100;
     }
+    poseIndicator = peopleBox.get("poseIndicator", defaultValue: true);
   }
 
   Future<void> _loadSelectedInjuries() async {
@@ -113,6 +121,74 @@ class _MyHomePageState extends State<MyHomePage> {
   //     }
   //   }
   // }
+  bool isMusicOn = true;
+  bool isPostureIndicatorOn = false;
+  bool isCameraOn = false;
+  void _showSettingsModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (context) => StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ListTile(
+                      leading: const Icon(Icons.music_note),
+                      title: const Text('Music'),
+                      trailing: Switch(
+                        value: isMusicOn,
+                        onChanged: (bool value) {
+                          setState(() {
+                            isMusicOn = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.accessibility_new),
+                      title: const Text('Posture Indicator'),
+                      trailing: Switch(
+                        value: isPostureIndicatorOn,
+                        onChanged: (bool value) {
+                          setState(() {
+                            isPostureIndicatorOn = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.camera_alt),
+                      title: const Text('Camera Switch to Back'),
+                      trailing: Switch(
+                        value: isCameraOn,
+                        onChanged: (bool value) {
+                          setState(() {
+                            isCameraOn = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+    );
+  }
 
   Formula() {
     for (int i = 0; i < exercises.length; i++) {
@@ -176,20 +252,19 @@ class _MyHomePageState extends State<MyHomePage> {
           Formula();
           if (arcadeNumber == 11) {
             musicPlayer.stop();
-            
-              arcadeNumber = 1;
-              ExerciseName = "";
-              image = "";
-            
+
+            arcadeNumber = 1;
+            ExerciseName = "";
+            image = "";
+
             dispose();
-              musicPlayer1.playCongrats();
+            musicPlayer1.playCongrats();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => CongratsApp()),
             );
           } else {
-            
-          //Formula();
+            //Formula();
 
             Navigator.pushReplacement(
               context,
@@ -389,6 +464,13 @@ class _MyHomePageState extends State<MyHomePage> {
             leftKnee.y,
             rightAnkle.y,
             leftAnkle.y,
+            leftHip.x,
+            rightHip.x,
+            leftShoulder.x,
+            rightShoulder.x,
+            averageKneeY,
+            rightKnee.x,
+            leftKnee.x,
           );
         } else if (ExerciseName == "pushup") {
           pushupExercise(
@@ -473,6 +555,9 @@ class _MyHomePageState extends State<MyHomePage> {
             leftKnee.y,
             rightKnee.y,
             rightShoulder.y,
+            leftWrist.y,
+            rightWrist.y,
+            rightElbow.y,
           );
         } else if (ExerciseName == "rightplank") {
           sidePlankRightExercise(
@@ -573,8 +658,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void fronfixposition() {
     if (selectedCameraIndex == 0) {
       fixingcamera = false;
+      peopleBox.put("cameraSwitch", 0);
     } else if (selectedCameraIndex == 1) {
       fixingcamera = true;
+      peopleBox.put("cameraSwitch", 1);
     }
   }
 
@@ -614,7 +701,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         .center, // Ensure the flip happens around the center
                 transform:
                     Matrix4.identity()..scale(-1.0, 1.0), // Horizontal flip
-                child: buildResult(),
+                child: poseIndicator ? buildResult() : Container(),
               ),
             ),
           )
@@ -946,19 +1033,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       if (Mode == "postureCorrection") {
                         musicPlayer2.stop();
-                        raise = 0;
+
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => Trypage()),
                         );
-                      } else {
                         raise = 0;
+                      } else {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ArcadeModePage(),
                           ),
                         );
+                        raise = 0;
                       }
                     },
                     icon: Icon(
@@ -993,6 +1081,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   onPressed: toggleCamera,
                 ),
+                IconButton(
+                  icon:
+                      poseIndicator
+                          ? Icon(Icons.person, color: AppColor.backgroundWhite)
+                          : Icon(
+                            Icons.person_2_outlined,
+                            color: AppColor.backgroundWhite,
+                          ),
+                  onPressed: () {
+                    setState(() {
+                      // poseIndicator = !poseIndicator;
+                      // peopleBox.put("poseIndicator", poseIndicator);
+                      // print(poseIndicator);
+                      _showSettingsModal(context);
+                    });
+                  },
+                ),
                 Mode == "Arcade"
                     ? IconButton(
                       icon: Icon(
@@ -1003,9 +1108,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       onPressed: () {
                         if (buttonMusic) {
+                          musicOnOf = peopleBox.get(
+                            "musicOnOf",
+                            defaultValue: false,
+                          );
                           musicPlayer.stop();
+                          peopleBox.put("musicOnOf", false);
                         } else {
                           musicPlayer.play();
+                          peopleBox.put("musicOnOf", true);
                         }
 
                         buttonMusic = !buttonMusic;

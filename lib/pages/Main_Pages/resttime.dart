@@ -27,6 +27,7 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
   String instruction = "";
   String instruction2 = "";
   String instruction3 = "";
+  String name = "";
   final musicPlayer = MusicPlayerService();
 
   @override
@@ -34,11 +35,11 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
     super.initState();
     startTimer();
     ExerciseImage();
-    musicPlayer.play();
+    peopleBox.get("musicOnOf", defaultValue: true) ? musicPlayer.play() : Container();
   }
 
   calculation() {
-    double total = (seconds2 / 30) * 100;
+    double total = (seconds2 / 20) * 100;
     total = total / 100;
     return total;
   }
@@ -130,8 +131,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
 
   ExerciseImage() {
     if (1 == arcadeNumber) {
+      name = "pushup";
       exerciseImage = "pushup.gif";
-      instructionExercise = "Get into the Starting Position";
+      instructionExercise = "Push-Up: Get into the Starting Position";
       instructionExercise2 = "Lower Your Body";
       instructionExercise3 = "Push Back Up";
       instruction =
@@ -142,8 +144,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
           " - Press through your palms and straighten your arms\n - Keep your core engaged and body in a straight line\n - Fully extend your arms without locking your elbows.";
     }
     if (2 == arcadeNumber) {
+      name = "squat";
       exerciseImage = "squat.gif";
-      instructionExercise = "Stand with Feet Shoulder-Width Apart";
+      instructionExercise = "Squat: Stand with Feet Shoulder-Width Apart";
       instructionExercise2 = "Lower Your Body";
       instructionExercise3 = "Push Back Up";
       instruction =
@@ -154,8 +157,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
           " - Drive through your heels to stand back up\n - Keep your core engaged and back straight";
     }
     if (3 == arcadeNumber) {
+      name = "legraises";
       exerciseImage = "legraises.gif";
-      instructionExercise = "Lie Flat on Your Back";
+      instructionExercise = "Leg Raises: Lie Flat on Your Back";
       instructionExercise2 = "Lift Your Legs";
       instructionExercise3 = "Lower Your Legs";
       instruction =
@@ -166,8 +170,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
           " - Slowly lower them back down without touching the ground\n - Repeat while maintaining control";
     }
     if (4 == arcadeNumber) {
+      name = "situp";
       exerciseImage = "situp.gif";
-      instructionExercise = "Lie on Your Back";
+      instructionExercise = "Sit-Up: Lie on Your Back";
       instructionExercise2 = "Perform the Sit-Up";
       instructionExercise3 = "Lower Yourself Back Down";
       instruction =
@@ -177,8 +182,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
       instruction3 = " - Lower yourself back down with control";
     }
     if (5 == arcadeNumber) {
+      name = "mountainclimbers";
       exerciseImage = "mountainclimbers.gif";
-      instructionExercise = "Get into a Plank Position";
+      instructionExercise = "Mountain Climbers: Get into a Plank Position";
       instructionExercise2 = "Start the Movement";
       instructionExercise3 = "Continue at a Steady Pace";
       instruction =
@@ -188,8 +194,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
       instruction3 = " - Keep your core engaged and move at a steady pace";
     }
     if (6 == arcadeNumber) {
+      name = "highknee";
       exerciseImage = "highknee.gif";
-      instructionExercise = "Stand Tall";
+      instructionExercise = "High Knees: Stand Tall";
       instructionExercise2 = "Start the Movement";
       instructionExercise3 = "Move at a Quick Pace";
       instruction = " - Feet hip-width apart\n - Keep your core engaged";
@@ -198,8 +205,9 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
       instruction3 = " - Move at a quick pace like running in place";
     }
     if (7 == arcadeNumber) {
+      name = "lunges";
       exerciseImage = "lunges.gif";
-      instructionExercise = "Stand with Feet Together";
+      instructionExercise = "Lunges: Stand with Feet Together";
       instructionExercise2 = "Step Forward";
       instructionExercise3 = "Push Back Up";
       instruction = " - Keep your upper body straight";
@@ -208,38 +216,10 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
       instruction3 =
           " - Drive through your front heel to return to starting position\n - Switch legs and repeat";
     }
-    if (8 == arcadeNumber) {
-      exerciseImage = "plank.gif";
-      instructionExercise = "Get into a Forearm Plank Position";
-      instructionExercise2 = "Hold the Position";
-      instructionExercise3 = "Maintain Stability";
-      instruction = " - Place elbows directly under shoulders";
-      instruction2 = " - Keep your body in a straight line";
-      instruction3 = " - Engage your core and hold the position";
-    }
-    if (9 == arcadeNumber) {
-      exerciseImage = "rightplank.jpg";
-      instructionExercise = "Lie on Your Right Side";
-      instructionExercise2 = "Lift Your Hips";
-      instructionExercise3 = "Hold the Position";
-      instruction =
-          " - Stack your legs on top of each other\n - Place your right elbow under your shoulder";
-      instruction2 = " - Lift your hips off the ground";
-      instruction3 = " - Keep your body in a straight line and hold";
-    }
-    if (10 == arcadeNumber) {
-      exerciseImage = "leftplank.jpg";
-      instructionExercise = "Lie on Your Left Side";
-      instructionExercise2 = "Lift Your Hips";
-      instructionExercise3 = "Hold the Position";
-      instruction =
-          " - Stack your legs on top of each other\n - Place your left elbow under your shoulder";
-      instruction2 = " - Lift your hips off the ground";
-      instruction3 = " - Keep your body in a straight line and hold";
-    }
     if (11 == arcadeNumber) {
+      name = "jumpingjacks";
       exerciseImage = "jumpingjacks.gif";
-      instructionExercise = "Start Standing";
+      instructionExercise = "Jumping Jacks: Start Standing";
       instructionExercise2 = "Perform the Movement";
       instructionExercise3 = "Repeat at a Steady Pace";
       instruction = " - Feet together, arms at your sides";
@@ -257,7 +237,7 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
         });
       } else {
         timer?.cancel();
-        seconds2 = 30;
+        seconds2 = 20;
         seconds = 60;
         ArcadePlay();
       }
@@ -285,13 +265,13 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          seconds2 = 30;
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => ArcadeModePage(),
                             ),
                           );
+                          seconds2 = 20;
                         },
                         icon: Icon(
                           Icons.arrow_back_ios,
@@ -299,7 +279,7 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                         ),
                       ),
                       Text(
-                        exerciseImage,
+                        name,
                         style: TextStyle(
                           color: AppColor.bottonPrimary.withOpacity(0.7),
                           fontSize: 24,
@@ -351,9 +331,7 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                 center: ClipOval(
                   child: Container(
                     height: 275,
-                    child: Image.asset(
-                      "assets/image/" + exerciseImage,
-                    ),
+                    child: Image.asset("assets/image/" + exerciseImage),
                   ),
                 ),
               ),
@@ -403,7 +381,6 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-
                       ),
                       child: Text(
                         instruction,
@@ -433,7 +410,6 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-
                           ),
                           child: Text(
                             instruction,
@@ -463,7 +439,6 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            
                           ),
                           child: Text(
                             instruction3,

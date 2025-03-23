@@ -10,7 +10,7 @@ String warningIndicatorText = "";
 String warningIndicatorTextExercise = "";
 String errorSpeed = "";
 int raise = 0;
-int seconds = 30;
+int seconds = 60;
 int seconds2 = 20;
 double weight = 80.0;
 Timer? timer;
@@ -22,14 +22,16 @@ String errorWholebody = "";
 int lastUpdateTime = 0;
 int lastUpdateTime2 = 0;
 int lastUpdateTime3 = 0;
-int arcadeNumber = 6;
+int arcadeNumber = 1;
 String Mode = "daysChallenge";
 bool youNear = true;
 int days = 0;
 var peopleBox = Hive.box("Box");
 double totalCaloriesBurn = 0;
 double totalCaloriesBurnDatabase = 0;
+int cameraSwitch = 1;
 int repsWants = 0;
+  bool musicOnOf = true;
 
 //small Gap
 

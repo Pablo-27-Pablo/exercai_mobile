@@ -26,9 +26,7 @@ Formula() {
     if (exercises[i]["name"] == ExerciseName) {
       print("Exercise found: ${exercises[i]}");
       double formula =
-          (((exercises[i]["MET"]).toDouble() *
-                  weight *
-                  raise.toDouble()) /
+          (((exercises[i]["MET"]).toDouble() * weight * raise.toDouble()) /
               1000);
       totalCaloriesBurn = totalCaloriesBurn + formula;
       totalCaloriesBurnDatabase =
@@ -67,6 +65,13 @@ void squatExercise(
   leftKneeY,
   rightAnkleY,
   leftAnkleY,
+  leftHipsX,
+  rightHipsX,
+  leftShoulderX,
+  rightShoulderX,
+  averageKneeY,
+  rightKneeX,
+  leftKneeX,
 ) {
   double kneeAngle = calculateKneeAngle(leftHip, leftKnee, leftAnkle);
 
@@ -75,14 +80,18 @@ void squatExercise(
   if ((averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) &&
       (rightKneeY + 10 < rightAnkleY && leftKneeY + 10 < leftAnkleY)) {
     // print(leftAnkle.y);
-    if (kneeAngle < 3) {
+    if (kneeAngle < 30) {
       warningIndicatorTextExercise = "Too low, raise squat position!";
       speak(warningIndicatorTextExercise);
       warningIndicatorScreen = false;
     }
-    if (!staticIsDown) {
+
+    if(leftHipsX >= leftKneeX + 30 || leftHipsX <= leftKneeX - 30 || rightHipsX >= rightKneeX + 30 || rightHipsX <= rightKneeX - 30 ){
+
+    }else{
       StandStraight(averageShoulder, averageHips);
     }
+
 
     // Detect "down" position
     if (kneeAngle < 130 && !staticIsDown) {
@@ -95,10 +104,14 @@ void squatExercise(
         print("Squat: Down position detected");
       }
     }
+    
+      
+  
 
     // Detect "up" position
-    if (kneeAngle > 140 && !staticIsUp) {
-      StandStraight(averageShoulder, averageHips);
+    if (kneeAngle > 145 && !staticIsUp ) {
+      
+     // print("body not alignalign");
       warningIndicatorTextExercise = "";
       if (staticIsDown && !staticIsUp) {
         staticIsUp = true;
@@ -713,14 +726,28 @@ void sidePlankLeftExercise(
   }
 }
 
+//  averageShoulderY,
+//             averageHipsY,
+//             averageAnkleY,
+//             leftElbow.y,
+//             leftKnee.y,
+//             rightKnee.y,
+//             rightShoulder.y,
+//             leftWrist.y,
+//             rightWrist.y,
+//             rightElbow.y,
+
 void normalPlankExercise(
   avgShoulderY,
   avgHipY,
   avgAnkleY,
-  leftElbow,
+  leftElbowY,
   leftKneeY,
-  rightElbowY,
+  rightKneeY,
   rightShoulderY,
+  leftWristY,
+  rightWristY,
+  rightElbowY
 ) {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
   plankError(
@@ -731,8 +758,8 @@ void normalPlankExercise(
   print(" $rightElbowY      <     $rightShoulderY                   ");
   // Detect proper side plank position (right side)
   if (avgHipY < avgShoulderY + 50 &&
-      leftElbow + 5 > leftKneeY &&
-      leftElbow - 10 > avgHipY) {
+      leftElbowY + 5 > leftKneeY &&
+      leftElbowY - 10 > avgHipY &&  (leftElbowY + 50 > leftWristY && rightElbowY + 50 > rightWristY) ) {
     // Check if 1 second has passed
     if (currentTime - lastUpdateTime3 >= 1000) {
       raise++; // Increment raise every second
