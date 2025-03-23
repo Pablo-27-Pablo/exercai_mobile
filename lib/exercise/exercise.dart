@@ -80,7 +80,7 @@ void squatExercise(
   if ((averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) &&
       (rightKneeY + 10 < rightAnkleY && leftKneeY + 10 < leftAnkleY)) {
     // print(leftAnkle.y);
-    if (kneeAngle < 30) {
+    if (kneeAngle < 50) {
       warningIndicatorTextExercise = "Too low, raise squat position!";
       speak(warningIndicatorTextExercise);
       warningIndicatorScreen = false;
@@ -94,7 +94,7 @@ void squatExercise(
 
 
     // Detect "down" position
-    if (kneeAngle < 130 && !staticIsDown) {
+    if (kneeAngle < 140 && !staticIsDown) {
       warningIndicatorScreen = true;
       // warningIndicatorText = "";
       // warningIndicatorTextExercise = "";
@@ -109,7 +109,7 @@ void squatExercise(
   
 
     // Detect "up" position
-    if (kneeAngle > 145 && !staticIsUp ) {
+    if (kneeAngle > 150 && !staticIsUp ) {
       
      // print("body not alignalign");
       warningIndicatorTextExercise = "";
