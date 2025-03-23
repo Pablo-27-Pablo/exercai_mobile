@@ -584,7 +584,7 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                   currentStep.type == StepType.set
                       ? widget.isRepBased
                       ? 'Timer: ${_formatTime(_currentCount)}\n${currentStep.duration} Reps'
-                      : '$_secondsRemaining Seconds'
+                      : 'Timer: ${_formatTime(_secondsRemaining)}'    //'$_secondsRemaining Seconds'
                       : 'Rest: $_secondsRemaining Seconds',
                   style: const TextStyle(fontSize: 18, color: Colors.black54),
                   textAlign: TextAlign.center,
@@ -628,8 +628,8 @@ class _TimerRepsExerciseState extends State<TimerRepsExercise> {
                         ),
                         child: Text(
                           currentStep.type == StepType.set
-                              ? (widget.isRepBased ? _formatTime(_currentCount) : '$_secondsRemaining')
-                              : '$_secondsRemaining',
+                              ? (widget.isRepBased ? _formatTime(_currentCount) : '${_formatTime(_secondsRemaining)}')
+                              :  '${_formatTime(_secondsRemaining)}',          //'$_secondsRemaining',
                           style: const TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                         ),

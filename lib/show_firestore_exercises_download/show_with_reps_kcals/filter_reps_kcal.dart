@@ -198,40 +198,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
 
   }
 
-  /* //Dating Code Na wala muna lilitaw agad tapos pag pindut ng reload dun lang mag rereload
-  Future<void> fetchUserData() async {
-    if (_currentUser == null) return;
-
-    try {
-      setState(() => isLoading = true);
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(_currentUser!.email)
-          .get();
-
-      if (userDoc.exists) {
-        final userData = userDoc.data() as Map<String, dynamic>;
-        setState(() {
-          selectedGoal = userData['goal'] ?? 'maintain'; // Changed from workoutLevel
-          selectedBMI = userData['bmiCategory'] ?? 'normal';
-          userAge = userData['age'];
-          userWeight = (userData['weight'] as num?)?.toDouble() ?? 70.0;
-          userHeight = double.tryParse(userData['height']?.toString() ?? "") ?? 175.0;
-          userGender = userData['gender'] ?? "Male";
-          String injuryArea = userData['injuryArea'] ?? '';
-          _userInjuries = injuryArea.split(', ').where((s) => s.isNotEmpty).toList();
-          if (_userInjuries.contains('none of them')) _userInjuries.clear();
-        });
-        await _initializeExercisesStream();
-        await fetchFinalBurnCalValues();
-      }
-      setState(() => isLoading = false);
-    } catch (e) {
-      print("Error fetching user data: $e");
-      setState(() => isLoading = false);
-    }
-  }*/
-
   // Bagong Code Eto buburahin pag nag error
   Future<void> fetchUserData() async {
     if (_currentUser == null) return;
@@ -763,6 +729,7 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                               ),
                             ),
                             onPressed: () => Navigator.of(context).pop(true),
+                            //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>FilterRepsKcal())),
                             child: Text("Confirm", style: TextStyle(fontSize: 16)),
                           ),
                         ],
@@ -890,24 +857,6 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                               final exerciseName = exercise['name'].toString();
                               final totalTime = exerciseTimes[exerciseName] ?? 0;
 
-                              // Determine if exercise is Rep-Based or Time-Based
-                              bool isRepBased = exercise['baseSetsReps'] != null &&
-                                  exercise['baseReps'] != null;
-                              bool isTimeBased = exercise['baseSetsSecs'] != null ||
-                                  exercise['baseSecs'] != null;
-
-                              // Use preloaded FinalTotalBurnCalRep values from finalBurnCalMap
-                              double? finalTotalBurnCalRep = finalBurnCalMap[exerciseName];
-                              print(
-                                  'Exercise Name: $exerciseName, FinalTotalBurnCalRep: $finalTotalBurnCalRep');
-
-                              // Choose correct burn calories value
-                              String burnCaloriesDisplay = isRepBased
-                                  ? "${finalTotalBurnCalRep?.toStringAsFixed(2) ?? '0.00'} kcal"
-                                  : isTimeBased
-                                  ? "${exercise['TotalCalBurnSec']?.toStringAsFixed(2) ?? 'N/A'} kcal"
-                                  : "N/A";
-
                               return Card(
                                 color: AppColor.backgroundWhite,
                                 margin:
@@ -951,27 +900,57 @@ class _FilterRepsKcalState extends State<FilterRepsKcal> {
                                         fontWeight: FontWeight.bold,
                                         color: AppColor.supersolidPrimary),
                                   ),
-                                  subtitle: Text.rich(
-                                    TextSpan(
-                                      children: [
+                                  subtitle: StreamBuilder<DocumentSnapshot>(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('Users')
+                                        .doc(_currentUser!.email)
+                                        .collection('UserExercises')
+                                        .doc(exercise['name'].toString())
+                                        .snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (!snapshot.hasData) {
+                                        return Text(
+                                          "Loading...",
+                                          style: TextStyle(color: Colors.grey.shade500),
+                                        );
+                                      }
+                                      final updatedExercise = snapshot.data!.data() as Map<String, dynamic>;
+                                      final repsTime = getRepsTimeDisplay(updatedExercise);
+                                      bool isRepBased = updatedExercise['baseSetsReps'] != null &&
+                                          updatedExercise['baseReps'] != null;
+                                      bool isTimeBased = updatedExercise['baseSetsSecs'] != null ||
+                                          updatedExercise['baseSecs'] != null;
+                                      String updatedBurnCaloriesDisplay;
+                                      if (isRepBased) {
+                                        updatedBurnCaloriesDisplay =
+                                        "${(updatedExercise['FinalTotalBurnCalRep'] as num?)?.toDouble()?.toStringAsFixed(2) ?? '0.00'} kcal";
+                                      } else if (isTimeBased) {
+                                        updatedBurnCaloriesDisplay =
+                                        "${(updatedExercise['TotalCalBurnSec'] as num?)?.toDouble()?.toStringAsFixed(2) ?? 'N/A'} kcal";
+                                      } else {
+                                        updatedBurnCaloriesDisplay = "N/A";
+                                      }
+                                      return Text.rich(
                                         TextSpan(
-                                          text:
-                                          "TARGET: ${exercise['target'].toString().toUpperCase()}\n",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: "TARGET: ${updatedExercise['target'].toString().toUpperCase()}\n",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: "Reps/Time: $repsTime\nBurn Calories: $updatedBurnCaloriesDisplay",
+                                              style: TextStyle(
+                                                color: Colors.grey.shade500,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        TextSpan(
-                                          text:
-                                          "Reps/Time: ${getRepsTimeDisplay(exercise)}\nBurn Calories: $burnCaloriesDisplay",
-                                          style: TextStyle(
-                                            color: Colors.grey.shade500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      );
+                                    },
                                   ),
                                   trailing: isCompleted
                                       ? Icon(Icons.check_circle, color: Colors.green)

@@ -552,7 +552,7 @@ class PredictiveAnalysisPage extends StatelessWidget {
                             icon: Icons.calculate,
                             title: "Daily Calorie Offset & Weight Change",
                             subtitle:
-                            "Goals:\n• Lose weight: –500 kcal/day\n• Muscle mass gain: +300 kcal/day\n• Maintain: 0 kcal/day\n\nDaily Weight Change (kg) = dailyCalorieOffset / 7700",
+                            "Goals:\n• Lose weight: –500 kcal/day\n• Muscle mass gain: +500 kcal/day\n• Maintain: 0 kcal/day\n\nDaily Weight Change (kg) = dailyCalorieOffset / 7700",
                             backgroundColor: Colors.red.shade100,
                             iconColor: Colors.red,
                           ),
@@ -586,18 +586,17 @@ class PredictiveAnalysisPage extends StatelessWidget {
   /// ---------------------------------------------
   /// UPDATED PREDICTION LOGIC USING Mifflin–St. Jeor
   /// ---------------------------------------------
+  /// UPDATED PREDICTION LOGIC FOR TARGET WEIGHT AND GOAL DATE
   Prediction computePrediction(UserData userData) {
-    // 1) Calculate TDEE (Total Daily Energy Expenditure)
-    final tdee = _calculateTDEE(userData);
-
-    // 2) Decide on daily calorie deficit or surplus based on goal
+    // 1) Decide on daily calorie offset (in kcal) based on the user's goal.
+    // For weight loss, the offset is negative; for weight gain, it's positive.
     double dailyCalorieOffset = 0.0;
     switch (userData.goal.toLowerCase()) {
       case 'lose weight':
-        dailyCalorieOffset = -500;
+        dailyCalorieOffset = -1000;
         break;
       case 'muscle mass gain':
-        dailyCalorieOffset = 300;
+        dailyCalorieOffset = 1000;
         break;
       case 'maintain':
       default:
@@ -605,27 +604,30 @@ class PredictiveAnalysisPage extends StatelessWidget {
         break;
     }
 
-    // 3) Convert daily calorie offset to daily weight change (in kg)
-    //    1 kg of fat mass ~ 7700 kcal
-    final dailyWeightChangeKg = dailyCalorieOffset / 7700.0;
-
-    // If dailyWeightChangeKg is 0 (maintain), or if TDEE is 0 for some reason:
-    if (dailyWeightChangeKg == 0) {
+    // 2) If there is no calorie offset, then no weight change is expected.
+    if (dailyCalorieOffset == 0) {
       return Prediction(goalDate: DateTime.now(), weeksToGoal: 0);
     }
 
-    // 4) Calculate how many total kg we need to lose/gain
-    final totalKgToChange = userData.targetWeight - userData.weight;
+    // 3) Calculate the magnitude of daily weight change (kg/day)
+    // Using the conversion: 7700 kcal ~ 1 kg of fat mass.
+    double dailyWeightChangeMag = dailyCalorieOffset.abs() / 7700.0;
 
-    // 5) Compute total days (absolute value in case of sign mismatch)
-    final totalDays = (totalKgToChange / dailyWeightChangeKg).abs();
+    // 4) Calculate the total weight change required (in kg) as the absolute difference.
+    double totalWeightDiff = (userData.weight - userData.targetWeight).abs();
 
-    // 6) Project the date
-    final goalDate = DateTime.now().add(Duration(days: totalDays.round()));
-    final weeksToGoal = totalDays / 7.0;
+    // 5) Compute the total number of days needed to reach the target weight.
+    double totalDays = totalWeightDiff / dailyWeightChangeMag;
+
+    // 6) Calculate weeks to goal (fractional weeks are allowed)
+    double weeksToGoal = totalDays / 7.0;
+
+    // 7) Determine the goal date by adding the rounded totalDays to the current date.
+    DateTime goalDate = DateTime.now().add(Duration(days: totalDays.round()));
 
     return Prediction(goalDate: goalDate, weeksToGoal: weeksToGoal);
   }
+
 
   /// Calculate TDEE using the Mifflin–St. Jeor formula.
   /// height is assumed to be in cm, weight in kg, age in years.

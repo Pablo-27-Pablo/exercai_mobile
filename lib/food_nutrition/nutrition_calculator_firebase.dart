@@ -102,7 +102,7 @@ class _NutritionCalculatorFirebaseState
       final response = await http.get(
         url,
         headers: {
-          'X-Rapidapi-Key': 'dc1bad7b61msh8f8c3cb4e545871p10b76djsnedc2c2ff9c22',
+          'X-Rapidapi-Key': '81efa21332mshc3d43597ee9e475p14e998jsn7776838f3ddd', //'dc1bad7b61msh8f8c3cb4e545871p10b76djsnedc2c2ff9c22',
           'X-Rapidapi-Host': 'nutrition-calculator.p.rapidapi.com',
         },
       );
@@ -210,6 +210,7 @@ class _NutritionCalculatorFirebaseState
         [
           "Maintain weight",
           "${cals['tdee']?.toStringAsFixed(0)} Calories/day",
+          //Pecent tong sa ilalim alisin muna
           "${cals['tdeePct']?.toStringAsFixed(0)}%"
         ],
         /*[
@@ -218,9 +219,10 @@ class _NutritionCalculatorFirebaseState
           "${cals['mildLossPct']?.toStringAsFixed(0)}%"
         ],*/
         [
-          "Weight loss\n(0.5 kg/week)",
+          "Weight loss\n", //"Weight loss\n(0.5 kg/week)"
           "${cals['loss']?.toStringAsFixed(0)} Calories/day",
-          "${cals['lossPct']?.toStringAsFixed(0)}%"
+          //Pecent tong sa ilalim alisin muna
+          //"${cals['lossPct']?.toStringAsFixed(0)}%"
         ],
         /*[
           "Extreme weight loss\n(1 kg/week)",
@@ -233,9 +235,10 @@ class _NutritionCalculatorFirebaseState
           "${cals['mildGainPct']?.toStringAsFixed(0)}%"
         ],*/
         [
-          "Weight gain\n(0.5 kg/week)",
+          "Weight gain\n", //"Weight gain\n(0.5 kg/week)"
           "${cals['moderateGain']?.toStringAsFixed(0)} Calories/day",
-          "${cals['moderateGainPct']?.toStringAsFixed(0)}%"
+          //Pecent tong sa ilalim alisin muna
+          //"${cals['moderateGainPct']?.toStringAsFixed(0)}%"
         ],
         /*[
           "Fast weight gain (1 kg/week)",

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:exercai_mobile/show_firestore_exercises_download/show_with_reps_kcals/filter_reps_kcal.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
 
 class CompleteWorkout extends StatefulWidget {
   const CompleteWorkout({Key? key}) : super(key: key);
@@ -13,18 +14,36 @@ class CompleteWorkout extends StatefulWidget {
 
 class _CompleteWorkoutState extends State<CompleteWorkout> {
   late final ConfettiController _confettiController;
+  late final AudioPlayer _audioPlayer;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize and play confetti animation
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
     _confettiController.play();
+
+    // Initialize the audio player and play the congrats audio
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.play(AssetSource('audio/Congrats.mp3'));
+
+    // Start the skipping process after ensuring playback starts.
+    _skipAudio();
+  }
+
+  Future<void> _skipAudio() async {
+    // Wait for 1 second to ensure playback starts
+    await Future.delayed(Duration(milliseconds: 1000));
+    // Skip to 7 seconds in the track (effectively skipping the first 5 seconds)
+    await _audioPlayer.seek(Duration(seconds: 7));
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -33,7 +52,7 @@ class _CompleteWorkoutState extends State<CompleteWorkout> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.white, // White background for a fresh look
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -56,7 +75,8 @@ class _CompleteWorkoutState extends State<CompleteWorkout> {
                 Expanded(
                   flex: 2,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 30),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
                       child: Image.asset(
@@ -66,7 +86,8 @@ class _CompleteWorkoutState extends State<CompleteWorkout> {
                           return Container(
                             color: Colors.grey.shade300,
                             child: const Center(
-                              child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+                              child: Icon(Icons.broken_image,
+                                  color: Colors.grey, size: 40),
                             ),
                           );
                         },
@@ -79,14 +100,19 @@ class _CompleteWorkoutState extends State<CompleteWorkout> {
                   flex: 1,
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 30),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.orange.shade400, Colors.yellow.shade300],
+                        colors: [
+                          Colors.orange.shade400,
+                          Colors.yellow.shade300
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(30)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
@@ -130,16 +156,11 @@ class _CompleteWorkoutState extends State<CompleteWorkout> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            /*Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (context) => FilterRepsKcal()),
-                                  (Route<dynamic> route) => false,
-                            );*/
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => FilterRepsKcal()),
+                              MaterialPageRoute(
+                                  builder: (context) => FilterRepsKcal()),
                             );
-
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.supersolidPrimary,

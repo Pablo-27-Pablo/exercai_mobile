@@ -3,6 +3,7 @@ import 'package:exercai_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart'; // Make sure to add this dependency in pubspec.yaml
 import 'dart:math'; // Needed for the blast direction
+import 'package:audioplayers/audioplayers.dart'; // Import the audioplayers package
 
 // Import the exercise list pages for different body parts
 import '../neck_allExercises.dart';
@@ -29,6 +30,7 @@ class WorkoutCompleteAllexercises extends StatefulWidget {
 class _WorkoutCompleteAllexercisesState extends State<WorkoutCompleteAllexercises> {
   // Declare as late final to ensure it is initialized in initState
   late final ConfettiController _confettiController;
+  late final AudioPlayer _audioPlayer; // Audio player instance
 
   @override
   void initState() {
@@ -36,11 +38,26 @@ class _WorkoutCompleteAllexercisesState extends State<WorkoutCompleteAllexercise
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
     _confettiController.play();
+
+    // Initialize and play the congrats audio
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.play(AssetSource('audio/Congrats.mp3'));
+
+    // Start the skipping process after ensuring playback starts.
+    _skipAudio();
+  }
+
+  Future<void> _skipAudio() async {
+    // Wait for 1 second to ensure playback starts
+    await Future.delayed(Duration(milliseconds: 1000));
+    // Skip to 7 seconds in the track (effectively skipping the first 5 seconds)
+    await _audioPlayer.seek(Duration(seconds: 7));
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
