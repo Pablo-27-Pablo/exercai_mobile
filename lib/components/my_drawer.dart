@@ -224,7 +224,7 @@ class MyDrawer extends StatelessWidget {
                   title: "Users Feedback",
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SimpleEmailPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EmailSenderPage()));
                   },
                 ),
               ],

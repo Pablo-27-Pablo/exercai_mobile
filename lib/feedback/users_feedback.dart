@@ -1,37 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SimpleEmailPage extends StatelessWidget {
-  const SimpleEmailPage({Key? key}) : super(key: key);
+class EmailSenderPage extends StatefulWidget {
+  const EmailSenderPage({Key? key}) : super(key: key);
 
-  Future<void> _sendEmail(BuildContext context) async {
-    // Get the currently authenticated user
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.email == null) {
+  @override
+  _EmailSenderPageState createState() => _EmailSenderPageState();
+}
+
+class _EmailSenderPageState extends State<EmailSenderPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  // Set the target email address here
+  final String targetEmail = 'riveramiko5@gmail.com';
+
+  Future<void> _sendEmail() async {
+    final senderEmail = _emailController.text.trim();
+    final message = _messageController.text.trim();
+
+    if (senderEmail.isEmpty || message.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in or email not available.')),
+        const SnackBar(
+          content: Text('Please enter both your email and a message.'),
+        ),
       );
       return;
     }
 
-    final userEmail = user.email!;
-    // Prepopulate the subject and body using the user's email
-    final subject = Uri.encodeComponent('Message from $userEmail');
-    final body = Uri.encodeComponent('Hello, this message is sent from my Flutter app.');
-    // Set your target email here
-    final targetEmail = 'targetemail@gmail.com';
+    final subject = Uri.encodeComponent('Message from $senderEmail');
+    final body = Uri.encodeComponent(message);
+    final mailUrl = Uri.parse('mailto:riveramiko5@gmail.com?subject=$subject&body=$body');
 
-    final mailUrl = 'mailto:$targetEmail?subject=$subject&body=$body';
+    // Debug print to see the mailUrl
+    print(mailUrl.toString());
 
-    // Check if the device can open the URL
-    if (await canLaunch(mailUrl)) {
-      await launch(mailUrl);
+    if (await canLaunchUrl(mailUrl)) {
+      await launchUrl(mailUrl, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open the email app.')),
+        const SnackBar(
+          content: Text('Could not launch the email app.'),
+        ),
       );
     }
+
+  }
+
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -40,10 +61,31 @@ class SimpleEmailPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Send Email'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => _sendEmail(context),
-          child: const Text('Send Email'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Your Gmail Address',
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _messageController,
+              decoration: const InputDecoration(
+                labelText: 'Message',
+              ),
+              maxLines: 5,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _sendEmail,
+              child: const Text('Send Email'),
+            ),
+          ],
         ),
       ),
     );
