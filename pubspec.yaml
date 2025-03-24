@@ -30,7 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  url_launcher: ^6.3.1
+  flutter_email_sender: ^7.0.0
   rxdart: ^0.28.0
   fl_chart: ^0.64.0
   hive: ^2.2.3

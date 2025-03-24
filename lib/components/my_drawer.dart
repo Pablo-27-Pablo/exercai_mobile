@@ -1,4 +1,5 @@
 import 'package:exercai_mobile/components/my_drawer.dart';
+import 'package:exercai_mobile/feedback/users_feedback.dart';
 import 'package:exercai_mobile/login_register_pages/login.dart';
 import 'package:exercai_mobile/main.dart';
 import 'package:exercai_mobile/month_log_exercise/month_note_exercise.dart';
@@ -77,19 +78,20 @@ class MyDrawer extends StatelessWidget {
       backgroundColor: Colors.white, // White background for a minimalist look.
       child: Column(
         children: [
+          SizedBox(height: 100,),
           // Drawer Header with user info.
-          DrawerHeader(
+          /*DrawerHeader(
             decoration: const BoxDecoration(
               color: Colors.white,
             ),
             child: Row(
               children: [
                 // Display a circular avatar placeholder.
-/*                CircleAvatar(
+*//*                CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey.shade300,
                   child: const Icon(Icons.person, color: Colors.white, size: 30),
-                ),*/
+                ),*//*
                 const SizedBox(width: 16),
                 // Fetch and show user first name.
                 FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -133,7 +135,7 @@ class MyDrawer extends StatelessWidget {
                 )
               ],
             ),
-          ),
+          ),*/
 
           // Drawer ListTiles – wrapped in an Expanded ListView.
           Expanded(
@@ -215,6 +217,14 @@ class MyDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthExercisePage()));
+                  },
+                ),
+                _buildDrawerTile(
+                  icon: Icons.person,
+                  title: "Users Feedback",
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SimpleEmailPage()));
                   },
                 ),
               ],

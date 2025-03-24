@@ -34,6 +34,13 @@
         <!-- ✅ Camera Query -->
         <package android:name="com.android.camera"/>
     </queries>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+    </queries>
+
 
     <application
         android:label="ExercAI"
