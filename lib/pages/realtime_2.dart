@@ -606,7 +606,7 @@ class _MyHomePageState extends State<MyHomePage> {
               rightElbow.y,
               rightKnee.y,
               leftElbow.y,
-              leftShoulder.y,
+              leftShoulder.y,rightWrist.y
             );
           } else if (ExerciseName == "leftplank") {
             sidePlankLeftExercise(
@@ -616,7 +616,7 @@ class _MyHomePageState extends State<MyHomePage> {
               leftElbow.y,
               leftKnee.y,
               rightElbow.y,
-              rightShoulder.y,
+              rightShoulder.y,leftWrist.y
             );
           }
         }

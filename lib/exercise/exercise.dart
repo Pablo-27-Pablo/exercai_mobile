@@ -74,24 +74,27 @@ void squatExercise(
   leftKneeX,
 ) {
   double kneeAngle = calculateKneeAngle(leftHip, leftKnee, leftAnkle);
-
+  int currentTime = DateTime.now().millisecondsSinceEpoch;
   // Ensure proper posture
 
   if ((averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) &&
       (rightKneeY + 10 < rightAnkleY && leftKneeY + 10 < leftAnkleY)) {
     // print(leftAnkle.y);
     if (kneeAngle < 50) {
-      warningIndicatorTextExercise = "Too low, raise squat position!";
-      speak(warningIndicatorTextExercise);
-      warningIndicatorScreen = false;
+      if (currentTime - lastUpdateTime3 >= 2000) {
+        warningIndicatorTextExercise = "Too low";
+        speak(warningIndicatorTextExercise);
+        warningIndicatorScreen = false;
+      }
     }
 
-    if(leftHipsX >= leftKneeX + 30 || leftHipsX <= leftKneeX - 30 || rightHipsX >= rightKneeX + 30 || rightHipsX <= rightKneeX - 30 ){
-
-    }else{
+    if (leftHipsX >= leftKneeX + 30 ||
+        leftHipsX <= leftKneeX - 30 ||
+        rightHipsX >= rightKneeX + 30 ||
+        rightHipsX <= rightKneeX - 30) {
+    } else {
       StandStraight(averageShoulder, averageHips);
     }
-
 
     // Detect "down" position
     if (kneeAngle < 140 && !staticIsDown) {
@@ -104,14 +107,10 @@ void squatExercise(
         print("Squat: Down position detected");
       }
     }
-    
-      
-  
 
     // Detect "up" position
-    if (kneeAngle > 150 && !staticIsUp ) {
-      
-     // print("body not alignalign");
+    if (kneeAngle > 150 && !staticIsUp) {
+      // print("body not alignalign");
       warningIndicatorTextExercise = "";
       if (staticIsDown && !staticIsUp) {
         staticIsUp = true;
@@ -171,19 +170,19 @@ void pushupExercise(
         warningIndicatorTextExercise = "";
       }
     }
+    pushupError(
+      averageHipsY,
+      avgShoulderY,
+      avgWristY,
+      averageKneeY,
+      averageAnkleY,
+    );
 
     // Detect "up" position (wrists and elbows higher than shoulders)
     if (avgWristY > avgShoulderY &&
         avgElbowY < avgWristY &&
         avgShoulderY < avgElbowY - 45 &&
         !staticIsUp) {
-      pushupError(
-        averageHipsY,
-        avgShoulderY,
-        avgWristY,
-        averageKneeY,
-        averageAnkleY,
-      );
       print("up");
       warningIndicatorScreen = true;
       warningIndicatorTextExercise = "";
@@ -227,14 +226,28 @@ pushupError(
   averageAnkleY,
 ) {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
+  print(" Hips ${averageHipsY}  >  Shoulder ${avgShoulderY + 20}");
+  if (averageHipsY < avgShoulderY - 20  && (avgShoulderY < avgWristY - 100)) {
+    // Hips are too low
 
-  if ((averageHipsY < avgShoulderY - 10 || averageKneeY - 10 > averageAnkleY) &&
-      avgWristY + 20 > averageAnkleY &&
-      staticIsUp) {
     warningIndicatorScreen = false;
     warningIndicatorTextExercise =
-        "Your hips are not align, Make your body straight";
-
+        "Your hips are too high, keep your body straight.";
+    if (currentTime - lastUpdateTime3 >= 1000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 2), () {
+          musicPlayer2.resume();
+        });
+      }
+      speak(warningIndicatorTextExercise);
+      lastUpdateTime3 = currentTime; // Update the last update time
+    }
+  } else if (avgShoulderY < avgWristY - 100 &&
+      (averageHipsY + 40 > avgWristY)) {
+    warningIndicatorScreen = false;
+    warningIndicatorTextExercise =
+        "Your hips are too low, keep your body straight.";
     if (currentTime - lastUpdateTime3 >= 2000) {
       if (Mode == "Arcade") {
         musicPlayer2.pause();
@@ -243,25 +256,12 @@ pushupError(
         });
       }
       speak(warningIndicatorTextExercise);
-      // Update the last update time
+      lastUpdateTime3 = currentTime; // Update the last update time
     }
-  } else if ((averageHipsY < avgShoulderY - 23 ||
-          averageHipsY + 10 > avgWristY) &&
-      avgWristY + 20 > averageAnkleY &&
-      staticIsDown) {
-    warningIndicatorScreen = false;
-    warningIndicatorTextExercise =
-        "Your hips are not  not align, Make your body straight";
-    if (currentTime - lastUpdateTime3 >= 2000) {
-      if (Mode == "Arcade") {
-        musicPlayer2.pause();
-        Future.delayed(Duration(seconds: 2), () {
-          musicPlayer2.resume();
-        });
-      }
-      speak(warningIndicatorTextExercise);
-      // Update the last update time
-    }
+  } else {
+    warningIndicatorScreen = true;
+    warningIndicatorTextExercise = "";
+    print("Hotdog Hotdog");
   }
 }
 
@@ -285,6 +285,35 @@ StandStraight(shoulder, hips) {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
 
   if (shoulder >= hips + 30 || shoulder <= hips - 30) {
+    if (currentTime - lastUpdateTime3 >= 2000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 2), () {
+          musicPlayer2.resume();
+        });
+      }
+      warningIndicatorScreen = false;
+      warningIndicatorText = "The body is not align";
+      speak(warningIndicatorText); // Increment raise every second
+      lastUpdateTime3 = currentTime; // Update the last update time
+    }
+
+    //speak(warningIndicatorText);
+
+    //print("Wrong posture");
+    //print("Shoulder: $shoulder, Hips: $hips");
+  } else {
+    warningIndicatorScreen = true;
+    warningIndicatorText = "";
+    //print("Right posture");
+    //print("Shoulder: $shoulder, Hips: $hips");
+  }
+}
+
+StandStraightLunges(shoulder, hips) {
+  int currentTime = DateTime.now().millisecondsSinceEpoch;
+
+  if (shoulder >= hips + 40 || shoulder <= hips - 40) {
     if (currentTime - lastUpdateTime3 >= 2000) {
       if (Mode == "Arcade") {
         musicPlayer2.pause();
@@ -340,8 +369,10 @@ void legRaiseExercise(
       warningIndicatorScreen = false;
     }
 
-    if (avgAnkleY > avgHipY - 20 && !staticIsDown) {
+    if (avgAnkleY > avgHipY - 35 && !staticIsDown) {
       warningIndicatorScreen = true;
+      //print("Hi");
+      //speak("rivera stupid");
 
       //Error
 
@@ -422,7 +453,7 @@ void sitUpExercise(
   if (averageKneeY + 70 < avgHipY && averageKneeY + 70 < averageAnkleY) {
     // Detect "down" position (shoulders near the ground)
 
-    if (avgShoulderY + 10 > avgHipY && !staticIsDown) {
+    if (avgShoulderY + 20 > avgHipY && !staticIsDown) {
       //print("Down position detected: Head: $avgHeadY Shoulders: $avgShoulderY Hips: " + avgHipY.toString());
       print("                     ");
 
@@ -440,6 +471,7 @@ void sitUpExercise(
       print("Up position detected");
       warningIndicatorScreen = true;
       warningIndicatorTextExercise = "";
+      //speak("josel fuck you");
 
       if (staticIsDown && !staticIsUp) {
         staticIsUp = true;
@@ -646,13 +678,15 @@ void sidePlankRightExercise(
   rightKneeY,
   leftElbowY,
   leftShoulderY,
+  rightWristY,
 ) {
   int currentTime2 = DateTime.now().millisecondsSinceEpoch;
 
-  plankError(
+  plankErrorRight(
     avgShoulderY,
     avgHipY,
     currentTime2,
+    rightWristY,
   ); // Get current time in milliseconds
 
   // Detect proper side plank position (right side)
@@ -679,10 +713,12 @@ void sidePlankRightExercise(
 // Stores the last time incremented
 
 // plank error
-
-void plankError(avgShoulderY, avgHipY, currentTime) {
-  if (avgShoulderY + 10 > avgHipY || avgShoulderY + 50 < avgHipY) {
-    if (currentTime - lastUpdateTime3 >= 3000) {
+void plankError(avgShoulderY, avgHipY, currentTime, averageWristY) {
+  int currentTime3 = DateTime.now().millisecondsSinceEpoch;
+  print('for up warning ${avgShoulderY} > ${avgHipY}   ');
+  if (avgShoulderY > avgHipY || averageWristY < avgHipY + 40) {
+    //speak("shower please");
+    if (currentTime3 - lastUpdateTime3 >= 1000) {
       if (Mode == "Arcade") {
         musicPlayer2.pause();
         Future.delayed(Duration(seconds: 3), () {
@@ -690,10 +726,53 @@ void plankError(avgShoulderY, avgHipY, currentTime) {
         });
       }
       warningIndicatorScreen = false;
-      warningIndicatorText = "The body is not align";
+      warningIndicatorText = 'hips not align!';
+      speak(warningIndicatorText);
+      lastUpdateTime3 = currentTime3; // Update the last update time
+    }
+  } else {
+    warningIndicatorScreen = true;
+    warningIndicatorText = '';
+  }
+}
+
+void plankErrorRight(avgShoulderY, avgHipY, currentTime, rigthWristY) {
+  if (avgShoulderY + 15 > avgHipY || rigthWristY < avgHipY + 16) {
+    if (currentTime - lastUpdateTime3 >= 1000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 3), () {
+          musicPlayer2.resume();
+        });
+      }
+      warningIndicatorScreen = false;
+      warningIndicatorText = 'hips not align!';
       speak(warningIndicatorText);
       lastUpdateTime3 = currentTime; // Update the last update time
     }
+  } else {
+    warningIndicatorScreen = true;
+    warningIndicatorText = '';
+  }
+}
+
+void plankleft(avgShoulderY, avgHipY, currentTime, leftWristY) {
+  if (avgShoulderY + 15 > avgHipY || leftWristY < avgHipY + 16) {
+    if (currentTime - lastUpdateTime3 >= 2000) {
+      if (Mode == "Arcade") {
+        musicPlayer2.pause();
+        Future.delayed(Duration(seconds: 3), () {
+          musicPlayer2.resume();
+        });
+      }
+      warningIndicatorScreen = false;
+      warningIndicatorText = 'hips not align!';
+      speak(warningIndicatorText);
+      lastUpdateTime3 = currentTime; // Update the last update time
+    }
+  } else {
+    warningIndicatorScreen = true;
+    warningIndicatorText = '';
   }
 }
 
@@ -705,9 +784,10 @@ void sidePlankLeftExercise(
   leftKneeY,
   rightElbowY,
   rightShoulderY,
+  leftWristY,
 ) {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
-  plankError(avgShoulderY, avgHipY, currentTime);
+  plankleft(avgShoulderY, avgHipY, currentTime, leftWristY);
   // Get current time in milliseconds
 
   // print(" $rightElbowY      <     $rightShoulderY                   ");
@@ -747,20 +827,20 @@ void normalPlankExercise(
   rightShoulderY,
   leftWristY,
   rightWristY,
-  rightElbowY
+  rightElbowY,
 ) {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
-  plankError(
-    avgShoulderY,
-    avgHipY,
-    currentTime,
-  ); // Get current time in milliseconds
-  print(" $rightElbowY      <     $rightShoulderY                   ");
+  double averageWristY = (leftWristY + rightWristY) / 2;
+  // Get current time in milliseconds
+  // print(" $rightElbowY      <     $rightShoulderY                   ");
   // Detect proper side plank position (right side)
+  plankError(avgShoulderY, avgHipY, currentTime, averageWristY);
   if (avgHipY < avgShoulderY + 50 &&
       leftElbowY + 5 > leftKneeY &&
-      leftElbowY - 10 > avgHipY &&  (leftElbowY + 50 > leftWristY && rightElbowY + 50 > rightWristY) ) {
+      leftElbowY - 10 > avgHipY &&
+      (leftElbowY + 50 > leftWristY && rightElbowY + 55 > rightWristY)) {
     // Check if 1 second has passed
+
     if (currentTime - lastUpdateTime3 >= 1000) {
       raise++; // Increment raise every second
       lastUpdateTime3 = currentTime; // Update the last update time
@@ -785,13 +865,13 @@ void lungesExercise(
   avgShoulderY,
 ) {
   if (averageHipsY < leftKneeY - 50 || averageHipsY < rightKneeY - 50) {
-    StandStraight(avgShoulderX, averageHipsX);
+    StandStraightLunges(avgShoulderX, averageHipsX);
   }
 
   if (avgShoulderY + 50 < averageHipsY &&
       averageHipsY < leftAnkleY &&
       averageHipsY < rightAnkleY) {
-    if (leftAnkleY < leftKneeY + 40 &&
+    if (leftAnkleY < leftKneeY + 90 &&
         rightKneeY < averageHipsY + 15 &&
         rightAnkleY < leftKneeY + 40 &&
         !staticIsDown) {
@@ -806,7 +886,7 @@ void lungesExercise(
       }
     }
 
-    if (rightAnkleY < rightKneeY + 40 &&
+    if (rightAnkleY < rightKneeY + 90 &&
         leftKneeY < averageHipsY + 15 &&
         leftAnkleY < rightKneeY + 50 &&
         !staticIsUp) {
