@@ -35,11 +35,13 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
     super.initState();
     startTimer();
     ExerciseImage();
-    peopleBox.get("musicOnOf", defaultValue: true) ? musicPlayer.play() : Container();
+    peopleBox.get("musicOnOf", defaultValue: true)
+        ? musicPlayer.play()
+        : Container();
   }
 
   calculation() {
-    double total = (seconds2 / 20) * 100;
+    double total = (seconds2 / 10) * 100;
     total = total / 100;
     return total;
   }
@@ -216,16 +218,51 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
       instruction3 =
           " - Drive through your front heel to return to starting position\n - Switch legs and repeat";
     }
+    if (8 == arcadeNumber) {
+      name = "plank";
+      exerciseImage = "plank.jpg";
+      instructionExercise = "Plank: Get into a Forearm Plank Position";
+      instructionExercise2 = "Hold the Position";
+      instructionExercise3 = "Maintain Good Form";
+      instruction =
+          " - Elbows directly under shoulders\n - Keep your body in a straight line";
+      instruction2 = " - Engage your core and hold the position";
+      instruction3 = " - Avoid arching your back or dropping your hips";
+    }
+    if (9 == arcadeNumber) {
+      name = "rightplank";
+      exerciseImage = "rightplank.png";
+      instructionExercise = "Right Side Plank: Lie on Your Right Side";
+      instructionExercise2 = "Lift Your Body";
+      instructionExercise3 = "Hold the Position";
+      instruction =
+          " - Stack your feet and keep your elbow directly under your shoulder";
+      instruction2 = " - Engage your core and lift your hips off the ground";
+      instruction3 = " - Maintain a straight line from head to heels";
+    }
+    if (10 == arcadeNumber) {
+      name = "leftplank";
+      exerciseImage = "leftplank.png";
+      instructionExercise = "Left Side Plank: Lie on Your Left Side";
+      instructionExercise2 = "Lift Your Body";
+      instructionExercise3 = "Hold the Position";
+      instruction =
+          " - Stack your feet and keep your elbow directly under your shoulder";
+      instruction2 = " - Engage your core and lift your hips off the ground";
+      instruction3 = " - Maintain a straight line from head to heels";
+    }
     if (11 == arcadeNumber) {
       name = "jumpingjacks";
       exerciseImage = "jumpingjacks.gif";
-      instructionExercise = "Jumping Jacks: Start Standing";
-      instructionExercise2 = "Perform the Movement";
-      instructionExercise3 = "Repeat at a Steady Pace";
-      instruction = " - Feet together, arms at your sides";
+      instructionExercise = "Jumping Jacks: Stand with Feet Together";
+      instructionExercise2 = "Start the Movement";
+      instructionExercise3 = "Return to Starting Position";
+      instruction =
+          " - Stand upright with your feet together and arms at your sides";
       instruction2 =
-          " - Jump while spreading your legs and raising your arms overhead";
-      instruction3 = " - Jump again to return to the starting position";
+          " - Jump up while spreading your legs shoulder-width apart and raising your arms overhead";
+      instruction3 =
+          " - Quickly return to the starting position by jumping back and lowering your arms";
     }
   }
 
@@ -237,8 +274,8 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
         });
       } else {
         timer?.cancel();
-        seconds2 = 20;
-        seconds = 60;
+        seconds2 = 5;
+        seconds = 10;
         ArcadePlay();
       }
     });
@@ -265,6 +302,7 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
                     children: [
                       IconButton(
                         onPressed: () {
+                          arcadeNumber = 1;
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
