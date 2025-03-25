@@ -187,7 +187,6 @@ List<Map<String, dynamic>> instructionsList = [
             children: [
               
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Exercise: "),
                   Text(
@@ -207,7 +206,7 @@ List<Map<String, dynamic>> instructionsList = [
                   ],
                   
                 ),
-                Image.asset("assets/image/${exercise["name2"]}",width: 50,)
+                Image.asset("assets/image/${exercise["name2"]}",width: 70,)
               ],),
               Divider()
             ],

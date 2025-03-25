@@ -293,7 +293,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ExerciseName = "";
               image = "";
 
-              dispose();
+              //dispose();
               musicPlayer1.playCongrats();
               Navigator.pushReplacement(
                 context,

@@ -100,21 +100,21 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
       setState(() {
         PrimaryExerciseName = "Plank";
         ExerciseName = "plank";
-        image = "plank.gif";
+        image = "plank.jpg";
       });
     }
     if (9 == arcadeNumber) {
       setState(() {
         PrimaryExerciseName = "Right Plank";
         ExerciseName = "rightplank";
-        image = "rightplank.gif";
+        image = "rightplank.png";
       });
     }
     if (10 == arcadeNumber) {
       setState(() {
         PrimaryExerciseName = "Left Plank";
         ExerciseName = "leftplank";
-        image = "leftplank.jpg";
+        image = "leftplank.png";
       });
     }
     if (11 == arcadeNumber) {
