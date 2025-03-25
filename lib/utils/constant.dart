@@ -117,13 +117,13 @@ final List<Map<String, dynamic>> exercises = [
   },
   {
     "name": "rightplank",
-    "image": "sideplank.gif",
+    "image": "rightplank.png",
     "bodyparts": "waist, shoulders",
     "MET": 4,
   },
   {
     "name": "leftplank",
-    "image": "sideplank.jpg",
+    "image": "leftplank.png",
     "bodyparts": "waist, shoulders",
     "MET": 4,
   },
