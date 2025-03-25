@@ -11,7 +11,7 @@ String warningIndicatorTextExercise = "";
 String errorSpeed = "";
 int raise = 0;
 int seconds = 30;
-int seconds2 = 10;
+int seconds2 = 20;
 double weight = 80.0;
 Timer? timer;
 String ExerciseName = "";
