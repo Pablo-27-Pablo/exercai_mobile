@@ -80,11 +80,15 @@ void squatExercise(
   if ((averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) &&
       (rightKneeY + 10 < rightAnkleY && leftKneeY + 10 < leftAnkleY)) {
     // print(leftAnkle.y);
-    if (kneeAngle < 50) {
+    if (kneeAngle < 45) {
       if (currentTime - lastUpdateTime3 >= 2000) {
         warningIndicatorTextExercise = "Too low";
         speak(warningIndicatorTextExercise);
         warningIndicatorScreen = false;
+      }
+      {
+        warningIndicatorTextExercise = "";
+        warningIndicatorScreen = true;
       }
     }
 
@@ -227,7 +231,7 @@ pushupError(
 ) {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
   print(" Hips ${averageHipsY}  >  Shoulder ${avgShoulderY + 20}");
-  if (averageHipsY < avgShoulderY - 20  && (avgShoulderY < avgWristY - 100)) {
+  if (averageHipsY < avgShoulderY - 20 && (avgShoulderY < avgWristY - 100)) {
     // Hips are too low
 
     warningIndicatorScreen = false;
@@ -376,7 +380,7 @@ void legRaiseExercise(
 
       //Error
 
-      if (avgHipY - 30 > avgKneeY || avgKneeY < avgAnkleY - 5) {
+      if (avgHipY - 30 > avgKneeY && avgKneeY < avgAnkleY - 15) {
         if (currentTime - lastUpdateTime3 >= 2000) {
           if (Mode == "Arcade") {
             musicPlayer2.pause();
@@ -578,9 +582,9 @@ void mountainClimbersExercise(
   if (averageWristY > avgHipY) {
     int currentTime = DateTime.now().millisecondsSinceEpoch;
     //error
-    if (avgHipY < averageShoulderY - 50) {
+    if (avgHipY < averageShoulderY - 45) {
       if (currentTime - lastUpdateTime >= 2000) {
-        warningIndicatorTextExercise = "dont over high your butt";
+        warningIndicatorTextExercise = "your butt is higher";
         warningIndicatorScreen = false;
         speak(warningIndicatorTextExercise);
         lastUpdateTime = currentTime; // Update the last update time
@@ -691,9 +695,9 @@ void sidePlankRightExercise(
 
   // Detect proper side plank position (right side)
 
-  //print("$avgHipY  $avgShoulderY ");
+//print("$avgHipY  $avgShoulderY ");
   if (avgHipY < avgShoulderY + 50 &&
-      rightElbow + 10 > avgAnkleY &&
+      rightElbow + 25 > avgAnkleY &&
       rightElbow - 40 > avgHipY &&
       leftElbowY < leftShoulderY - 10) {
     // Check if 1 second has passed
@@ -715,8 +719,8 @@ void sidePlankRightExercise(
 // plank error
 void plankError(avgShoulderY, avgHipY, currentTime, averageWristY) {
   int currentTime3 = DateTime.now().millisecondsSinceEpoch;
-  print('for up warning ${avgShoulderY} > ${avgHipY}   ');
-  if (avgShoulderY > avgHipY || averageWristY < avgHipY + 40) {
+  print('for up warning ${avgShoulderY+3} > ${avgHipY}   ');
+  if (avgShoulderY + 3 > avgHipY || averageWristY < avgHipY + 40) {
     //speak("shower please");
     if (currentTime3 - lastUpdateTime3 >= 1000) {
       if (Mode == "Arcade") {
@@ -737,8 +741,11 @@ void plankError(avgShoulderY, avgHipY, currentTime, averageWristY) {
 }
 
 void plankErrorRight(avgShoulderY, avgHipY, currentTime, rigthWristY) {
-  if (avgShoulderY + 15 > avgHipY || rigthWristY < avgHipY + 16) {
-    if (currentTime - lastUpdateTime3 >= 1000) {
+  int currentTime3 = DateTime.now().millisecondsSinceEpoch;
+  print("${avgShoulderY+ 15} > ${avgHipY}");
+  if (avgShoulderY + 15 > avgHipY || rigthWristY < avgHipY + 25) {
+    
+    if (currentTime3 - lastUpdateTime3 >= 1000) {
       if (Mode == "Arcade") {
         musicPlayer2.pause();
         Future.delayed(Duration(seconds: 3), () {
@@ -748,7 +755,7 @@ void plankErrorRight(avgShoulderY, avgHipY, currentTime, rigthWristY) {
       warningIndicatorScreen = false;
       warningIndicatorText = 'hips not align!';
       speak(warningIndicatorText);
-      lastUpdateTime3 = currentTime; // Update the last update time
+      lastUpdateTime3 = currentTime3; // Update the last update time
     }
   } else {
     warningIndicatorScreen = true;
@@ -757,7 +764,7 @@ void plankErrorRight(avgShoulderY, avgHipY, currentTime, rigthWristY) {
 }
 
 void plankleft(avgShoulderY, avgHipY, currentTime, leftWristY) {
-  if (avgShoulderY + 15 > avgHipY || leftWristY < avgHipY + 16) {
+  if (avgShoulderY + 15 > avgHipY || leftWristY < avgHipY + 25) {
     if (currentTime - lastUpdateTime3 >= 2000) {
       if (Mode == "Arcade") {
         musicPlayer2.pause();
@@ -793,7 +800,7 @@ void sidePlankLeftExercise(
   // print(" $rightElbowY      <     $rightShoulderY                   ");
   // Detect proper side plank position (right side)
   if (avgHipY < avgShoulderY + 50 &&
-      leftElbow + 10 > avgAnkleY &&
+      leftElbow + 25 > avgAnkleY &&
       leftElbow - 40 > avgHipY &&
       rightElbowY < rightShoulderY - 10) {
     // Check if 1 second has passed
@@ -871,13 +878,10 @@ void lungesExercise(
   if (avgShoulderY + 50 < averageHipsY &&
       averageHipsY < leftAnkleY &&
       averageHipsY < rightAnkleY) {
-    if (leftAnkleY < leftKneeY + 90 &&
-        rightKneeY < averageHipsY + 15 &&
-        rightAnkleY < leftKneeY + 40 &&
+    if (leftAnkleY < leftKneeY + 60 &&
+        rightKneeY < averageHipsY + 30 &&
+        rightAnkleY < leftKneeY + 50 &&
         !staticIsDown) {
-      print("true");
-      print("                     ");
-
       if (!staticIsDown) {
         staticIsDown = true;
         staticIsUp = false;
@@ -886,8 +890,10 @@ void lungesExercise(
       }
     }
 
-    if (rightAnkleY < rightKneeY + 90 &&
-        leftKneeY < averageHipsY + 15 &&
+    print("${rightAnkleY} < ${rightKneeY}");
+
+    if (rightAnkleY < rightKneeY + 60 &&
+        leftKneeY < averageHipsY + 30 &&
         leftAnkleY < rightKneeY + 50 &&
         !staticIsUp) {
       print("false");
@@ -907,13 +913,16 @@ void lungesExercise(
 }
 
 int lastRepetitionTime = DateTime.now().millisecondsSinceEpoch;
-int repetitionThreshold = 1000; // 1 second threshold
+int repetitionThreshold = 1250; // 1 second threshold
 
 void checkRepetitionSpeed() {
   int currentTime = DateTime.now().millisecondsSinceEpoch;
   int timeDifference = currentTime - lastRepetitionTime;
-
+  print(' time difference:  ${timeDifference}   ');
+  print('  lastRepetitionTime:  ${lastRepetitionTime}   ');
+  print('  currentTime:  ${currentTime}   ');
   if (currentTime - lastUpdateTime3 >= 4000) {
+    print('  ${timeDifference} <  ${repetitionThreshold}');
     if (timeDifference < repetitionThreshold) {
       errorSpeed = "You're moving too fast! Slow down.";
       speak(errorSpeed);
@@ -925,4 +934,5 @@ void checkRepetitionSpeed() {
   }
 
   lastRepetitionTime = currentTime;
+  print(lastRepetitionTime);
 }
