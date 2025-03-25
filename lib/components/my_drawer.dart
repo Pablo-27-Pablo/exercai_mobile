@@ -220,7 +220,7 @@ class MyDrawer extends StatelessWidget {
                   },
                 ),
                 _buildDrawerTile(
-                  icon: Icons.person,
+                  icon: Icons.comment,
                   title: "Users Feedback",
                   onTap: () {
                     Navigator.pop(context);

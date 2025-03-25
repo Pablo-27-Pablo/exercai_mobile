@@ -211,7 +211,7 @@ class _NutritionCalculatorFirebaseState
           "Maintain weight",
           "${cals['tdee']?.toStringAsFixed(0)} Calories/day",
           //Pecent tong sa ilalim alisin muna
-          "${cals['tdeePct']?.toStringAsFixed(0)}%"
+          //"${cals['tdeePct']?.toStringAsFixed(0)}%"
         ],
         /*[
           "Mild weight loss (0.25 kg/week)",

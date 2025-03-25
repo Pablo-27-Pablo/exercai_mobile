@@ -164,13 +164,11 @@ class _MonthExercisePageState extends State<MonthExercisePage> {
         backgroundColor: AppColor.primary,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(onPressed: (){
-          Navigator.pop(context);
-        }, icon: Icon(Icons.arrow_back_ios,color: AppColor.backgroundWhite)),
-        /*title: Text(
-          "Exercise Tracker",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),*/
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios, color: AppColor.backgroundWhite)),
       ),
       backgroundColor: Colors.white,
       body: Column(
@@ -184,7 +182,6 @@ class _MonthExercisePageState extends State<MonthExercisePage> {
                 bottomRight: Radius.circular(40),
               ),
             ),
-
             child: Column(
               children: [
                 SizedBox(height: 20),
@@ -194,15 +191,14 @@ class _MonthExercisePageState extends State<MonthExercisePage> {
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: AppColor.backgroundWhite,
-
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 30,),
+                const SizedBox(height: 30),
               ],
             ),
           ),
-          const SizedBox(height: 30,),
+          const SizedBox(height: 30),
           // Row with IconButtons for previous and next month, plus the month label.
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -222,6 +218,26 @@ class _MonthExercisePageState extends State<MonthExercisePage> {
                   onPressed: _nextMonth,
                 ),
               ],
+            ),
+          ),
+          // New row for day representations (letters for Monday to Sunday).
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+            child: Row(
+              children: ["M", "T", "W", "T", "F", "S", "S"].map((dayLetter) {
+                return Expanded(
+                  child: Center(
+                    child: Text(
+                      dayLetter,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
           // Expanded PageView for swiping between months.
@@ -289,7 +305,7 @@ class _MonthExercisePageState extends State<MonthExercisePage> {
                                   color: isFuture ? Colors.grey : Colors.black87,
                                 ),
                               ),
-                              // If logged, overlay an "X" icon.
+                              // If logged, overlay an icon.
                               if (isLogged)
                                 Positioned(
                                   right: 4,

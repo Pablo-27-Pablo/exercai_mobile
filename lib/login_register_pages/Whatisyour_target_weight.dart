@@ -75,9 +75,34 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
     super.dispose();
   }
 
-  void _initializeScrollController() {
+
+//Lumabg Code
+  /*void _initializeScrollController() {
     double fallbackWeight = currentWeight ?? 70.0;
     if (_targetWeightController.text.isEmpty) {
+      _targetWeightController.text = fallbackWeight.toStringAsFixed(1);
+    }
+    double? targetVal = double.tryParse(_targetWeightController.text) ?? fallbackWeight;
+    if (targetVal < _defaultMinWeight) targetVal = _defaultMinWeight;
+    if (targetVal > _defaultMaxWeight) targetVal = _defaultMaxWeight;
+    int targetIndex = ((targetVal - _defaultMinWeight) / _step).round().clamp(0, _itemCount - 1);
+    _currentSelectedIndex = targetIndex;
+    _scrollController = FixedExtentScrollController(initialItem: targetIndex);
+  }*/
+
+
+  // This version initializes the scroll controller. Bagong code
+  void _initializeScrollController() {
+    double fallbackWeight = currentWeight ?? 70.0;
+    // If the text is empty, adjust the fallback weight based on the goal.
+    if (_targetWeightController.text.isEmpty) {
+      if (userGoal != null) {
+        if (userGoal!.toLowerCase() == "lose weight") {
+          fallbackWeight = (currentWeight ?? 70.0) - _step;
+        } else if (userGoal!.toLowerCase() == "muscle mass gain") {
+          fallbackWeight = (currentWeight ?? 70.0) + _step;
+        }
+      }
       _targetWeightController.text = fallbackWeight.toStringAsFixed(1);
     }
     double? targetVal = double.tryParse(_targetWeightController.text) ?? fallbackWeight;
@@ -160,7 +185,8 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
         // If height and current weight are available, compute targetMin using BMI 18.5.
         if (userHeight != null && currentWeight != null) {
           targetMin = 18.5 * heightInM * heightInM;
-          targetMax = currentWeight;
+          targetMax = currentWeight! - _step;
+          //targetMax = currentWeight;
         } else {
           // Fallback to default minimum if data is not available.
           targetMin = _defaultMinWeight;
@@ -197,14 +223,16 @@ class _WhatisyourTargetWeightState extends State<WhatisyourTargetWeight> {
           }
         }
 
-        targetMin = lowerBound;
+        //targetMin = currentWeight;
+        targetMin = currentWeight! + _step;
         targetMax = upperBound;
       }
 
       else {
         // Fallback to lose_weight logic
         targetMin = 18.5 * heightInM * heightInM;
-        targetMax = currentWeight;
+        targetMax = currentWeight! - _step;
+        //targetMax = currentWeight;
       }
 
       // 2.3) Compute allowed indices for the wheel selector
