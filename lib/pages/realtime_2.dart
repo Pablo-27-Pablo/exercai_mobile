@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    buttonMusic = peopleBox.get("musicOnOf", defaultValue: false);
+    buttonMusic = peopleBox.get("musicOnOf", defaultValue: true);
     cameraSwitch = peopleBox.get("cameraSwitch", defaultValue: 1);
     selectedCameraIndex = cameraSwitch;
     fronfixposition();
