@@ -74,14 +74,16 @@ void squatExercise(
   leftKneeX,
 ) {
   double kneeAngle = calculateKneeAngle(leftHip, leftKnee, leftAnkle);
-  int currentTime = DateTime.now().millisecondsSinceEpoch;
+  int currentTime4 = DateTime.now().millisecondsSinceEpoch;
   // Ensure proper posture
 
   if ((averageShoulderY + 20 < averageHipsY && leftAnkle.y > averageHips) &&
       (rightKneeY + 10 < rightAnkleY && leftKneeY + 10 < leftAnkleY)) {
     // print(leftAnkle.y);
-    if (kneeAngle < 45) {
-      if (currentTime - lastUpdateTime3 >= 2000) {
+    print(kneeAngle);
+    if (kneeAngle < 65) {
+      print("  ${currentTime4 }");
+      if (currentTime4 - lastUpdateTime3 >= 2000) {
         warningIndicatorTextExercise = "Too low";
         speak(warningIndicatorTextExercise);
         warningIndicatorScreen = false;
@@ -90,6 +92,7 @@ void squatExercise(
         warningIndicatorTextExercise = "";
         warningIndicatorScreen = true;
       }
+      lastUpdateTime3 = currentTime4;
     }
 
     if (leftHipsX >= leftKneeX + 30 ||
@@ -695,7 +698,7 @@ void sidePlankRightExercise(
 
   // Detect proper side plank position (right side)
 
-//print("$avgHipY  $avgShoulderY ");
+  //print("$avgHipY  $avgShoulderY ");
   if (avgHipY < avgShoulderY + 50 &&
       rightElbow + 25 > avgAnkleY &&
       rightElbow - 40 > avgHipY &&
@@ -719,7 +722,7 @@ void sidePlankRightExercise(
 // plank error
 void plankError(avgShoulderY, avgHipY, currentTime, averageWristY) {
   int currentTime3 = DateTime.now().millisecondsSinceEpoch;
-  print('for up warning ${avgShoulderY+3} > ${avgHipY}   ');
+  print('for up warning ${avgShoulderY + 3} > ${avgHipY}   ');
   if (avgShoulderY + 3 > avgHipY || averageWristY < avgHipY + 40) {
     //speak("shower please");
     if (currentTime3 - lastUpdateTime3 >= 1000) {
@@ -742,9 +745,8 @@ void plankError(avgShoulderY, avgHipY, currentTime, averageWristY) {
 
 void plankErrorRight(avgShoulderY, avgHipY, currentTime, rigthWristY) {
   int currentTime3 = DateTime.now().millisecondsSinceEpoch;
-  print("${avgShoulderY+ 15} > ${avgHipY}");
+  print("${avgShoulderY + 15} > ${avgHipY}");
   if (avgShoulderY + 15 > avgHipY || rigthWristY < avgHipY + 25) {
-    
     if (currentTime3 - lastUpdateTime3 >= 1000) {
       if (Mode == "Arcade") {
         musicPlayer2.pause();
