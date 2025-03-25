@@ -36,8 +36,9 @@ class _TrypageState extends State<Trypage> {
   List<String> selectedInjuries = [];
   bool hasInjury = false;
 
-  List<Map<String, dynamic>> instructionsList = [
+List<Map<String, dynamic>> instructionsList = [
     {
+      "name2": "pushup.gif",
       "image": "pushup",
       "steps": [
         "Get into the Starting Position",
@@ -51,6 +52,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "squat.gif",
       "image": "squat",
       "steps": [
         "Stand with Feet Shoulder-Width Apart",
@@ -64,6 +66,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "legraises.gif",
       "image": "legraises",
       "steps": ["Lie Flat on Your Back", "Lift Your Legs", "Lower Your Legs"],
       "instructions": [
@@ -73,6 +76,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "situp.gif",
       "image": "situp",
       "steps": [
         "Lie on Your Back",
@@ -86,6 +90,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "mountainclimbers.gif",
       "image": "mountainclimbers",
       "steps": [
         "Get into a Plank Position",
@@ -99,6 +104,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "highknee.gif",
       "image": "highknee",
       "steps": ["Stand Tall", "Start the Movement", "Move at a Quick Pace"],
       "instructions": [
@@ -108,6 +114,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "lunges.gif",
       "image": "lunges",
       "steps": ["Stand with Feet Together", "Step Forward", "Push Back Up"],
       "instructions": [
@@ -117,6 +124,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "plank.jpg",
       "image": "plank",
       "steps": [
         "Get into a Forearm Plank Position",
@@ -130,6 +138,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "rightplank.png",
       "image": "rightplank",
       "steps": [
         "Lie on Your Right Side",
@@ -143,6 +152,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "leftplank.png",
       "image": "leftplank",
       "steps": ["Lie on Your Left Side", "Lift Your Hips", "Hold the Position"],
       "instructions": [
@@ -152,6 +162,7 @@ class _TrypageState extends State<Trypage> {
       ],
     },
     {
+      "name2": "jumpingjacks.gif",
       "image": "jumpingjacks",
       "steps": [
         "Start Standing",
@@ -172,13 +183,32 @@ class _TrypageState extends State<Trypage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Row(
+          title: Column(
             children: [
-              Text("Exercise: "),
-              Text(
-                "${exercise["image"]}",
-                style: TextStyle(color: AppColor.primary),
+              
+              Row(
+                children: [
+                  Text("Exercise: "),
+                  Text(
+                    "${exercise["image"]}",
+                    style: TextStyle(color: AppColor.primary),
+                  ),
+                ],
               ),
+              Row(children: [
+                Row(
+                  children: [
+                    Text("Camera "),
+                    Text(
+                    "Position: ",
+                    style: TextStyle(color: AppColor.primary),
+                  ),
+                  ],
+                  
+                ),
+                Image.asset("assets/image/${exercise["name2"]}",width: 50,)
+              ],),
+              Divider()
             ],
           ),
           content: Column(
