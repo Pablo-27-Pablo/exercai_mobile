@@ -134,8 +134,9 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
     // );
   }
 
-  List<Map<String, dynamic>> instructionsList = [
+List<Map<String, dynamic>> instructionsList = [
     {
+      "name2": "pushup.gif",
       "image": "pushup",
       "steps": [
         "Get into the Starting Position",
@@ -149,6 +150,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "squat.gif",
       "image": "squat",
       "steps": [
         "Stand with Feet Shoulder-Width Apart",
@@ -162,6 +164,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "legraises.gif",
       "image": "legraises",
       "steps": ["Lie Flat on Your Back", "Lift Your Legs", "Lower Your Legs"],
       "instructions": [
@@ -171,6 +174,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "situp.gif",
       "image": "situp",
       "steps": [
         "Lie on Your Back",
@@ -184,6 +188,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "mountainclimbers.gif",
       "image": "mountainclimbers",
       "steps": [
         "Get into a Plank Position",
@@ -197,6 +202,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "highknee.gif",
       "image": "highknee",
       "steps": ["Stand Tall", "Start the Movement", "Move at a Quick Pace"],
       "instructions": [
@@ -206,6 +212,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "lunges.gif",
       "image": "lunges",
       "steps": ["Stand with Feet Together", "Step Forward", "Push Back Up"],
       "instructions": [
@@ -215,6 +222,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "plank.jpg",
       "image": "plank",
       "steps": [
         "Get into a Forearm Plank Position",
@@ -228,6 +236,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "rightplank.png",
       "image": "rightplank",
       "steps": [
         "Lie on Your Right Side",
@@ -241,6 +250,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "leftplank.png",
       "image": "leftplank",
       "steps": ["Lie on Your Left Side", "Lift Your Hips", "Hold the Position"],
       "instructions": [
@@ -250,6 +260,7 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       ],
     },
     {
+      "name2": "jumpingjacks.gif",
       "image": "jumpingjacks",
       "steps": [
         "Start Standing",
@@ -318,13 +329,31 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Row(
+          title: Column(
             children: [
-              Text("Exercise: "),
-              Text(
-                "${exercise["image"]}",
-                style: TextStyle(color: AppColor.primary),
+              Row(
+                children: [
+                  Text("Exercise: "),
+                  Text(
+                    "${exercise["image"]}",
+                    style: TextStyle(color: AppColor.primary),
+                  ),
+                ],
               ),
+              Row(children: [
+                Row(
+                  children: [
+                    Text("Camera "),
+                    Text(
+                    "Position: ",
+                    style: TextStyle(color: AppColor.primary),
+                  ),
+                  ],
+                  
+                ),
+                Image.asset("assets/image/${exercise["name2"]}",width: 70,)
+              ],),
+              Divider()
             ],
           ),
           content: Column(
@@ -529,6 +558,13 @@ class _ArcadeModePageState extends State<ArcadeModePage> {
                                 ),
                               );
                             } else if (bodypartString == "none of them") {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RestimeTutorial(),
+                                ),
+                              );
+                            }else if (bodypartString == []) {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
