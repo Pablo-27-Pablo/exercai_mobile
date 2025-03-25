@@ -41,7 +41,7 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
   }
 
   calculation() {
-    double total = (seconds2 / 10) * 100;
+    double total = (seconds2 / 20) * 100;
     total = total / 100;
     return total;
   }
@@ -274,8 +274,8 @@ class _RestimeTutorialState extends State<RestimeTutorial> {
         });
       } else {
         timer?.cancel();
-        seconds2 = 5;
-        seconds = 10;
+        seconds2 = 20;
+        seconds = 30;
         ArcadePlay();
       }
     });

@@ -187,6 +187,7 @@ List<Map<String, dynamic>> instructionsList = [
             children: [
               
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Exercise: "),
                   Text(
