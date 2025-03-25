@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "940124787486",
-    "project_id": "exercai-6984d",
-    "storage_bucket": "exercai-6984d.firebasestorage.app"
+    "project_number": "860855773688",
+    "project_id": "exercai-final-defense",
+    "storage_bucket": "exercai-final-defense.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:940124787486:android:60ee48b8c688a4b4592f0f",
+        "mobilesdk_app_id": "1:860855773688:android:05f1332884cbc606b60e0d",
         "android_client_info": {
           "package_name": "com.example.exercai_mobile"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC4Qw44O_ob_CYWyXgJsYI7PCusdMIgUt8"
+          "current_key": "AIzaSyA0LcGl3SD0UavUW_2fd9tjCc6sHlaSVJM"
         }
       ],
       "services": {
