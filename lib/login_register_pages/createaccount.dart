@@ -167,47 +167,50 @@ class _CreateaccountState extends State<Createaccount> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // White background for modern UI
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // 1) Top wave gradient with "Create Account" label
-              _buildTopWave(),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.white, // White background for modern UI
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // 1) Top wave gradient with "Create Account" label
+                _buildTopWave(),
 
 
-              // 2) "Let's Start!" title
-              Text(
-                "Let's Start!",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.moresolidPrimary,
-                  fontSize: 32,
+                // 2) "Let's Start!" title
+                Text(
+                  "Let's Start!",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.moresolidPrimary,
+                    fontSize: 32,
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // 3) Form fields card
-              _buildTextFieldCard(),
+                // 3) Form fields card
+                _buildTextFieldCard(),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // 4) Register button (disabled if isChecked == false)
-              _buildRegisterButton(),
+                // 4) Register button (disabled if isChecked == false)
+                _buildRegisterButton(),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // 5) Divider + "Or"
-              _buildDividerSection(),
+                // 5) Divider + "Or"
+                _buildDividerSection(),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // 6) Already have an account? => Log In
-              _buildToLogInSection(),
-              SizedBox(height: 15,)
-            ],
+                // 6) Already have an account? => Log In
+                _buildToLogInSection(),
+                SizedBox(height: 15,)
+              ],
+            ),
           ),
         ),
       ),

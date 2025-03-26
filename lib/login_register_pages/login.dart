@@ -107,150 +107,153 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // White background
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // 1) Top Wave + Logo
-              _buildTopWave(context),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        // White background
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // 1) Top Wave + Logo
+                _buildTopWave(context),
 
-              // 2) "Welcome back!" text
-              const SizedBox(height: 20),
-              Text(
-                "Welcome Back !",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // 3) Username/Email text field
-              _buildTextField(
-                controller: widget.emailController,
-                hintText: "Email",
-                icon: Icons.person_outline,
-                obscure: false,
-              ),
-
-              const SizedBox(height: 20),
-
-              // 4) Password text field
-              _buildTextField(
-                controller: widget.passwordController,
-                hintText: "Password",
-                icon: Icons.lock_outline,
-                obscure: _obsecurepass,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obsecurepass ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                    color: Colors.grey,
+                // 2) "Welcome back!" text
+                const SizedBox(height: 20),
+                Text(
+                  "Welcome Back !",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obsecurepass = !_obsecurepass;
-                    });
-                  },
                 ),
-              ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 20),
 
-              // 5) Remember me & Forgot password row
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // Remember me
-                    /*Expanded(
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            onChanged: (val) {
-                              setState(() {
-                                _rememberMe = val ?? false;
-                              });
-                            },
-                            activeColor: AppColor.solidPrimary,
-                          ),
-                          const Text("Remember me"),
-                        ],
+                // 3) Username/Email text field
+                _buildTextField(
+                  controller: widget.emailController,
+                  hintText: "Email",
+                  icon: Icons.person_outline,
+                  obscure: false,
+                ),
+
+                const SizedBox(height: 20),
+
+                // 4) Password text field
+                _buildTextField(
+                  controller: widget.passwordController,
+                  hintText: "Password",
+                  icon: Icons.lock_outline,
+                  obscure: _obsecurepass,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obsecurepass ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obsecurepass = !_obsecurepass;
+                      });
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // 5) Remember me & Forgot password row
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Remember me
+                      /*Expanded(
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              onChanged: (val) {
+                                setState(() {
+                                  _rememberMe = val ?? false;
+                                });
+                              },
+                              activeColor: AppColor.solidPrimary,
+                            ),
+                            const Text("Remember me"),
+                          ],
+                        ),
+                      ),*/
+
+                      // Forgot password?
+                      GestureDetector(
+                        onTap: () {
+                          //Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
+                          navigateWithSlideTransition(context, ForgotPasswordPage(), slideRight: true);
+                        },
+                        child: const Text(
+                          "Forgot password?",
+                          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
+                        ),
                       ),
-                    ),*/
+                    ],
+                  ),
+                ),
 
-                    // Forgot password?
-                    GestureDetector(
-                      onTap: () {
-                        //Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
-                        navigateWithSlideTransition(context, ForgotPasswordPage(), slideRight: true);
-                      },
-                      child: const Text(
-                        "Forgot password?",
-                        style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
+                // 6) Login button
+                const SizedBox(height: 20),
+                _buildLoginButton(context),
+
+                const SizedBox(height: 20),
+
+                // 8) Divider with "OR"
+                Row(
+                  children: const [
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.grey,
+                        indent: 40,
+                        endIndent: 10,
+                      ),
+                    ),
+                    Text("OR"),
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.grey,
+                        indent: 10,
+                        endIndent: 40,
                       ),
                     ),
                   ],
                 ),
-              ),
 
-              // 6) Login button
-              const SizedBox(height: 20),
-              _buildLoginButton(context),
+                const SizedBox(height: 15),
 
-              const SizedBox(height: 20),
-
-              // 8) Divider with "OR"
-              Row(
-                children: const [
-                  Expanded(
-                    child: Divider(
-                      thickness: 1,
-                      color: Colors.grey,
-                      indent: 40,
-                      endIndent: 10,
-                    ),
-                  ),
-                  Text("OR"),
-                  Expanded(
-                    child: Divider(
-                      thickness: 1,
-                      color: Colors.grey,
-                      indent: 10,
-                      endIndent: 40,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 15),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account? "),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));
-                    },
-                    child: Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        color: AppColor.solidPrimary,
-                        fontWeight: FontWeight.bold,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Createaccount()));
+                      },
+                      child: Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          color: AppColor.solidPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),
