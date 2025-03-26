@@ -189,234 +189,237 @@ class _MainLandingPageState extends State<MainLandingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // White minimalist background.
-      appBar: AppBar(
-        backgroundColor: AppColor.primary,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream:
-              FirebaseFirestore.instance
-                  .collection('Users')
-                  .doc(currentUser?.email)
-                  .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return const Text(
-                "Error fetching name",
-                style: TextStyle(color: AppColor.backgroundWhite),
-              );
-            } else if (!snapshot.hasData || !snapshot.data!.exists) {
-              return const Text(
-                "Hi, User",
-                style: TextStyle(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.white, // White minimalist background.
+        appBar: AppBar(
+          backgroundColor: AppColor.primary,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black87),
+          title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            stream:
+                FirebaseFirestore.instance
+                    .collection('Users')
+                    .doc(currentUser?.email)
+                    .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return const Text(
+                  "Error fetching name",
+                  style: TextStyle(color: AppColor.backgroundWhite),
+                );
+              } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                return const Text(
+                  "Hi, User",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.backgroundWhite,
+                  ),
+                );
+              }
+              Map<String, dynamic>? userData = snapshot.data!.data();
+              String firstName = _capitalize(userData?['firstname'] ?? 'User');
+              return Text(
+                "Hi, $firstName",
+                style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: AppColor.backgroundWhite,
                 ),
               );
-            }
-            Map<String, dynamic>? userData = snapshot.data!.data();
-            String firstName = _capitalize(userData?['firstname'] ?? 'User');
-            return Text(
-              "Hi, $firstName",
-              style: const TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-                color: AppColor.backgroundWhite,
-              ),
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.person,
-              color: AppColor.backgroundWhite,
-              size: 35,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
             },
           ),
-        ],
-      ),
-      drawer: const MyDrawer(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Text
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.primary,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+          actions: [
+            IconButton(
+              icon: const Icon(
+                Icons.person,
+                color: AppColor.backgroundWhite,
+                size: 35,
               ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
             ),
-            height: 50,
+          ],
+        ),
+        drawer: const MyDrawer(),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Text
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              height: 50,
 
-            child: Center(
-              child: Text(
-                "Push Your Limits",
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.backgroundWhite,
+              child: Center(
+                child: Text(
+                  "Push Your Limits",
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.backgroundWhite,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Feature Icons Row
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                bottom: 20,
-                top: 20,
-              ),
-              child: Column(
-                children: [
-                  //SizedBox(height: 15,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildFeatureIcon(Icons.alarm, "Reminder", () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReminderSettings(),
-                          ),
-                        );
-                      }),
-                      _buildFeatureIcon(Icons.show_chart, "Track", () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProgressTrackingScreen(),
-                          ),
-                        );
-                      }),
-                      _buildFeatureIcon(
-                        Icons.food_bank_rounded,
-                        "Nutrition",
-                        () {
+            // Feature Icons Row
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
+                  top: 20,
+                ),
+                child: Column(
+                  children: [
+                    //SizedBox(height: 15,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildFeatureIcon(Icons.alarm, "Reminder", () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder:
-                                  (context) => NutritionCalculatorFirebase(),
+                              builder: (context) => ReminderSettings(),
                             ),
                           );
-                        },
-                      ),
-                      _buildFeatureIcon(
-                        Icons.settings_accessibility,
-                        "BMI",
-                        () {
+                        }),
+                        _buildFeatureIcon(Icons.show_chart, "Track", () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => BMIEditProfilePage(),
+                              builder: (context) => ProgressTrackingScreen(),
                             ),
                           );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  // Column layout for Feature Cards (stacked vertically)
-                  Row(
-                    
-                    children: [
-                      SizedBox(width: 20,),
-                      Text(
-                        "Features",
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.backgroundgrey,
+                        }),
+                        _buildFeatureIcon(
+                          Icons.food_bank_rounded,
+                          "Nutrition",
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => NutritionCalculatorFirebase(),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _buildFeatureCard(
-                    title: 'Posture Correction',
-                    subtitle: 'Correct Your Posture With Targeted Exercises',
-                    imagePath: 'assets/mainpage/posture.png',
-                    onTap: () {
-                      Mode = "postureCorrection";
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => Trypage()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _buildFeatureCard(
-                    title: 'Arcade Mode',
-                    subtitle: 'Fun Challenges To Push Your Limits',
-                    imagePath: 'assets/mainpage/arcade-machine.png',
-                    onTap: () {
-                      int last = peopleBox.get("final", defaultValue: 0);
-                      if (last < 1) {
-                        peopleBox.put("squat", 0);
-                        peopleBox.put("legraises", 0);
-                        peopleBox.put("pushup", 0);
-                        peopleBox.put("situp", 0);
-                        peopleBox.put("finalcoloriesburn", 0);
-                        peopleBox.put("final", 5);
-                      }
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ArcadeModePage(),
+                        _buildFeatureIcon(
+                          Icons.settings_accessibility,
+                          "BMI",
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BMIEditProfilePage(),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _buildFeatureCard(
-                    title: 'Recommended Exercise',
-                    subtitle: 'Recommended Exercises For Your Needs',
-                    imagePath: 'assets/mainpage/recommend.png',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FilterRepsKcal(),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    // Column layout for Feature Cards (stacked vertically)
+                    Row(
+
+                      children: [
+                        SizedBox(width: 20,),
+                        Text(
+                          "Features",
+                          style: GoogleFonts.poppins(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColor.backgroundgrey,
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _buildFeatureCard(
-                    title: 'Different Exercises',
-                    subtitle: 'Explore A Variety Of Workouts',
-                    imagePath: 'assets/mainpage/different.png',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChooseBodyparts(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _buildFeatureCard(
+                      title: 'Posture Correction',
+                      subtitle: 'Correct Your Posture With Targeted Exercises',
+                      imagePath: 'assets/mainpage/posture.png',
+                      onTap: () {
+                        Mode = "postureCorrection";
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => Trypage()),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _buildFeatureCard(
+                      title: 'Arcade Mode',
+                      subtitle: 'Fun Challenges To Push Your Limits',
+                      imagePath: 'assets/mainpage/arcade-machine.png',
+                      onTap: () {
+                        int last = peopleBox.get("final", defaultValue: 0);
+                        if (last < 1) {
+                          peopleBox.put("squat", 0);
+                          peopleBox.put("legraises", 0);
+                          peopleBox.put("pushup", 0);
+                          peopleBox.put("situp", 0);
+                          peopleBox.put("finalcoloriesburn", 0);
+                          peopleBox.put("final", 5);
+                        }
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArcadeModePage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _buildFeatureCard(
+                      title: 'Recommended Exercise',
+                      subtitle: 'Recommended Exercises For Your Needs',
+                      imagePath: 'assets/mainpage/recommend.png',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FilterRepsKcal(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _buildFeatureCard(
+                      title: 'Different Exercises',
+                      subtitle: 'Explore A Variety Of Workouts',
+                      imagePath: 'assets/mainpage/different.png',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChooseBodyparts(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
